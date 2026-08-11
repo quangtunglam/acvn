@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/"
+title = "Tin Tức Portal"
+description = "A responsive Vietnamese news portal recreated from the provided reference HTML, with category navigation, featured stories, article lists, rankings, and a polished reading experience."
+version = "1.0.0"
+id = "artifacts/tin-tuc-portal"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 23558
+
+[services.development]
+run = "pnpm --filter @workspace/tin-tuc-portal run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/tin-tuc-portal", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/tin-tuc-portal/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "23558"
+BASE_PATH = "/"
