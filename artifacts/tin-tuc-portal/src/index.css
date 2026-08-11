@@ -294,17 +294,21 @@ footer { padding: 48px 0 25px; background: hsl(220 18% 14%); color: hsl(220 12% 
   .footer-grid { grid-template-columns: repeat(2, 1fr); }
 }
 @media (max-width: 600px) {
-  .wrap { padding-inline: 17px; }
-  .u-left { gap: 7px; font-size: 10px; }
+  .wrap { padding-inline: 14px; }
+  /* Utility bar: ẩn dấu phân cách và thành phố thứ 2 trở đi */
+  .u-left { gap: 6px; font-size: 10px; flex-wrap: nowrap; overflow: hidden; }
+  .u-left > span:nth-child(n+4) { display: none; }
   .u-right { display: none; }
-  .masthead .wrap { min-height: 72px; gap: 10px; }
+  /* Masthead nhỏ lại */
+  .masthead .wrap { min-height: 60px; gap: 10px; }
   .masthead-ad { display: none; }
   .logo-mark { width: 38px; height: 38px; font-size: 18px; }
-  .logo-img { height: 40px; }
+  .logo-img { height: 38px; }
   .logo-name { font-size: 18px; }
-  .logo-name--hoi { font-size: 16px; }
+  .logo-name--hoi { font-size: 17px; }
+  /* Ẩn hoàn toàn tagline tiếng Séc trên mobile */
+  .logo-tag--hoi { display: none; }
   .logo-tag { font-size: 8px; letter-spacing: .06em; }
-  .logo-tag--hoi { font-size: 8px; letter-spacing: .03em; }
   .page-section { padding: 30px 0; }
   .section-heading h2 { font-size: 19px; }
   .section-heading { gap: 9px; margin-bottom: 17px; }
