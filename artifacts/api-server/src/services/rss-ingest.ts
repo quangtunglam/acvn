@@ -191,7 +191,14 @@ export async function ingestFeed(feedId: number): Promise<IngestResult> {
     throw new Error(`Cannot fetch RSS: ${(err as Error).message}`);
   }
 
-  const items = parsed.items.slice(0, 20); // max 20 per run
+  // Only keep items published within the last 24 hours
+  const cutoff = new Date(Date.now() - 24 * 60 * 60 * 1000);
+  const todayItems = parsed.items.filter((i) => {
+    if (!i.isoDate) return false; // no date → skip
+    return new Date(i.isoDate) >= cutoff;
+  });
+
+  const items = todayItems.slice(0, 20); // max 20 per run
   result.fetched = items.length;
 
   // Collect all source URLs to dedup in one query
