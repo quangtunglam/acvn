@@ -198,16 +198,43 @@ router.get("/homepage", async (_req, res): Promise<void> => {
     golfEvents,
     communityEvents,
   ] = await Promise.all([
-    queryArticles({ limit: 8, orderBy: "publishedAt" }).then((items) =>
+    // breaking news for ticker — scan more rows so we don't miss any
+    queryArticles({ limit: 30, orderBy: "publishedAt" }).then((items) =>
       items.filter((item) => item.breakingNews),
     ),
-    queryArticles({ limit: 1, orderBy: "publishedAt" }).then((items) =>
-      items.find((item) => item.featured) ?? null,
-    ),
+    // hero: first featured article by publish date
+    db
+      .select({
+        article: articlesTable,
+        category: categoriesTable,
+        country: countriesTable,
+        author: authorsTable,
+      })
+      .from(articlesTable)
+      .leftJoin(categoriesTable, eq(articlesTable.categoryId, categoriesTable.id))
+      .leftJoin(countriesTable, eq(articlesTable.countryId, countriesTable.id))
+      .leftJoin(authorsTable, eq(articlesTable.authorId, authorsTable.id))
+      .where(and(publishedFilter, eq(articlesTable.featured, true)))
+      .orderBy(desc(articlesTable.publishedAt))
+      .limit(1)
+      .then((rows) => (rows[0] ? mapArticle(rows[0]) : null)),
     queryArticles({ limit: 5, orderBy: "views" }),
-    queryArticles({ limit: 8, orderBy: "publishedAt" }).then((items) =>
-      items.filter((item) => item.featured),
-    ),
+    // selected: featured articles (cards below hero)
+    db
+      .select({
+        article: articlesTable,
+        category: categoriesTable,
+        country: countriesTable,
+        author: authorsTable,
+      })
+      .from(articlesTable)
+      .leftJoin(categoriesTable, eq(articlesTable.categoryId, categoriesTable.id))
+      .leftJoin(countriesTable, eq(articlesTable.countryId, countriesTable.id))
+      .leftJoin(authorsTable, eq(articlesTable.authorId, authorsTable.id))
+      .where(and(publishedFilter, eq(articlesTable.featured, true)))
+      .orderBy(desc(articlesTable.publishedAt))
+      .limit(8)
+      .then((rows) => rows.map(mapArticle)),
     queryArticles({ limit: 6, country: "viet-nam" }),
     queryArticles({ limit: 6, category: "tin-the-gioi" }),
     queryArticles({ limit: 8, category: "kinh-doanh" }),
