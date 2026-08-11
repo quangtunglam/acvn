@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Edit2, Eye, Plus, Trash2 } from 'lucide-react';
 import { AdminPage, Badge, Btn, Input, Modal, Select, Textarea, useAdmin } from './layout';
 
@@ -36,11 +36,20 @@ const EMPTY: FormData = {
   editor: 'VietPress EU', publishedAt: '', status: 'draft', featured: false, breakingNews: false,
 };
 
+const selStyle: React.CSSProperties = {
+  padding: '0.45rem 0.65rem', border: '1px solid var(--color-rule)',
+  borderRadius: 4, fontSize: '0.85rem', fontFamily: 'var(--font-sans)',
+  background: '#fff', color: 'var(--color-ink)',
+};
+
 export default function AdminArticles() {
   const { apiFetch } = useAdmin();
   const [data, setData] = useState<ArticleList | null>(null);
   const [page, setPage] = useState(1);
   const [statusFilter, setStatusFilter] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState('');
+  const [rssOnly, setRssOnly] = useState(false);
+  const [dateFilter, setDateFilter] = useState('');
   const [categories, setCategories] = useState<Category[]>([]);
   const [countries, setCountries] = useState<Country[]>([]);
   const [authors, setAuthors] = useState<Author[]>([]);
@@ -50,10 +59,14 @@ export default function AdminArticles() {
   const [error, setError] = useState('');
 
   const load = useCallback(async () => {
-    const q = new URLSearchParams({ page: String(page), pageSize: '20', ...(statusFilter && { status: statusFilter }) });
+    const q = new URLSearchParams({ page: String(page), pageSize: '20' });
+    if (statusFilter) q.set('status', statusFilter);
+    if (categoryFilter) q.set('categoryId', categoryFilter);
+    if (rssOnly) q.set('rssOnly', '1');
+    if (dateFilter) q.set('date', dateFilter);
     const d = await apiFetch<ArticleList>(`/articles?${q}`);
     setData(d);
-  }, [apiFetch, page, statusFilter]);
+  }, [apiFetch, page, statusFilter, categoryFilter, rssOnly, dateFilter]);
 
   useEffect(() => {
     load();
@@ -127,15 +140,45 @@ export default function AdminArticles() {
       {/* Toolbar */}
       <div style={{ display: 'flex', gap: 8, marginBottom: '1rem', flexWrap: 'wrap', alignItems: 'center' }}>
         <Btn onClick={openCreate}><Plus size={14} /> Bài viết mới</Btn>
+
+        {/* Trạng thái */}
         <select
           value={statusFilter}
           onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
-          style={{ padding: '0.45rem 0.65rem', border: '1px solid var(--color-rule)', borderRadius: 4, fontSize: '0.85rem', fontFamily: 'var(--font-sans)' }}
+          style={selStyle}
         >
           <option value="">Tất cả trạng thái</option>
           <option value="published">Đã xuất bản</option>
           <option value="draft">Bản nháp</option>
         </select>
+
+        {/* Danh mục */}
+        <select
+          value={categoryFilter}
+          onChange={(e) => { setCategoryFilter(e.target.value); setPage(1); }}
+          style={selStyle}
+        >
+          <option value="">Tất cả danh mục</option>
+          {categories.map((c) => <option key={c.id} value={String(c.id)}>{c.name}</option>)}
+        </select>
+
+        {/* Thời gian */}
+        <select
+          value={dateFilter}
+          onChange={(e) => { setDateFilter(e.target.value); setPage(1); }}
+          style={selStyle}
+        >
+          <option value="">Mọi thời gian</option>
+          <option value="today">Hôm nay</option>
+          <option value="week">7 ngày qua</option>
+        </select>
+
+        {/* Chỉ RSS */}
+        <label style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: '0.85rem', cursor: 'pointer', padding: '0.45rem 0.65rem', border: '1px solid var(--color-rule)', borderRadius: 4, background: rssOnly ? 'var(--color-navy)' : '#fff', color: rssOnly ? '#fff' : 'var(--color-ink)', userSelect: 'none' }}>
+          <input type="checkbox" checked={rssOnly} onChange={(e) => { setRssOnly(e.target.checked); setPage(1); }} style={{ display: 'none' }} />
+          RSS only
+        </label>
+
         {data && <span style={{ fontSize: '0.8rem', color: 'var(--color-ink-light)', marginLeft: 'auto' }}>{data.total} bài</span>}
       </div>
 
