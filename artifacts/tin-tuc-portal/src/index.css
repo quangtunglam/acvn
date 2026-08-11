@@ -319,6 +319,7 @@ footer { padding: 48px 0 25px; background: hsl(220 18% 14%); color: hsl(220 12% 
   .section-heading { gap: 9px; margin-bottom: 17px; }
   .more-link { font-size: 11px; }
   .selected-grid, .feature-cards, .eu-grid, .search-results { grid-template-columns: 1fr; }
+  .selected-grid .card-thumb { margin-inline: -18px; width: calc(100% + 36px); border-radius: 0; }
   .lead h1 { font-size: 29px; }
   .side-item { padding: 13px 0; }
   .feature-body { padding: 23px; }
