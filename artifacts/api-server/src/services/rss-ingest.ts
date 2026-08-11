@@ -11,6 +11,13 @@ import { openai } from "@workspace/integrations-openai-ai-server";
 const parser = new Parser({
   timeout: 10_000,
   headers: { "User-Agent": "VietPressEU/1.0 (+https://vietpress.eu)" },
+  customFields: {
+    item: [
+      ["media:content", "mediaContent", { keepArray: false }],
+      ["media:thumbnail", "mediaThumbnail", { keepArray: false }],
+      ["enclosure", "enclosure", { keepArray: false }],
+    ],
+  },
 });
 
 // ─── Vietnamese slug helper ───────────────────────────────────────────────────
@@ -34,6 +41,45 @@ function slugify(text: string): string {
 
 function stripHtml(html: string): string {
   return html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim().slice(0, 1000);
+}
+
+// ─── Extract cover image from RSS item ───────────────────────────────────────
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function extractImageUrl(item: Record<string, any>): string | null {
+  // 1. media:content (most common in modern feeds)
+  const mc = item.mediaContent ?? item["media:content"];
+  if (mc) {
+    const url = mc?.$ ?.url ?? mc?.url ?? (Array.isArray(mc) ? mc[0]?.$ ?.url : null);
+    if (typeof url === "string" && url.startsWith("http")) return url;
+  }
+
+  // 2. media:thumbnail
+  const mt = item.mediaThumbnail ?? item["media:thumbnail"];
+  if (mt) {
+    const url = mt?.$ ?.url ?? mt?.url ?? (Array.isArray(mt) ? mt[0]?.$ ?.url : null);
+    if (typeof url === "string" && url.startsWith("http")) return url;
+  }
+
+  // 3. enclosure (standard RSS podcasts / images)
+  const enc = item.enclosure;
+  if (enc) {
+    const url = enc?.url ?? enc?.$ ?.url;
+    const type: string = enc?.type ?? enc?.$ ?.type ?? "";
+    if (typeof url === "string" && url.startsWith("http") && type.startsWith("image")) return url;
+  }
+
+  // 4. itunes:image
+  const itunes = item["itunes:image"] ?? item.itunesImage;
+  if (typeof itunes === "string" && itunes.startsWith("http")) return itunes;
+  if (itunes?.href?.startsWith("http")) return itunes.href as string;
+
+  // 5. Parse first <img src="…"> from HTML content/description
+  const html = item.content ?? item["content:encoded"] ?? item.summary ?? "";
+  const match = /<img[^>]+src=["']([^"']+)["']/i.exec(html);
+  if (match?.[1]?.startsWith("http")) return match[1];
+
+  return null;
 }
 
 // ─── Translate one RSS item to Vietnamese ─────────────────────────────────────
@@ -174,12 +220,15 @@ export async function ingestFeed(feedId: number): Promise<IngestResult> {
     try {
       const translated = await translateItem(originalTitle, originalDesc, feed.name);
       const slug = await uniqueSlug(translated.slug);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const coverImage = extractImageUrl(item as Record<string, any>);
 
       await db.insert(articlesTable).values({
         title: translated.title,
         slug,
         summary: translated.summary,
         content: translated.content,
+        coverImage,
         categoryId: feed.categoryId,
         countryId: feed.countryId ?? null,
         sourceName: feed.name,
