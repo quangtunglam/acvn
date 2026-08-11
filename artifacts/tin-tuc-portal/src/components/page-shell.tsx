@@ -44,11 +44,11 @@ export function Masthead() {
   return (
     <header className="masthead">
       <div className="wrap">
-        <a className="logo" href="/" aria-label="Trang chủ VietPress EU" data-testid="link-logo">
-          <span className="logo-mark">V</span>
+        <a className="logo" href="/" aria-label="Trang chủ Hội người Séc gốc Việt Nam" data-testid="link-logo">
+          <img src="/logo-hoi.jpeg" alt="Logo Hội người Séc gốc Việt Nam" style={{ height: 64, width: 'auto', objectFit: 'contain' }} />
           <span>
-            <span className="logo-name">VietPress<em>EU</em></span>
-            <span className="logo-tag">Cộng đồng người Việt tại châu Âu</span>
+            <span className="logo-name" style={{ fontSize: '1rem', lineHeight: 1.25 }}>Hội người Séc<em> gốc Việt Nam</em></span>
+            <span className="logo-tag">Asociace českých občanů vietnamského původu</span>
           </span>
         </a>
         <div className="masthead-ad">KHU VỰC ĐẶT LOGO / QUẢNG CÁO ĐỐI TÁC</div>
@@ -171,8 +171,11 @@ export function Footer() {
       <div className="wrap">
         <div className="footer-grid">
           <div className="footer-brand">
-            <span className="logo-name">VietPress<em>EU</em></span>
-            <p>Cổng thông tin kết nối cộng đồng người Việt, doanh nghiệp và công nghệ tại Cộng hòa Séc và châu Âu.</p>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
+              <img src="/logo-hoi.jpeg" alt="Logo" style={{ height: 48, width: 'auto', objectFit: 'contain' }} />
+              <span className="logo-name" style={{ fontSize: '0.95rem', lineHeight: 1.3 }}>Hội người Séc<em> gốc Việt Nam</em></span>
+            </div>
+            <p>Cổng thông tin kết nối cộng đồng người Việt tại Cộng hòa Séc và châu Âu.</p>
             <div className="socials">
               <a className="social-link" href="/" aria-label="Facebook"><Facebook size={16} /></a>
               <a className="social-link" href="/" aria-label="YouTube"><Youtube size={16} /></a>
@@ -201,7 +204,7 @@ export function Footer() {
           ]} />
         </div>
         <div className="footer-bottom">
-          <span>© 2025–2026 VietPress EU. Bảo lưu mọi quyền.</span>
+          <span>© 2025–2026 Hội người Séc gốc Việt Nam. Bảo lưu mọi quyền.</span>
           <span className="footer-links">
             <a href="/">Điều khoản sử dụng</a>
             <a href="/">Chính sách bảo mật</a>
