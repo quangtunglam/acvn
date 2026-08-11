@@ -219,6 +219,7 @@
 .country-label { display: flex; align-items: center; gap: 9px; margin-bottom: 12px; font-size: 14px; }
 .flag { width: 27px; height: 18px; position: relative; flex: 0 0 auto; border-radius: 2px; box-shadow: 0 1px 3px rgba(0,0,0,.18); overflow: hidden; }
 .flag-cz { background: linear-gradient(#fff 50%, #d7141a 50%); }
+.flag-cz::before { content: ''; position: absolute; top: 0; left: 0; width: 0; height: 0; border-top: 9px solid transparent; border-bottom: 9px solid transparent; border-left: 14px solid #11457e; }
 .flag-sk { background: linear-gradient(#fff 33%, #0b4ea2 33% 66%, #ee1c25 66%); }
 .flag-pl { background: linear-gradient(#fff 50%, #dc143c 50%); }
 .flag-de { background: linear-gradient(#151515 33%, #dd0000 33% 66%, #ffce00 66%); }
