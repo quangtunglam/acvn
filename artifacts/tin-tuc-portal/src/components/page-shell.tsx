@@ -51,7 +51,7 @@ export function Masthead({
     <header className="masthead">
       <div className="wrap">
         <a className="logo" href="/" aria-label="Trang chủ Hội người Séc gốc Việt Nam" data-testid="link-logo">
-          <img src="/logo-hoi.jpeg" alt="Logo" className="logo-img" />
+          <img src="/logo-hoi.png" alt="Logo" className="logo-img" />
           <span>
             <span className="logo-name logo-name--hoi">Hội người Séc<em style={{ fontStyle: 'normal' }}> gốc Việt Nam</em></span>
             <span className="logo-tag logo-tag--hoi">Asociace českých občanů vietnamského původu</span>
@@ -189,7 +189,7 @@ export function Footer() {
         <div className="footer-grid">
           <div className="footer-brand">
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
-              <img src="/logo-hoi.jpeg" alt="Logo" style={{ height: 48, width: 'auto', objectFit: 'contain' }} />
+              <img src="/logo-hoi.png" alt="Logo" style={{ height: 48, width: 'auto', objectFit: 'contain' }} />
               <span className="logo-name" style={{ fontSize: '0.95rem', lineHeight: 1.3 }}>Hội người Séc<em style={{ fontStyle: 'normal' }}> gốc Việt Nam</em></span>
             </div>
             <p>Cổng thông tin kết nối cộng đồng người Việt tại Cộng hòa Séc và châu Âu.</p>

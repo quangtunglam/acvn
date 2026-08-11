@@ -122,7 +122,7 @@ function Sidebar({ onLogout }: { onLogout: () => void }) {
     }}>
       <div style={{ padding: '1.25rem 1rem', borderBottom: '1px solid var(--color-rule)' }}>
         <Link href="/" style={{ color: 'var(--color-navy)', textDecoration: 'none', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: 8 }}>
-          <img src="/logo-hoi.jpeg" alt="Logo" style={{ height: 28, width: 'auto', objectFit: 'contain' }} />
+          <img src="/logo-hoi.png" alt="Logo" style={{ height: 28, width: 'auto', objectFit: 'contain' }} />
           <span style={{ fontWeight: 700, fontSize: '0.82rem', lineHeight: 1.2 }}>Hội người Séc<br /><em style={{ fontStyle: 'normal' }}>gốc Việt Nam</em></span>
         </Link>
         <p style={{ color: 'var(--color-ink-light)', fontSize: '0.7rem', marginTop: 4 }}>Admin Panel</p>
