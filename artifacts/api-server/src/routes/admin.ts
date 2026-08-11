@@ -1,5 +1,5 @@
 import { asc, desc, eq, sql } from "drizzle-orm";
-import { Router, type IRouter } from "express";
+import { Router, type Request, type Response, type NextFunction } from "express";
 import {
   adBannersTable,
   articlesTable,
@@ -9,29 +9,25 @@ import {
   db,
   eventsTable,
   newsletterSubscribersTable,
+  rssFeedsTable,
 } from "@workspace/db";
 import { openai } from "@workspace/integrations-openai-ai-server";
+import { ingestFeed, ingestAllFeeds } from "../services/rss-ingest.js";
 
-const router: IRouter = Router();
+const router = Router();
 
 // ─── Auth middleware ──────────────────────────────────────────────────────────
 
-function requireAdmin(
-  req: Parameters<typeof router.use>[0] extends (...a: infer P) => unknown ? P[0] : never,
-  res: Parameters<typeof router.use>[0] extends (...a: infer P) => unknown ? P[1] : never,
-  next: () => void,
-): void {
-  const token = (req as { headers: Record<string, string> }).headers["x-admin-token"];
+function requireAdmin(req: Request, res: Response, next: NextFunction): void {
+  const token = req.headers["x-admin-token"];
   if (!process.env.SESSION_SECRET || token !== process.env.SESSION_SECRET) {
-    (res as { status: (n: number) => { json: (v: unknown) => void } })
-      .status(401)
-      .json({ error: "Unauthorized" });
+    res.status(401).json({ error: "Unauthorized" });
     return;
   }
   next();
 }
 
-router.use(requireAdmin as Parameters<typeof router.use>[0]);
+router.use(requireAdmin);
 
 // ─── Slug helper ──────────────────────────────────────────────────────────────
 
@@ -49,7 +45,7 @@ const VI_MAP: Record<string, string> = {
   ớ: "o", ờ: "o", ở: "o", ỡ: "o", ợ: "o",
   ứ: "u", ừ: "u", ử: "u", ữ: "u", ự: "u",
   ơ: "o", ư: "u",
-  ả: "a", ã: "a", ạ: "a",
+  ả: "a", ạ: "a",
   ẻ: "e", ẽ: "e", ẹ: "e",
   ỉ: "i", ĩ: "i", ị: "i",
   ỏ: "o", ọ: "o",
@@ -424,6 +420,65 @@ Nội dung phải khách quan, chính xác và phù hợp với phong cách báo
   } catch {
     res.status(500).json({ error: "Không thể phân tích phản hồi từ AI." });
   }
+});
+
+// ─── RSS Feeds ────────────────────────────────────────────────────────────────
+
+router.get("/rss/feeds", async (_req, res): Promise<void> => {
+  const feeds = await db
+    .select()
+    .from(rssFeedsTable)
+    .orderBy(asc(rssFeedsTable.name));
+  res.json(feeds);
+});
+
+router.post("/rss/feeds", async (req, res): Promise<void> => {
+  const body = req.body as {
+    name: string; url: string; categoryId: number;
+    countryId?: number | null; active?: boolean;
+  };
+  const [feed] = await db.insert(rssFeedsTable).values({
+    name: body.name,
+    url: body.url,
+    categoryId: body.categoryId,
+    countryId: body.countryId ?? null,
+    active: body.active ?? true,
+  }).returning();
+  res.status(201).json(feed);
+});
+
+router.patch("/rss/feeds/:id", async (req, res): Promise<void> => {
+  const id = Number(req.params.id);
+  const body = req.body as Partial<{
+    name: string; url: string; categoryId: number;
+    countryId: number | null; active: boolean;
+  }>;
+  const [feed] = await db
+    .update(rssFeedsTable)
+    .set(body)
+    .where(eq(rssFeedsTable.id, id))
+    .returning();
+  if (!feed) { res.status(404).json({ error: "Not found" }); return; }
+  res.json(feed);
+});
+
+router.delete("/rss/feeds/:id", async (req, res): Promise<void> => {
+  await db.delete(rssFeedsTable).where(eq(rssFeedsTable.id, Number(req.params.id)));
+  res.status(204).end();
+});
+
+router.post("/rss/feeds/:id/ingest", async (req, res): Promise<void> => {
+  try {
+    const result = await ingestFeed(Number(req.params.id));
+    res.json([result]);
+  } catch (err) {
+    res.status(400).json({ error: (err as Error).message });
+  }
+});
+
+router.post("/rss/ingest-all", async (_req, res): Promise<void> => {
+  const results = await ingestAllFeeds();
+  res.json(results);
 });
 
 export default router;
