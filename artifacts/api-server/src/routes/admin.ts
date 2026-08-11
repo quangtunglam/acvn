@@ -1,4 +1,4 @@
-import { asc, desc, eq, sql } from "drizzle-orm";
+import { and, asc, desc, eq, gte, isNotNull, sql } from "drizzle-orm";
 import { Router, type Request, type Response, type NextFunction } from "express";
 import {
   adBannersTable,
@@ -87,8 +87,23 @@ router.get("/articles", async (req, res): Promise<void> => {
   const page = Math.max(1, Number(req.query.page ?? 1));
   const pageSize = Math.min(50, Math.max(1, Number(req.query.pageSize ?? 20)));
   const status = req.query.status as string | undefined;
+  const categoryId = req.query.categoryId ? Number(req.query.categoryId) : undefined;
+  const rssOnly = req.query.rssOnly === "1";
+  const dateRange = req.query.date as string | undefined; // "today" | "week"
 
-  const where = status ? eq(articlesTable.status, status) : undefined;
+  const conditions = [];
+  if (status) conditions.push(eq(articlesTable.status, status));
+  if (categoryId) conditions.push(eq(articlesTable.categoryId, categoryId));
+  if (rssOnly) conditions.push(isNotNull(articlesTable.sourceName));
+  if (dateRange === "today") {
+    const start = new Date(); start.setHours(0, 0, 0, 0);
+    conditions.push(gte(articlesTable.publishedAt, start));
+  } else if (dateRange === "week") {
+    const start = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+    conditions.push(gte(articlesTable.publishedAt, start));
+  }
+
+  const where = conditions.length ? and(...conditions) : undefined;
 
   const [items, [countRow]] = await Promise.all([
     db
