@@ -88,6 +88,12 @@ export function Navigation({
   return (
     <nav className="primary-nav" aria-label="Điều hướng chính">
       <div className="wrap">
+        <div className="nav-weather" aria-label="Thời tiết">
+          <CloudSun size={13} aria-hidden="true" />
+          <span>Praha 21°C</span>
+          <span className="nav-weather-sep">·</span>
+          <span>Hà Nội 34°C</span>
+        </div>
         <div className={`nav-links ${open ? 'open' : ''}`}>
           {NAV_LINKS.map(([label, href], index) => (
             <a
