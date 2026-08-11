@@ -217,7 +217,7 @@ function HomepageContent({ data }: { data: HomepagePayload }) {
                 {mostRead.map((article, index) => (
                   <div className="side-item animate-in" style={{ animationDelay: `${(index + 1) * 65}ms` }} key={article.id}>
                     <span className="rank">{index + 1}</span>
-                    <div>
+                    <div className="side-body">
                       <h3 className="story-title"><a href={`/bai-viet/${article.slug}`}>{article.title}</a></h3>
                       <div className="source">{articleKicker(article)}</div>
                     </div>
