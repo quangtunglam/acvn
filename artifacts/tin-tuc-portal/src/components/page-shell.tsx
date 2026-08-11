@@ -40,7 +40,13 @@ export function UtilityBar() {
 
 // ─── Masthead ─────────────────────────────────────────────────────────────────
 
-export function Masthead() {
+export function Masthead({
+  menuOpen,
+  onMenuToggle,
+}: {
+  menuOpen?: boolean;
+  onMenuToggle?: () => void;
+}) {
   return (
     <header className="masthead">
       <div className="wrap">
@@ -52,6 +58,17 @@ export function Masthead() {
           </span>
         </a>
         <div className="masthead-ad">KHU VỰC ĐẶT LOGO / QUẢNG CÁO ĐỐI TÁC</div>
+        {/* Hamburger chỉ hiện trên mobile — desktop dùng nút trong primary-nav */}
+        <button
+          className="menu-button menu-button--masthead"
+          type="button"
+          onClick={onMenuToggle}
+          aria-label={menuOpen ? 'Đóng menu' : 'Mở menu'}
+          aria-expanded={menuOpen}
+          data-testid="button-mobile-menu-masthead"
+        >
+          {menuOpen ? <X size={23} /> : <Menu size={23} />}
+        </button>
       </div>
     </header>
   );
@@ -239,7 +256,7 @@ export function PageShell({ children, ticker }: { children: ReactNode; ticker?: 
   return (
     <div className="page-shell">
       <UtilityBar />
-      <Masthead />
+      <Masthead menuOpen={menuOpen} onMenuToggle={() => setMenuOpen((v) => !v)} />
       <Navigation open={menuOpen} onToggle={() => setMenuOpen((v) => !v)} />
       {ticker && ticker.length > 0 && <Ticker items={ticker} />}
       <main>{children}</main>
