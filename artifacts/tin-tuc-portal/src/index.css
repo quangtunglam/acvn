@@ -313,3 +313,15 @@ footer { padding: 48px 0 25px; background: hsl(220 18% 14%); color: hsl(220 12% 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition-duration: .001ms !important; }
 }
+
+/* ─── Article body typography ─────────────────────────────────────────────── */
+.article-body { text-align: justify; hyphens: auto; }
+.article-body p { margin-bottom: 1em; }
+.article-body p:last-child { margin-bottom: 0; }
+.article-body h2,
+.article-body h3,
+.article-body h4 { margin-top: 1.5em; margin-bottom: 0.5em; }
+.article-body ul,
+.article-body ol { margin-bottom: 1em; padding-left: 1.5em; }
+.article-body li { margin-bottom: 0.25em; }
+.article-body blockquote { margin: 1em 0; padding-left: 1rem; border-left: 3px solid var(--color-crimson); color: var(--color-ink-light); font-style: italic; }
