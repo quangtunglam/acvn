@@ -116,15 +116,16 @@ function Sidebar({ onLogout }: { onLogout: () => void }) {
 
   return (
     <aside style={{
-      width: 220, background: 'var(--color-navy)', minHeight: '100vh',
+      width: 220, background: '#f0f2f5', minHeight: '100vh',
       display: 'flex', flexDirection: 'column', flexShrink: 0,
+      borderRight: '1px solid var(--color-rule)',
     }}>
-      <div style={{ padding: '1.25rem 1rem', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
-        <Link href="/" style={{ color: '#fff', textDecoration: 'none', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: 8 }}>
+      <div style={{ padding: '1.25rem 1rem', borderBottom: '1px solid var(--color-rule)' }}>
+        <Link href="/" style={{ color: 'var(--color-navy)', textDecoration: 'none', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: 8 }}>
           <Newspaper size={18} />
           <span style={{ fontWeight: 700 }}>VietPress<em style={{ color: 'var(--color-crimson)' }}>EU</em></span>
         </Link>
-        <p style={{ color: 'rgba(255,255,255,0.45)', fontSize: '0.7rem', marginTop: 4 }}>Admin Panel</p>
+        <p style={{ color: 'var(--color-ink-light)', fontSize: '0.7rem', marginTop: 4 }}>Admin Panel</p>
       </div>
 
       <nav style={{ flex: 1, padding: '0.75rem 0' }}>
@@ -137,9 +138,10 @@ function Sidebar({ onLogout }: { onLogout: () => void }) {
               style={{
                 display: 'flex', alignItems: 'center', gap: 10,
                 padding: '0.6rem 1rem', fontSize: '0.85rem', textDecoration: 'none',
-                color: active ? '#fff' : 'rgba(255,255,255,0.65)',
-                background: active ? 'rgba(255,255,255,0.12)' : 'transparent',
+                color: active ? 'var(--color-navy)' : 'var(--color-ink)',
+                background: active ? '#fff' : 'transparent',
                 borderLeft: active ? '3px solid var(--color-crimson)' : '3px solid transparent',
+                fontWeight: active ? 600 : 400,
                 transition: 'background 0.15s',
               }}
             >
@@ -150,18 +152,18 @@ function Sidebar({ onLogout }: { onLogout: () => void }) {
         })}
       </nav>
 
-      <div style={{ padding: '0.75rem 1rem', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
+      <div style={{ padding: '0.75rem 1rem', borderTop: '1px solid var(--color-rule)' }}>
         <button
           onClick={onLogout}
           style={{
             display: 'flex', alignItems: 'center', gap: 8,
-            background: 'none', border: 'none', color: 'rgba(255,255,255,0.55)',
+            background: 'none', border: 'none', color: 'var(--color-ink-light)',
             cursor: 'pointer', fontSize: '0.8rem', padding: '0.4rem 0', width: '100%',
           }}
         >
           <X size={14} /> Đăng xuất
         </button>
-        <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'rgba(255,255,255,0.4)', fontSize: '0.75rem', marginTop: 6, textDecoration: 'none' }}>
+        <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'var(--color-ink-light)', fontSize: '0.75rem', marginTop: 6, textDecoration: 'none' }}>
           <Settings size={13} /> Về trang chủ
         </Link>
       </div>
