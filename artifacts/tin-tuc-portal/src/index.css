@@ -180,7 +180,7 @@
 .ticker:hover .ticker-move { animation-play-state: paused; }
 .ticker-move a { font-size: 13px; font-weight: 500; }
 .ticker-move a:hover { text-decoration: underline; }
-.page-section { padding: 38px 0; }
+.page-section { padding-block: 38px; }
 .section-heading { display: flex; align-items: center; gap: 14px; margin-bottom: 21px; }
 .section-heading h2 { white-space: nowrap; font: 700 22px var(--app-font-serif); letter-spacing: -.02em; }
 .section-mark { color: hsl(var(--primary)); margin-right: 5px; }
@@ -314,7 +314,7 @@ footer { padding: 48px 0 25px; background: hsl(220 18% 14%); color: hsl(220 12% 
   .logo-tag { font-size: 8px; letter-spacing: .06em; }
   /* Nav bar: compact, hamburger hoạt động bình thường */
   .primary-nav .wrap { min-height: 44px; }
-  .page-section { padding: 30px 0; }
+  .page-section { padding-block: 30px; }
   .section-heading h2 { font-size: 19px; }
   .section-heading { gap: 9px; margin-bottom: 17px; }
   .more-link { font-size: 11px; }
