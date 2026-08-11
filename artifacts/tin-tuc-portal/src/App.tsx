@@ -391,8 +391,7 @@ function Home() {
 // ─── Admin wrapper (no PageShell — has own layout) ────────────────────────────
 
 function AdminPage() {
-  const params = useParams<{ rest: string }>();
-  return <AdminRouter section={params.rest ?? ''} />;
+  return <AdminRouter />;
 }
 
 // ─── Router ───────────────────────────────────────────────────────────────────
