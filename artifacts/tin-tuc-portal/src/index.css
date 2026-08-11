@@ -152,7 +152,7 @@
 .logo { display: flex; align-items: center; gap: 13px; }
 .logo-mark { display: grid; place-items: center; width: 48px; height: 48px; background: hsl(var(--primary)); color: white; font: 800 23px var(--app-font-sans); border-radius: 7px 7px 7px 1px; box-shadow: 5px 5px 0 hsl(var(--accent)); }
 .logo-name { display: block; font: 700 28px/1 var(--app-font-serif); letter-spacing: -.025em; }
-.logo-name em { color: hsl(var(--primary)); font-style: normal; }
+.logo-name em { font-style: normal; }
 .logo-tag { display: block; margin-top: 6px; color: hsl(var(--muted-foreground)); font: 11px var(--app-font-sans); letter-spacing: .13em; text-transform: uppercase; }
 .masthead-ad { border: 1px dashed hsl(var(--border)); color: hsl(var(--muted-foreground)); padding: 14px 32px; font-size: 10px; letter-spacing: .12em; text-align: center; }
 .primary-nav { position: sticky; top: 0; z-index: 20; background: hsl(var(--card)); border-bottom: 2px solid hsl(var(--foreground)); }
