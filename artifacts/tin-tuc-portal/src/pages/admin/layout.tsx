@@ -1,7 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react';
 import {
   BookOpen, FileText, Globe, LayoutDashboard, Mail, Megaphone,
-  Newspaper, Settings, Sparkles, Users, X,
+  Newspaper, Rss, Settings, Sparkles, X,
 } from 'lucide-react';
 
 // ─── Admin auth context ───────────────────────────────────────────────────────
@@ -102,6 +102,7 @@ function LoginScreen({ onLogin }: { onLogin: (token: string) => void }) {
 const NAV_ITEMS = [
   { icon: LayoutDashboard, label: 'Dashboard', href: '/admin' },
   { icon: FileText, label: 'Bài viết', href: '/admin/articles' },
+  { icon: Rss, label: 'RSS & Dịch AI', href: '/admin/rss' },
   { icon: BookOpen, label: 'Danh mục & Tác giả', href: '/admin/taxonomy' },
   { icon: Globe, label: 'Sự kiện', href: '/admin/events' },
   { icon: Mail, label: 'Newsletter', href: '/admin/newsletter' },

@@ -104,6 +104,19 @@ export const adBannersTable = pgTable("ad_banners", {
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow().$onUpdate(() => new Date()),
 });
 
+export const rssFeedsTable = pgTable("rss_feeds", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  url: text("url").notNull().unique(),
+  categoryId: integer("category_id").references(() => categoriesTable.id).notNull(),
+  countryId: integer("country_id").references(() => countriesTable.id),
+  active: boolean("active").notNull().default(true),
+  lastFetchedAt: timestamp("last_fetched_at", { withTimezone: true }),
+  itemsImported: integer("items_imported").notNull().default(0),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow().$onUpdate(() => new Date()),
+});
+
 export const insertAuthorSchema = createInsertSchema(authorsTable).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertCategorySchema = createInsertSchema(categoriesTable).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertCountrySchema = createInsertSchema(countriesTable).omit({ id: true, createdAt: true, updatedAt: true });
@@ -111,6 +124,7 @@ export const insertArticleSchema = createInsertSchema(articlesTable).omit({ id: 
 export const insertEventSchema = createInsertSchema(eventsTable).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertNewsletterSubscriberSchema = createInsertSchema(newsletterSubscribersTable).omit({ id: true });
 export const insertAdBannerSchema = createInsertSchema(adBannersTable).omit({ id: true, createdAt: true, updatedAt: true });
+export const insertRssFeedSchema = createInsertSchema(rssFeedsTable).omit({ id: true, createdAt: true, updatedAt: true, lastFetchedAt: true, itemsImported: true });
 
 export type Author = typeof authorsTable.$inferSelect;
 export type InsertAuthor = z.infer<typeof insertAuthorSchema>;
@@ -126,3 +140,5 @@ export type NewsletterSubscriber = typeof newsletterSubscribersTable.$inferSelec
 export type InsertNewsletterSubscriber = z.infer<typeof insertNewsletterSubscriberSchema>;
 export type AdBanner = typeof adBannersTable.$inferSelect;
 export type InsertAdBanner = z.infer<typeof insertAdBannerSchema>;
+export type RssFeed = typeof rssFeedsTable.$inferSelect;
+export type InsertRssFeed = z.infer<typeof insertRssFeedSchema>;
