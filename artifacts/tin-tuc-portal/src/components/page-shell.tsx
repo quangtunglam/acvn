@@ -23,10 +23,6 @@ export function UtilityBar() {
       <div className="wrap">
         <div className="u-left">
           <span className="u-date" data-testid="text-current-date">{today}</span>
-          <span className="u-sep">•</span>
-          <span>Praha 21°C <CloudSun size={13} aria-label="Có mây" /></span>
-          <span className="u-sep">•</span>
-          <span>Hà Nội 34°C <CloudSun size={13} aria-label="Nắng nhẹ" /></span>
         </div>
         <div className="u-right">
           <a href="/api/ty-gia">Bảng tỷ giá</a>
