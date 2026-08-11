@@ -296,7 +296,7 @@ footer { padding: 48px 0 25px; background: hsl(220 18% 14%); color: hsl(220 12% 
   .footer-grid { grid-template-columns: repeat(2, 1fr); }
 }
 @media (max-width: 600px) {
-  .wrap { padding-inline: 14px; }
+  .wrap { padding-inline: 18px; }
   /* Utility bar: ẩn dấu phân cách và thành phố thứ 2 trở đi */
   .u-left { gap: 6px; font-size: 10px; flex-wrap: nowrap; overflow: hidden; }
   .u-left > span:nth-child(n+4) { display: none; }
