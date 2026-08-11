@@ -45,10 +45,10 @@ export function Masthead() {
     <header className="masthead">
       <div className="wrap">
         <a className="logo" href="/" aria-label="Trang chủ Hội người Séc gốc Việt Nam" data-testid="link-logo">
-          <img src="/logo-hoi.jpeg" alt="Logo Hội người Séc gốc Việt Nam" style={{ height: 64, width: 'auto', objectFit: 'contain' }} />
+          <img src="/logo-hoi.jpeg" alt="Logo" className="logo-img" />
           <span>
-            <span className="logo-name" style={{ fontSize: '1rem', lineHeight: 1.25 }}>Hội người Séc<em style={{ fontStyle: 'normal' }}> gốc Việt Nam</em></span>
-            <span className="logo-tag">Asociace českých občanů vietnamského původu</span>
+            <span className="logo-name logo-name--hoi">Hội người Séc<em style={{ fontStyle: 'normal' }}> gốc Việt Nam</em></span>
+            <span className="logo-tag logo-tag--hoi">Asociace českých občanů vietnamského původu</span>
           </span>
         </a>
         <div className="masthead-ad">KHU VỰC ĐẶT LOGO / QUẢNG CÁO ĐỐI TÁC</div>
