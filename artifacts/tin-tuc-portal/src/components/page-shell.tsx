@@ -40,13 +40,7 @@ export function UtilityBar() {
 
 // ─── Masthead ─────────────────────────────────────────────────────────────────
 
-export function Masthead({
-  menuOpen,
-  onMenuToggle,
-}: {
-  menuOpen?: boolean;
-  onMenuToggle?: () => void;
-}) {
+export function Masthead() {
   return (
     <header className="masthead">
       <div className="wrap">
@@ -58,17 +52,6 @@ export function Masthead({
           </span>
         </a>
         <div className="masthead-ad">KHU VỰC ĐẶT LOGO / QUẢNG CÁO ĐỐI TÁC</div>
-        {/* Hamburger chỉ hiện trên mobile — desktop dùng nút trong primary-nav */}
-        <button
-          className="menu-button menu-button--masthead"
-          type="button"
-          onClick={onMenuToggle}
-          aria-label={menuOpen ? 'Đóng menu' : 'Mở menu'}
-          aria-expanded={menuOpen}
-          data-testid="button-mobile-menu-masthead"
-        >
-          {menuOpen ? <X size={23} /> : <Menu size={23} />}
-        </button>
       </div>
     </header>
   );
@@ -249,38 +232,15 @@ export function SectionHeading({ title, more, id }: { title: string; more?: stri
   );
 }
 
-// ─── Mobile nav drawer (rendered at root level, không phụ thuộc primary-nav) ──
-
-function MobileMenu({ open, onClose }: { open: boolean; onClose: () => void }) {
-  const [, setLocation] = useLocation();
-  return (
-    <div className={`mobile-menu${open ? ' open' : ''}`} aria-hidden={!open}>
-      {NAV_LINKS.map(([label, href]) => (
-        <a
-          key={label}
-          className="mobile-menu-link"
-          href={href}
-          onClick={() => { setLocation(href); onClose(); }}
-        >
-          {label}
-        </a>
-      ))}
-    </div>
-  );
-}
-
 // ─── PageShell ────────────────────────────────────────────────────────────────
 
 export function PageShell({ children, ticker }: { children: ReactNode; ticker?: string[] }) {
   const [menuOpen, setMenuOpen] = useState(false);
-  const toggle = () => setMenuOpen((v) => !v);
   return (
     <div className="page-shell">
       <UtilityBar />
-      <Masthead menuOpen={menuOpen} onMenuToggle={toggle} />
-      {/* Mobile drawer — nằm ngoài primary-nav để tránh bị ẩn */}
-      <MobileMenu open={menuOpen} onClose={() => setMenuOpen(false)} />
-      <Navigation open={menuOpen} onToggle={toggle} />
+      <Masthead />
+      <Navigation open={menuOpen} onToggle={() => setMenuOpen((v) => !v)} />
       {ticker && ticker.length > 0 && <Ticker items={ticker} />}
       <main>{children}</main>
       <Footer />
