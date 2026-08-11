@@ -7,13 +7,7 @@ import AdminEvents from './events';
 import AdminNewsletter from './newsletter';
 import AdminAI from './ai';
 
-interface Props {
-  section: string;
-}
-
-export default function AdminRouter({ section }: Props) {
-  const path = `/admin${section ? `/${section}` : ''}`;
-
+export default function AdminRouter({ section }: { section: string }) {
   const renderContent = () => {
     if (!section || section === '') return <AdminDashboard />;
     if (section.startsWith('articles')) return <AdminArticles />;
@@ -30,7 +24,7 @@ export default function AdminRouter({ section }: Props) {
   };
 
   return (
-    <AdminLayout currentPath={path}>
+    <AdminLayout>
       {renderContent()}
     </AdminLayout>
   );

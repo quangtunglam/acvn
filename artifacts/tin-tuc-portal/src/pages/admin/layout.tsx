@@ -1,4 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react';
+import { Link, useLocation } from 'wouter';
 import {
   BookOpen, FileText, Globe, LayoutDashboard, Mail, Megaphone,
   Newspaper, Rss, Settings, Sparkles, X,
@@ -110,25 +111,27 @@ const NAV_ITEMS = [
   { icon: Sparkles, label: 'AI Assistant', href: '/admin/ai' },
 ];
 
-function Sidebar({ currentPath, onLogout }: { currentPath: string; onLogout: () => void }) {
+function Sidebar({ onLogout }: { onLogout: () => void }) {
+  const [location] = useLocation();
+
   return (
     <aside style={{
       width: 220, background: 'var(--color-navy)', minHeight: '100vh',
       display: 'flex', flexDirection: 'column', flexShrink: 0,
     }}>
       <div style={{ padding: '1.25rem 1rem', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
-        <a href="/" style={{ color: '#fff', textDecoration: 'none', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: 8 }}>
+        <Link href="/" style={{ color: '#fff', textDecoration: 'none', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: 8 }}>
           <Newspaper size={18} />
           <span style={{ fontWeight: 700 }}>VietPress<em style={{ color: 'var(--color-crimson)' }}>EU</em></span>
-        </a>
+        </Link>
         <p style={{ color: 'rgba(255,255,255,0.45)', fontSize: '0.7rem', marginTop: 4 }}>Admin Panel</p>
       </div>
 
       <nav style={{ flex: 1, padding: '0.75rem 0' }}>
         {NAV_ITEMS.map(({ icon: Icon, label, href }) => {
-          const active = currentPath === href || (href !== '/admin' && currentPath.startsWith(href));
+          const active = location === href || (href !== '/admin' && location.startsWith(href));
           return (
-            <a
+            <Link
               key={href}
               href={href}
               style={{
@@ -142,7 +145,7 @@ function Sidebar({ currentPath, onLogout }: { currentPath: string; onLogout: () 
             >
               <Icon size={16} />
               {label}
-            </a>
+            </Link>
           );
         })}
       </nav>
@@ -158,9 +161,9 @@ function Sidebar({ currentPath, onLogout }: { currentPath: string; onLogout: () 
         >
           <X size={14} /> Đăng xuất
         </button>
-        <a href="/" style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'rgba(255,255,255,0.4)', fontSize: '0.75rem', marginTop: 6, textDecoration: 'none' }}>
+        <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'rgba(255,255,255,0.4)', fontSize: '0.75rem', marginTop: 6, textDecoration: 'none' }}>
           <Settings size={13} /> Về trang chủ
-        </a>
+        </Link>
       </div>
     </aside>
   );
@@ -170,7 +173,7 @@ function Sidebar({ currentPath, onLogout }: { currentPath: string; onLogout: () 
 
 const STORAGE_KEY = 'vp-admin-token';
 
-export function AdminLayout({ children, currentPath }: { children: ReactNode; currentPath: string }) {
+export function AdminLayout({ children }: { children: ReactNode }) {
   const [token, setTokenState] = useState(() => localStorage.getItem(STORAGE_KEY) ?? '');
   const [verified, setVerified] = useState(false);
   const [checking, setChecking] = useState(true);
@@ -231,7 +234,7 @@ export function AdminLayout({ children, currentPath }: { children: ReactNode; cu
   return (
     <AdminContext.Provider value={{ token, setToken, apiFetch }}>
       <div style={{ display: 'flex', minHeight: '100vh', background: 'var(--color-bone)' }}>
-        <Sidebar currentPath={currentPath} onLogout={logout} />
+        <Sidebar onLogout={logout} />
         <div style={{ flex: 1, overflow: 'auto' }}>
           {children}
         </div>
