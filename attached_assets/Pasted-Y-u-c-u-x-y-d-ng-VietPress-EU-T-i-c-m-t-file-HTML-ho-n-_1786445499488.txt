@@ -1,0 +1,510 @@
+Yêu cầu xây dựng VietPress EU
+
+Tôi đã có một file HTML hoàn chỉnh cho giao diện trang chủ VietPress EU.
+
+Hãy sử dụng giao diện hiện tại làm thiết kế gốc. KHÔNG thiết kế lại website từ đầu và không thay đổi phong cách tổng thể nếu không cần thiết.
+
+Mục tiêu là biến website HTML tĩnh này thành một cổng thông tin điện tử hoàn chỉnh, dễ quản trị bởi người không biết lập trình.
+
+1. Yêu cầu chung
+
+Tên website: VietPress EU
+
+Mô tả:
+Cổng thông tin dành cho cộng đồng người Việt tại Cộng hòa Séc và châu Âu.
+
+Ngôn ngữ chính:
+Tiếng Việt.
+
+Website phải responsive tốt trên:
+
+Desktop
+Tablet
+Mobile
+
+Giữ nguyên phong cách hiện tại:
+
+Logo VietPress EU
+Màu đỏ/navy hiện tại
+Typography
+Menu
+News ticker
+Bố cục homepage
+Các card tin
+Tin các nước EU
+Sidebar
+Event
+Golf
+Newsletter
+Footer
+
+Ưu tiên sử dụng stack đơn giản, ổn định và dễ bảo trì trên Replit.
+
+2. Database
+
+Không hard-code bài viết vào HTML nữa.
+
+Tạo database cho:
+
+Articles
+id
+title
+slug
+summary
+content
+cover_image
+category
+country
+source_name
+source_url
+author
+published_at
+created_at
+updated_at
+status
+featured
+breaking_news
+views
+
+Status:
+
+draft
+pending
+published
+Categories
+
+Ví dụ:
+
+Tin tức
+Kinh doanh
+Cộng đồng
+Chuyện đầu tư
+Golf
+Du lịch
+Pháp luật & Hội nhập
+Khoa học & Công nghệ
+Giáo dục
+Countries
+Cộng hòa Séc
+Slovakia
+Đức
+Ba Lan
+Áo
+Pháp
+Việt Nam
+Khác
+Authors
+name
+bio
+avatar
+Events
+title
+description
+start_date
+end_date
+location
+image
+registration_url
+event_type
+
+Event type gồm:
+
+community
+golf
+business
+culture
+3. Trang chủ
+
+Giữ thiết kế homepage hiện tại nhưng chuyển toàn bộ nội dung thành dynamic content lấy từ database.
+
+Homepage gồm:
+
+Tin nóng
+
+Ticker tự động lấy các bài có:
+breaking_news = true
+
+Tin chính
+
+Bài featured quan trọng nhất.
+
+Tin đọc nhiều
+
+Tự động dựa trên views.
+
+Tin chọn lọc
+
+Các bài được editor lựa chọn.
+
+Tin các nước EU
+
+Hiển thị riêng:
+
+Cộng hòa Séc
+Slovakia
+Ba Lan
+Đức
+
+Tự động lấy bài theo country.
+
+Tin Việt Nam
+Tin thế giới
+Chuyên mục
+Tin kinh doanh
+Lịch Golf
+
+Lấy dữ liệu từ Events có:
+event_type = golf
+
+Sự kiện cộng đồng
+
+Lấy Events có:
+event_type = community
+
+Theo dòng sự kiện
+
+Hiển thị topic/tag nổi bật.
+
+4. Trang bài viết
+
+Tạo URL dạng:
+
+/article/slug
+
+hoặc URL SEO tốt hơn dựa trên category/country nếu kiến trúc cho phép.
+
+Trang bài viết gồm:
+
+Category
+Title
+Summary
+Cover image
+Author
+Published date
+Article content
+Source
+Link nguồn gốc
+Facebook share
+Copy link
+Related articles
+Most read articles
+
+Mỗi lần mở article:
+views + 1
+
+5. Trang chuyên mục
+
+Ví dụ:
+
+/tin-tuc
+/kinh-doanh
+/cong-dong
+/golf
+/du-lich
+
+Hiển thị:
+
+Bài nổi bật
+Danh sách bài mới nhất
+Pagination
+6. Trang quốc gia
+
+Ví dụ:
+
+/sec
+/duc
+/slovakia
+/ba-lan
+/viet-nam
+
+Hiển thị toàn bộ tin liên quan tới quốc gia đó.
+
+7. Search
+
+Ô tìm kiếm hiện tại phải hoạt động thật.
+
+Cho phép tìm theo:
+
+title
+summary
+content
+category
+country
+
+Tạo trang:
+
+/search?q=...
+
+8. Admin CMS
+
+Tạo:
+
+/admin
+
+Admin phải dễ sử dụng cho người không biết lập trình.
+
+Dashboard hiển thị:
+
+Tổng số bài
+Draft
+Pending
+Published
+Views
+Events
+
+Admin có thể:
+
+Articles
+Create
+Edit
+Delete
+Preview
+Publish
+Unpublish
+
+Editor cần rich text editor để viết bài.
+
+Cho phép:
+
+Heading
+Bold
+Italic
+Link
+Image
+Quote
+List
+
+Cho phép upload cover image.
+
+Có checkbox:
+
+☐ Featured
+
+☐ Breaking News
+
+Category management
+
+Create/Edit/Delete category.
+
+Country management
+
+Create/Edit/Delete country.
+
+Event management
+
+Create/Edit/Delete event.
+
+Author management
+
+Create/Edit/Delete author.
+
+9. Login và phân quyền
+
+Admin phải yêu cầu đăng nhập.
+
+Roles:
+
+ADMIN
+Có toàn quyền.
+
+EDITOR
+Có thể tạo, sửa và publish bài.
+
+CONTRIBUTOR
+Có thể tạo bài nhưng không tự publish.
+
+Không để /admin public.
+
+10. Newsletter
+
+Form newsletter trên homepage phải hoạt động thật.
+
+Lưu:
+
+email
+subscribed_at
+active
+
+vào database.
+
+Admin có thể xem subscriber list.
+
+11. Quảng cáo
+
+Tạo hệ thống quản lý banner đơn giản.
+
+Admin có thể:
+
+Upload banner
+Nhập URL quảng cáo
+Chọn vị trí
+Enable/Disable
+
+Các vị trí:
+
+Header
+Homepage
+Sidebar
+Article
+12. SEO
+
+Mỗi article phải tự tạo:
+
+<title>
+
+meta description
+
+Open Graph title
+
+Open Graph description
+
+Open Graph image
+
+Canonical URL
+
+Tạo:
+sitemap.xml
+robots.txt
+
+URL phải thân thiện với SEO.
+
+13. Social sharing
+
+Article có nút:
+
+Facebook
+WhatsApp
+Copy link
+14. AI News Assistant
+
+Trong Admin tạo chức năng:
+
+"Nhập bài từ URL"
+
+Editor nhập URL một bài báo.
+
+Hệ thống chuẩn bị dữ liệu cho workflow AI để có thể:
+
+Đọc nội dung nguồn.
+Tạo bản nháp tiếng Việt.
+Đề xuất title.
+Tạo summary.
+Phân loại category.
+Xác định country.
+Đề xuất tags.
+Tạo SEO description.
+
+QUAN TRỌNG:
+
+AI KHÔNG được tự động publish.
+
+Kết quả luôn phải lưu dưới:
+
+status = draft
+
+Editor phải kiểm tra rồi mới Publish.
+
+Nếu việc đọc URL hoặc gọi AI cần API/service bên ngoài, hãy xây giao diện và abstraction/service layer trước, rồi chỉ rõ API key hoặc service nào cần kết nối. Không hard-code API key.
+
+15. Nguồn bài
+
+Mỗi article phải có:
+
+Source name
+
+Original URL
+
+Author
+
+Editor
+
+Phải hiển thị nguồn rõ ràng ở cuối bài.
+
+Không tự động sao chép nguyên văn toàn bộ nội dung từ website khác.
+
+16. Weather
+
+Thay dữ liệu thời tiết hard-code trên header bằng dữ liệu động cho:
+
+Praha
+
+Hà Nội
+
+Nếu chưa cấu hình Weather API, website vẫn phải hoạt động bình thường với fallback.
+
+17. Exchange rate
+
+"Bảng tỷ giá" trên header phải dẫn tới trang:
+
+/ty-gia
+
+Chuẩn bị khả năng lấy tỷ giá CZK/EUR/USD/VND từ API phù hợp.
+
+Nếu API chưa được cấu hình, dùng fallback và không để website crash.
+
+18. Performance
+
+Website phải:
+
+Load nhanh
+Lazy load images
+Responsive
+Tối ưu ảnh
+Có error handling
+Có loading states
+Không crash khi API bên ngoài lỗi
+19. Migration nội dung hiện tại
+
+KHÔNG xóa các bài mẫu đang có trong HTML.
+
+Hãy chuyển các bài mẫu hiện tại thành seed data trong database để sau khi migration homepage vẫn giống gần với thiết kế hiện tại.
+
+20. Nguyên tắc triển khai
+
+Thực hiện theo từng giai đoạn.
+
+PHASE 1:
+Phân tích source HTML hiện tại.
+
+PHASE 2:
+Refactor thành application structure.
+
+PHASE 3:
+Database + seed data.
+
+PHASE 4:
+Dynamic homepage.
+
+PHASE 5:
+Article/category/country/search pages.
+
+PHASE 6:
+Admin CMS.
+
+PHASE 7:
+Events/newsletter/ads.
+
+PHASE 8:
+AI News Assistant.
+
+PHASE 9:
+SEO + optimization.
+
+Sau mỗi phase:
+
+chạy application
+kiểm tra lỗi
+sửa lỗi
+không phá vỡ giao diện đã hoạt động
+
+Không thay đổi toàn bộ architecture giữa chừng nếu không thực sự cần thiết.
+
+Trước tiên hãy:
+
+Phân tích project hiện tại.
+Đề xuất architecture đơn giản nhất.
+Lập kế hoạch migration.
+Sau đó bắt đầu triển khai Phase 1–3.
+
+Ưu tiên cao nhất:
+GIỮ GIAO DIỆN HIỆN TẠI và biến nó thành một news portal có CMS thực sự.

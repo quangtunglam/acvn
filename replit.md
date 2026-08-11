@@ -1,6 +1,6 @@
-# [Project name]
+# VietPress EU
 
-_Replace the heading above with the project's name, and this line with one sentence describing what this app does for users._
+VietPress EU is a Vietnamese-language news portal for the Vietnamese community in the Czech Republic and across Europe.
 
 ## Run & Operate
 
@@ -22,15 +22,23 @@ _Replace the heading above with the project's name, and this line with one sente
 
 ## Where things live
 
-_Populate as you build — short repo map plus pointers to the source-of-truth file for DB schema, API contracts, theme files, etc._
+- `artifacts/tin-tuc-portal/src/` — responsive editorial homepage and visual theme.
+- `artifacts/api-server/src/routes/` — Express API routes.
+- `lib/api-spec/openapi.yaml` — source of truth for public API contracts.
+- `lib/db/src/schema/content.ts` — Drizzle schema for editorial content and supporting records.
+- `scripts/src/seed-news.ts` — migration seed for the reference homepage content.
 
 ## Architecture decisions
 
-_Populate as you build — non-obvious choices a reader couldn't infer from the code (3-5 bullets)._
+- The existing VietPress EU homepage is the visual source of truth; application work adds data and workflows without replacing its editorial character.
+- PostgreSQL is the source of truth for articles, people, taxonomy, events, newsletter subscribers, and future advertising records.
+- The public API is contract-first through OpenAPI and generated Zod/React Query helpers.
+- Content is seeded from the supplied reference HTML so the first dynamic homepage can preserve the current sample experience.
 
 ## Product
 
-_Describe the high-level user-facing capabilities of this app once they exist._
+- Responsive Vietnamese news homepage with breaking-news ticker, featured stories, EU country coverage, business and community sections, events, newsletter capture, and search.
+- Backend foundation for article pages, taxonomy pages, search, view counting, newsletter subscriptions, and future CMS workflows.
 
 ## User preferences
 
@@ -38,7 +46,9 @@ _Populate as you build — explicit user instructions worth remembering across s
 
 ## Gotchas
 
-_Populate as you build — sharp edges, "always run X before Y" rules._
+- After changing `lib/api-spec/openapi.yaml`, run `pnpm --filter @workspace/api-spec run codegen`.
+- After changing `lib/db/src/schema`, run `pnpm --filter @workspace/db run push`.
+- Run `pnpm --filter @workspace/scripts run seed-news` after schema changes when refreshing local reference content.
 
 ## Pointers
 

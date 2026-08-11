@@ -5,7 +5,11 @@
  * Public content API for the VietPress EU news portal
  * OpenAPI spec version: 0.1.0
  */
+import type { Article } from './article';
 
-export interface HealthStatus {
-  status: string;
+export interface ArticleListResponse {
+  items: Article[];
+  page: number;
+  pageSize: number;
+  total: number;
 }

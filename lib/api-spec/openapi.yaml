@@ -3,13 +3,17 @@ info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: Public content API for the VietPress EU news portal
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: content
+    description: Published articles, categories, countries, and events
+  - name: newsletter
+    description: Newsletter subscription
 paths:
   /healthz:
     get:
@@ -24,13 +28,448 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+  /homepage:
+    get:
+      operationId: getHomepage
+      tags: [content]
+      summary: Get homepage content
+      responses:
+        "200":
+          description: Homepage content grouped for the editorial layout
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HomepagePayload"
+  /articles:
+    get:
+      operationId: listArticles
+      tags: [content]
+      summary: List published articles
+      parameters:
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/PageSize"
+        - $ref: "#/components/parameters/Category"
+        - $ref: "#/components/parameters/Country"
+      responses:
+        "200":
+          description: Paginated published articles
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ArticleListResponse"
+  /articles/{slug}:
+    get:
+      operationId: getArticle
+      tags: [content]
+      summary: Get a published article by slug
+      parameters:
+        - $ref: "#/components/parameters/Slug"
+      responses:
+        "200":
+          description: Article
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Article"
+        "404":
+          description: Article not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /articles/{slug}/view:
+    post:
+      operationId: incrementArticleView
+      tags: [content]
+      summary: Increment article views
+      parameters:
+        - $ref: "#/components/parameters/Slug"
+      responses:
+        "200":
+          description: Updated view count
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ViewResponse"
+        "404":
+          description: Article not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /search:
+    get:
+      operationId: searchArticles
+      tags: [content]
+      summary: Search published articles
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema:
+            type: string
+            minLength: 1
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/PageSize"
+      responses:
+        "200":
+          description: Search results
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ArticleListResponse"
+  /categories:
+    get:
+      operationId: listCategories
+      tags: [content]
+      summary: List categories
+      responses:
+        "200":
+          description: Categories
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Category"
+  /countries:
+    get:
+      operationId: listCountries
+      tags: [content]
+      summary: List countries
+      responses:
+        "200":
+          description: Countries
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Country"
+  /events:
+    get:
+      operationId: listEvents
+      tags: [content]
+      summary: List upcoming events
+      parameters:
+        - name: eventType
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Upcoming events
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Event"
+  /newsletter/subscribe:
+    post:
+      operationId: subscribeNewsletter
+      tags: [newsletter]
+      summary: Subscribe an email address
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NewsletterInput"
+      responses:
+        "201":
+          description: Subscription created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NewsletterSubscription"
+        "400":
+          description: Invalid email
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
 components:
+  parameters:
+    Slug:
+      name: slug
+      in: path
+      required: true
+      schema:
+        type: string
+        minLength: 1
+    Page:
+      name: page
+      in: query
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        default: 1
+    PageSize:
+      name: pageSize
+      in: query
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 50
+        default: 12
+    Category:
+      name: category
+      in: query
+      required: false
+      schema:
+        type: string
+    Country:
+      name: country
+      in: query
+      required: false
+      schema:
+        type: string
   schemas:
     HealthStatus:
       type: object
       properties:
         status:
           type: string
+      required: [status]
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+      required: [error]
+    Category:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        slug:
+          type: string
+        description:
+          type: ["string", "null"]
+      required: [id, name, slug, description]
+    Country:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        slug:
+          type: string
+        code:
+          type: ["string", "null"]
+      required: [id, name, slug, code]
+    Author:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        bio:
+          type: ["string", "null"]
+        avatar:
+          type: ["string", "null"]
+      required: [id, name, bio, avatar]
+    Article:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        slug:
+          type: string
+        summary:
+          type: string
+        content:
+          type: string
+        coverImage:
+          type: ["string", "null"]
+        category:
+          $ref: "#/components/schemas/Category"
+        country:
+          oneOf:
+            - $ref: "#/components/schemas/Country"
+            - type: "null"
+        author:
+          oneOf:
+            - $ref: "#/components/schemas/Author"
+            - type: "null"
+        sourceName:
+          type: ["string", "null"]
+        sourceUrl:
+          type: ["string", "null"]
+        editor:
+          type: ["string", "null"]
+        publishedAt:
+          type: ["string", "null"]
+          format: date-time
+        status:
+          type: string
+        featured:
+          type: boolean
+        breakingNews:
+          type: boolean
+        views:
+          type: integer
       required:
+        - id
+        - title
+        - slug
+        - summary
+        - content
+        - coverImage
+        - category
+        - country
+        - author
+        - sourceName
+        - sourceUrl
+        - editor
+        - publishedAt
         - status
-
+        - featured
+        - breakingNews
+        - views
+    Event:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        description:
+          type: ["string", "null"]
+        startDate:
+          type: string
+          format: date-time
+        endDate:
+          type: ["string", "null"]
+          format: date-time
+        location:
+          type: ["string", "null"]
+        image:
+          type: ["string", "null"]
+        registrationUrl:
+          type: ["string", "null"]
+        eventType:
+          type: string
+      required:
+        - id
+        - title
+        - description
+        - startDate
+        - endDate
+        - location
+        - image
+        - registrationUrl
+        - eventType
+    HomepagePayload:
+      type: object
+      properties:
+        breakingNews:
+          type: array
+          items:
+            $ref: "#/components/schemas/Article"
+        featured:
+          oneOf:
+            - $ref: "#/components/schemas/Article"
+            - type: "null"
+        mostRead:
+          type: array
+          items:
+            $ref: "#/components/schemas/Article"
+        selected:
+          type: array
+          items:
+            $ref: "#/components/schemas/Article"
+        euCountries:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              $ref: "#/components/schemas/Article"
+        vietnam:
+          type: array
+          items:
+            $ref: "#/components/schemas/Article"
+        world:
+          type: array
+          items:
+            $ref: "#/components/schemas/Article"
+        business:
+          type: array
+          items:
+            $ref: "#/components/schemas/Article"
+        features:
+          type: array
+          items:
+            $ref: "#/components/schemas/Article"
+        golfEvents:
+          type: array
+          items:
+            $ref: "#/components/schemas/Event"
+        communityEvents:
+          type: array
+          items:
+            $ref: "#/components/schemas/Event"
+      required:
+        - breakingNews
+        - featured
+        - mostRead
+        - selected
+        - euCountries
+        - vietnam
+        - world
+        - business
+        - features
+        - golfEvents
+        - communityEvents
+    ArticleListResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/Article"
+        page:
+          type: integer
+        pageSize:
+          type: integer
+        total:
+          type: integer
+      required: [items, page, pageSize, total]
+    ViewResponse:
+      type: object
+      properties:
+        views:
+          type: integer
+      required: [views]
+    NewsletterInput:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+      required: [email]
+    NewsletterSubscription:
+      type: object
+      properties:
+        id:
+          type: integer
+        email:
+          type: string
+          format: email
+        active:
+          type: boolean
+        subscribedAt:
+          type: string
+          format: date-time
+      required: [id, email, active, subscribedAt]
