@@ -83,6 +83,13 @@
   --app-font-serif: 'Lora', Georgia, serif;
   --app-font-mono: 'Space Mono', monospace;
   --radius: 10px;
+  /* Admin UI colors */
+  --color-navy: #1a3557;
+  --color-crimson: #c8102e;
+  --color-ink: #111827;
+  --color-ink-light: #6b7280;
+  --color-bone: #f5f4f0;
+  --color-rule: #e2e8f0;
   --shadow-sm: 0 4px 14px rgba(25, 31, 42, .07);
   --shadow-md: 0 12px 34px rgba(25, 31, 42, .12);
 }
