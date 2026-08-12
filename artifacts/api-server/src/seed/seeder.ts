@@ -1,7 +1,7 @@
 /**
  * One-time production seeder.
- * Runs on startup if the articles table is empty.
- * Safe to leave in: checks count first and skips if data already exists.
+ * Triggers when articles count < 300 (handles partial prod data).
+ * Uses onConflictDoNothing to safely skip any rows that already exist.
  */
 import { sql } from "drizzle-orm";
 import {
@@ -15,8 +15,6 @@ import {
 } from "@workspace/db";
 import { logger } from "../lib/logger.js";
 import rawSeed from "./seed-data.json" with { type: "json" };
-
-// ─── Map snake_case DB rows → camelCase Drizzle insert objects ────────────────
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 type Row = Record<string, any>;
@@ -110,20 +108,19 @@ function mapEvent(r: Row) {
   };
 }
 
-// ─── Seeder ───────────────────────────────────────────────────────────────────
-
 export async function seedIfEmpty(): Promise<void> {
   try {
     const [{ count }] = await db
       .select({ count: sql<string>`count(*)` })
       .from(articlesTable);
 
-    if (Number(count) > 0) {
-      logger.info({ count }, "DB already has data — skipping seed");
+    // Skip if already fully seeded
+    if (Number(count) >= 300) {
+      logger.info({ count }, "DB already seeded — skipping");
       return;
     }
 
-    logger.info("DB is empty — seeding production data…");
+    logger.info({ count }, "DB needs seeding — starting…");
 
     const seed = rawSeed as {
       categories: Row[];
@@ -136,51 +133,69 @@ export async function seedIfEmpty(): Promise<void> {
 
     const { categories, countries, authors, rssFeeds, events, articles } = seed;
 
+    // Insert supporting tables first (FK order), skip existing IDs
     if (categories.length) {
-      await db.insert(categoriesTable).values(categories.map(mapCategory));
+      await db
+        .insert(categoriesTable)
+        .values(categories.map(mapCategory))
+        .onConflictDoNothing();
       const maxId = Math.max(...categories.map((c) => c.id));
       await db.execute(sql`SELECT setval(pg_get_serial_sequence('categories','id'), ${maxId})`);
-      logger.info({ n: categories.length }, "Seeded categories");
+      logger.info({ n: categories.length }, "Upserted categories");
     }
 
     if (countries.length) {
-      await db.insert(countriesTable).values(countries.map(mapCountry));
+      await db
+        .insert(countriesTable)
+        .values(countries.map(mapCountry))
+        .onConflictDoNothing();
       const maxId = Math.max(...countries.map((c) => c.id));
       await db.execute(sql`SELECT setval(pg_get_serial_sequence('countries','id'), ${maxId})`);
-      logger.info({ n: countries.length }, "Seeded countries");
+      logger.info({ n: countries.length }, "Upserted countries");
     }
 
     if (authors.length) {
-      await db.insert(authorsTable).values(authors.map(mapAuthor));
+      await db
+        .insert(authorsTable)
+        .values(authors.map(mapAuthor))
+        .onConflictDoNothing();
       const maxId = Math.max(...authors.map((a) => a.id));
       await db.execute(sql`SELECT setval(pg_get_serial_sequence('authors','id'), ${maxId})`);
-      logger.info({ n: authors.length }, "Seeded authors");
+      logger.info({ n: authors.length }, "Upserted authors");
     }
 
+    // Insert articles in batches of 30
     if (articles.length) {
       const BATCH = 30;
+      let inserted = 0;
       for (let i = 0; i < articles.length; i += BATCH) {
-        await db
-          .insert(articlesTable)
-          .values(articles.slice(i, i + BATCH).map(mapArticle));
+        const batch = articles.slice(i, i + BATCH).map(mapArticle);
+        await db.insert(articlesTable).values(batch).onConflictDoNothing();
+        inserted += batch.length;
       }
       const maxId = Math.max(...articles.map((a) => a.id));
       await db.execute(sql`SELECT setval(pg_get_serial_sequence('articles','id'), ${maxId})`);
-      logger.info({ n: articles.length }, "Seeded articles");
+      logger.info({ n: inserted }, "Upserted articles");
     }
 
     if (rssFeeds.length) {
-      await db.insert(rssFeedsTable).values(rssFeeds.map(mapFeed));
+      await db
+        .insert(rssFeedsTable)
+        .values(rssFeeds.map(mapFeed))
+        .onConflictDoNothing();
       const maxId = Math.max(...rssFeeds.map((r) => r.id));
       await db.execute(sql`SELECT setval(pg_get_serial_sequence('rss_feeds','id'), ${maxId})`);
-      logger.info({ n: rssFeeds.length }, "Seeded rss_feeds");
+      logger.info({ n: rssFeeds.length }, "Upserted rss_feeds");
     }
 
     if (events.length) {
-      await db.insert(eventsTable).values(events.map(mapEvent));
+      await db
+        .insert(eventsTable)
+        .values(events.map(mapEvent))
+        .onConflictDoNothing();
       const maxId = Math.max(...events.map((e) => e.id));
       await db.execute(sql`SELECT setval(pg_get_serial_sequence('events','id'), ${maxId})`);
-      logger.info({ n: events.length }, "Seeded events");
+      logger.info({ n: events.length }, "Upserted events");
     }
 
     logger.info("Seeding complete ✓");
