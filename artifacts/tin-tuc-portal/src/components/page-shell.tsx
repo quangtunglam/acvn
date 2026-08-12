@@ -73,7 +73,15 @@ const NAV_LINKS: NavItem[] = [
       { label: 'Tin thế giới', href: '/danh-muc/tin-the-gioi' },
     ],
   },
-  { label: 'Chuyên mục', href: '/danh-muc/chuyen-dau-tu' },
+  {
+    label: 'Chuyên mục', href: '/danh-muc/chuyen-muc',
+    children: [
+      { label: 'Văn hóa truyền thống', href: '/danh-muc/van-hoa-truyen-thong' },
+      { label: 'Sức khỏe - Đời sống', href: '/danh-muc/suc-khoe-doi-song' },
+      { label: 'Pháp luật', href: '/danh-muc/phap-luat' },
+      { label: 'Kinh doanh', href: '/danh-muc/kinh-doanh' },
+    ],
+  },
   { label: 'Sự kiện', href: '/su-kien' },
   {
     label: 'Đăng ký', href: '/dang-ky',
