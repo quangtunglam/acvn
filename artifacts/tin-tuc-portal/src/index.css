@@ -165,7 +165,7 @@
 .masthead { background: hsl(var(--card)); border-bottom: 1px solid hsl(var(--border)); }
 .masthead-inner { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; min-height: 130px; gap: 0; padding-block: 20px; }
 .masthead-side--left  { padding-right: 32px; }
-.masthead-side--right { padding-left: 26px; }
+.masthead-side--right { padding-left: 15px; }
 /* Center logo */
 .masthead-logo-wrap { display: flex; justify-content: center; }
 .masthead-logo-img { height: 100px; width: auto; object-fit: contain; display: block; transition: opacity .2s; }
