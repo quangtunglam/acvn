@@ -273,6 +273,9 @@
 .event-title { font-size: 13px; font-weight: 800; }
 .event-meta { display: flex; flex-direction: column; gap: 3px; margin-top: 5px; color: hsl(var(--muted-foreground)); font-size: 11.5px; }
 .event-meta strong { color: hsl(var(--primary)); }
+.event--past { opacity: .6; }
+.event--past .event-meta strong { color: hsl(var(--muted-foreground)); }
+.event-past-badge { display: inline-block; margin-bottom: 4px; padding: 1px 6px; background: hsl(var(--muted)); color: hsl(var(--muted-foreground)); font-size: 10px; font-weight: 700; letter-spacing: .04em; border-radius: 3px; text-transform: uppercase; }
 .empty { color: hsl(var(--muted-foreground)); font-size: 13px; font-style: italic; }
 .newsletter { padding: 23px; color: white; background: hsl(var(--secondary)); border-radius: 7px; box-shadow: inset 0 0 0 1px hsl(211 30% 34%); }
 .newsletter h3 { font: 700 19px var(--app-font-serif); }
