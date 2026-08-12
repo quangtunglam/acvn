@@ -111,8 +111,11 @@ function mapArticle(r: Row, catRemap: Map<number, number>) {
 
 // ─── Categories to ensure exist on every startup ─────────────────────────────
 const ENSURE_CATEGORIES = [
-  { name: "Kinh doanh", slug: "kinh-doanh" },
-  { name: "Cộng đồng",  slug: "cong-dong"  },
+  { name: "Kinh doanh",           slug: "kinh-doanh"         },
+  { name: "Cộng đồng",            slug: "cong-dong"          },
+  { name: "Văn hóa truyền thống", slug: "van-hoa-truyen-thong" },
+  { name: "Sức khỏe - Đời sống",  slug: "suc-khoe-doi-song"  },
+  { name: "Pháp luật",            slug: "phap-luat"          },
 ];
 
 export async function ensureCategories(): Promise<void> {
