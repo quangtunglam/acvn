@@ -273,8 +273,8 @@ export function Btn({
   const colors: Record<string, string> = {
     primary: 'background:var(--color-navy);color:#fff;border:none',
     danger: 'background:var(--color-crimson);color:#fff;border:none',
-    ghost: 'background:transparent;color:var(--color-ink);border:1px solid var(--color-rule)',
-    secondary: 'background:var(--color-bone);color:var(--color-ink);border:1px solid var(--color-rule)',
+    ghost: 'background:transparent;color:#111827;border:1px solid #94a3b8',
+    secondary: 'background:#e8ecf0;color:#111827;border:1px solid #94a3b8',
   };
   const pad = size === 'sm' ? '0.3rem 0.7rem' : '0.5rem 1.1rem';
   return (
