@@ -47,7 +47,6 @@ export default function AdminAI() {
     'Cộng đồng người Việt tại Brno tổ chức lễ hội Tết 2026 quy mô lớn',
     'Séc thay đổi luật cư trú cho người nước ngoài từ tháng 9/2026',
     'Doanh nghiệp Việt tại Praha mở rộng chuỗi siêu thị sang Slovakia',
-    'Giải golf người Việt khu vực Trung Âu lần thứ 5 tổ chức tại Brno',
   ];
 
   return (
