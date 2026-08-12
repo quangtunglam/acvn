@@ -164,7 +164,7 @@ function CommunityWidget({ events }: { events: Event[] }) {
 // ─── EU countries band ────────────────────────────────────────────────────────
 
 const EU_COUNTRY_ORDER = [
-  { slug: 'sec', name: 'Cộng hòa Séc', flagClass: 'flag-cz' },
+  { slug: 'cong-hoa-sec', name: 'Cộng hòa Séc', flagClass: 'flag-cz' },
   { slug: 'slovakia', name: 'Slovakia', flagClass: 'flag-sk' },
   { slug: 'ba-lan', name: 'Ba Lan', flagClass: 'flag-pl' },
   { slug: 'duc', name: 'Đức', flagClass: 'flag-de' },

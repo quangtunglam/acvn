@@ -244,7 +244,7 @@ router.get("/homepage", async (_req, res): Promise<void> => {
   ]);
 
   const euCountries: Record<string, ReturnType<typeof mapArticle>[]> = {};
-  for (const slug of ["sec", "slovakia", "ba-lan", "duc"]) {
+  for (const slug of ["cong-hoa-sec", "slovakia", "ba-lan", "duc"]) {
     euCountries[slug] = await queryArticles({ limit: 6, country: slug });
   }
 
