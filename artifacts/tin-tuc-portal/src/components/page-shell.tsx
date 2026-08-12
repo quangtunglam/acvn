@@ -60,19 +60,20 @@ type NavItem = { label: string; href: string; children?: { label: string; href: 
 const NAV_LINKS: NavItem[] = [
   { label: 'Trang chủ', href: '/' },
   {
-    label: 'Tin tức', href: '/danh-muc/tin-tuc',
-    children: [
-      { label: 'Tin Việt Nam', href: '/danh-muc/tin-viet-nam' },
-      { label: 'Tin thế giới', href: '/danh-muc/tin-the-gioi' },
-    ],
-  },
-  {
     label: 'Giới thiệu', href: '/gioi-thieu',
     children: [
       { label: 'Thông tin về Hội', href: '/gioi-thieu/thong-tin-ve-hoi' },
       { label: 'Liên hệ', href: '/gioi-thieu/lien-he' },
     ],
   },
+  {
+    label: 'Tin tức', href: '/danh-muc/tin-tuc',
+    children: [
+      { label: 'Tin Việt Nam', href: '/danh-muc/tin-viet-nam' },
+      { label: 'Tin thế giới', href: '/danh-muc/tin-the-gioi' },
+    ],
+  },
+  { label: 'Chuyên mục', href: '/danh-muc/chuyen-dau-tu' },
   { label: 'Sự kiện', href: '/su-kien' },
   {
     label: 'Đăng ký', href: '/dang-ky',
