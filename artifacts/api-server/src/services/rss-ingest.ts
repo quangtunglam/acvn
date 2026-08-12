@@ -242,7 +242,7 @@ export async function ingestFeed(feedId: number): Promise<IngestResult> {
         sourceUrl,
         status: "draft",
         publishedAt: item.isoDate ? new Date(item.isoDate) : null,
-        editor: "ACVN/",
+        editor: "ACVN",
         tags: [],
         featured: false,
         breakingNews: false,
