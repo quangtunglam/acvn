@@ -218,7 +218,22 @@ router.get("/homepage", async (_req, res): Promise<void> => {
       .orderBy(desc(articlesTable.publishedAt))
       .limit(1)
       .then((rows) => (rows[0] ? mapArticle(rows[0]) : null)),
-    queryArticles({ limit: 5, orderBy: "views" }),
+    // mostRead: pinned by rank first, then fill with top-viewed
+    db.select({ article: articlesTable, category: categoriesTable, country: countriesTable, author: authorsTable })
+      .from(articlesTable)
+      .leftJoin(categoriesTable, eq(articlesTable.categoryId, categoriesTable.id))
+      .leftJoin(countriesTable, eq(articlesTable.countryId, countriesTable.id))
+      .leftJoin(authorsTable, eq(articlesTable.authorId, authorsTable.id))
+      .where(and(publishedFilter, sql`${articlesTable.mostReadRank} IS NOT NULL`))
+      .orderBy(articlesTable.mostReadRank)
+      .limit(5)
+      .then(async (pinned) => {
+        const mapped = pinned.map(mapArticle);
+        if (mapped.length >= 5) return mapped;
+        const used = new Set(mapped.map((a) => a.id));
+        const filler = await queryArticles({ limit: 5 - mapped.length, orderBy: "views" });
+        return [...mapped, ...filler.filter((a) => !used.has(a.id))];
+      }),
     // selected: featured articles (cards below hero)
     db
       .select({

@@ -131,7 +131,7 @@ router.post("/articles", async (req, res): Promise<void> => {
     coverImage?: string; categoryId: number; countryId?: number;
     authorId?: number; sourceName?: string; sourceUrl?: string;
     editor?: string; publishedAt?: string; status?: string;
-    featured?: boolean; breakingNews?: boolean;
+    featured?: boolean; breakingNews?: boolean; mostReadRank?: number | null;
   };
 
   const slug = b.slug?.trim() || slugify(b.title);
@@ -150,6 +150,7 @@ router.post("/articles", async (req, res): Promise<void> => {
       status: b.status ?? "draft",
       featured: b.featured ?? false,
       breakingNews: b.breakingNews ?? false,
+      mostReadRank: b.mostReadRank ?? null,
     }).returning();
     res.status(201).json(article);
   } catch (err: unknown) {
@@ -179,6 +180,7 @@ router.patch("/articles/:id", async (req, res): Promise<void> => {
   for (const f of strFields) if (f in b) update[f] = b[f] ?? null;
   for (const f of numFields) if (f in b) update[f] = b[f] ? Number(b[f]) : null;
   for (const f of boolFields) if (f in b) update[f] = Boolean(b[f]);
+  if ("mostReadRank" in b) update.mostReadRank = b.mostReadRank ? Number(b.mostReadRank) : null;
   if ("publishedAt" in b) update.publishedAt = b.publishedAt ? new Date(b.publishedAt as string) : null;
 
   const [article] = await db.update(articlesTable).set(update)
