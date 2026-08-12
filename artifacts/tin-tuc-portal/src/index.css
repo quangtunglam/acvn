@@ -163,7 +163,7 @@
 .u-weather-temp { color: white; font-weight: 700; }
 .u-weather-sep { color: hsl(211 28% 52%); margin-right: 6px; }
 .masthead { background: hsl(var(--card)); border-bottom: 1px solid hsl(var(--border)); }
-.masthead-inner { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; min-height: 130px; gap: 64px; padding-block: 20px; }
+.masthead-inner { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; min-height: 130px; gap: 32px; padding-block: 20px; }
 /* Center logo */
 .masthead-logo-wrap { display: flex; justify-content: center; }
 .masthead-logo-img { height: 100px; width: auto; object-fit: contain; display: block; transition: opacity .2s; }
