@@ -279,7 +279,7 @@ function HomepageContent({ data }: { data: HomepagePayload }) {
         <section className="features">
           <div className="wrap">
             <section className="page-section" id="chuyen-muc">
-              <SectionHeading title="Chuyên mục" more="/danh-muc/chuyen-muc" />
+              <SectionHeading title="Văn hóa truyền thống" more="/danh-muc/van-hoa-truyen-thong" />
               <div className="selected-grid">
                 {data.features.slice(0, 4).map((article, index) => <StoryCard key={article.id} article={article} index={index} />)}
               </div>
