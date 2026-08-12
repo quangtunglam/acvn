@@ -53,15 +53,23 @@ export function UtilityBar() {
 export function Masthead() {
   return (
     <header className="masthead">
-      <div className="wrap">
-        <a className="logo" href="/" aria-label="Trang chủ Hội người Séc gốc Việt Nam" data-testid="link-logo">
-          <img src="/logo-hoi.png" alt="Logo" className="logo-img" />
-          <span>
-            <span className="logo-name logo-name--hoi">Hội người Séc<em style={{ fontStyle: 'normal' }}> gốc Việt Nam</em></span>
-            <span className="logo-tag logo-tag--hoi">Asociace českých občanů vietnamského původu</span>
-          </span>
+      <div className="wrap masthead-inner">
+        {/* Left — Czech name */}
+        <a className="masthead-side masthead-side--left" href="/" aria-label="Trang chủ" data-testid="link-logo">
+          <span className="masthead-lang-name">Asociace českých občanů</span>
+          <span className="masthead-lang-name">vietnamského původu</span>
         </a>
-        <div className="masthead-ad">KHU VỰC ĐẶT LOGO / QUẢNG CÁO ĐỐI TÁC</div>
+
+        {/* Center — logo */}
+        <a className="masthead-logo-wrap" href="/" aria-label="Trang chủ">
+          <img src="/logo-hoi.png" alt="Logo Hội người Séc gốc Việt Nam" className="masthead-logo-img" />
+        </a>
+
+        {/* Right — Vietnamese name */}
+        <a className="masthead-side masthead-side--right" href="/" aria-label="Trang chủ">
+          <span className="masthead-lang-name">Hội người Séc</span>
+          <span className="masthead-lang-name">gốc Việt Nam</span>
+        </a>
       </div>
     </header>
   );
