@@ -375,7 +375,7 @@ export function Modal({ title, onClose, children }: { title: string; onClose: ()
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
           padding: '1rem 1.25rem', borderBottom: '1px solid var(--color-rule)',
         }}>
-          <h2 style={{ fontFamily: 'var(--font-sans)', fontSize: '1rem', fontWeight: 700, color: 'var(--color-navy)', margin: 0 }}>
+          <h2 style={{ fontFamily: 'var(--font-sans)', fontSize: '1rem', fontWeight: 700, color: '#000', margin: 0 }}>
             {title}
           </h2>
           <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-ink-light)', padding: 4 }}>

@@ -216,7 +216,7 @@
 .eu-band { background: hsl(var(--card)); border-top: 1px solid hsl(var(--border)); border-bottom: 1px solid hsl(var(--border)); }
 .eu-grid { display: grid; grid-template-columns: repeat(4, 1fr); border-left: 1px solid hsl(var(--border)); }
 .eu-col { min-height: 270px; padding: 18px; border-right: 1px solid hsl(var(--border)); border-top: 1px solid hsl(var(--border)); }
-.country-label { display: flex; align-items: center; gap: 9px; margin-bottom: 12px; font-size: 14px; }
+.country-label { display: flex; align-items: center; gap: 9px; margin-bottom: 12px; font-size: 14px; color: #111; }
 .flag { width: 27px; height: 18px; position: relative; flex: 0 0 auto; border-radius: 2px; box-shadow: 0 1px 3px rgba(0,0,0,.18); overflow: hidden; }
 .flag-cz { background: linear-gradient(#fff 50%, #d7141a 50%); }
 .flag-cz::before { content: ''; position: absolute; top: 0; left: 0; width: 0; height: 0; border-top: 9px solid transparent; border-bottom: 9px solid transparent; border-left: 14px solid #11457e; }

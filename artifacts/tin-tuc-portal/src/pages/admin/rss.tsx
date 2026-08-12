@@ -130,7 +130,7 @@ export default function AdminRSS() {
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     <Rss size={14} color="var(--color-crimson)" style={{ flexShrink: 0 }} />
                     <div>
-                      <div style={{ fontWeight: 600, color: 'var(--color-navy)' }}>{f.name}</div>
+                      <div style={{ fontWeight: 600, color: '#111' }}>{f.name}</div>
                       <div style={{ fontSize: '0.72rem', color: 'var(--color-ink-light)', fontFamily: 'var(--font-mono)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 280 }}>{f.url}</div>
                     </div>
                   </div>
