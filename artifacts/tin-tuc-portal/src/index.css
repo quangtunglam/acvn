@@ -170,8 +170,8 @@
 .masthead-logo-wrap:hover .masthead-logo-img { opacity: .85; }
 /* Side text */
 .masthead-side { display: flex; flex-direction: column; gap: 2px; text-decoration: none; align-items: center; text-align: center; }
-.masthead-side--left  { justify-self: end;   margin-right: 24px; }
-.masthead-side--right { justify-self: start; margin-left:  24px; }
+.masthead-side--left  { justify-self: end;   margin-right: 36px; }
+.masthead-side--right { justify-self: start; margin-left:  36px; }
 .masthead-lang-name { font: 700 26px/1.35 var(--app-font-sans); color: #1a74c4; letter-spacing: .01em; transition: color .2s; }
 .masthead-side:hover .masthead-lang-name { color: #1456a0; }
 .primary-nav { position: sticky; top: 0; z-index: 20; background: hsl(var(--card)); border-bottom: 2px solid hsl(var(--foreground)); }
