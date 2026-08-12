@@ -55,12 +55,12 @@ export function Masthead() {
 
 // ─── Navigation ───────────────────────────────────────────────────────────────
 
-type NavItem = { label: string; href: string; children?: { label: string; href: string }[] };
+type NavItem = { label: string; href: string; noLink?: boolean; children?: { label: string; href: string }[] };
 
 const NAV_LINKS: NavItem[] = [
   { label: 'Trang chủ', href: '/' },
   {
-    label: 'Giới thiệu', href: '/gioi-thieu',
+    label: 'Giới thiệu', href: '/gioi-thieu', noLink: true,
     children: [
       { label: 'Thông tin về Hội', href: '/gioi-thieu/thong-tin-ve-hoi' },
       { label: 'Liên hệ', href: '/gioi-thieu/lien-he' },
@@ -84,7 +84,7 @@ const NAV_LINKS: NavItem[] = [
   },
   { label: 'Sự kiện', href: '/su-kien' },
   {
-    label: 'Đăng ký', href: '/dang-ky',
+    label: 'Đăng ký', href: '/dang-ky', noLink: true,
     children: [
       { label: 'Đăng ký thành viên', href: '/dang-ky/thanh-vien' },
       { label: 'Đăng ký tài trợ', href: '/dang-ky/tai-tro' },
@@ -110,12 +110,19 @@ export function Navigation({
     }
   };
 
-  // Mobile: first tap expands subcategories, second tap navigates
+  // Mobile: for noLink items always just expand; for others first tap expands, second tap navigates
   const handleParentClick = (e: React.MouseEvent, item: NavItem) => {
-    if (!open) return; // desktop — let href work naturally
+    if (!open) {
+      // Desktop: noLink items must not navigate
+      if (item.noLink) e.preventDefault();
+      return;
+    }
     e.preventDefault();
-    if (expandedMobile === item.label) {
-      // already expanded → navigate + close
+    if (item.noLink) {
+      // Always just toggle — never navigate
+      setExpandedMobile(expandedMobile === item.label ? null : item.label);
+    } else if (expandedMobile === item.label) {
+      // Already expanded → navigate + close
       setExpandedMobile(null);
       onToggle();
       setLocation(item.href);
