@@ -169,9 +169,19 @@
 .primary-nav { position: sticky; top: 0; z-index: 20; background: hsl(var(--card)); border-bottom: 2px solid hsl(var(--foreground)); }
 .primary-nav .wrap { display: flex; align-items: center; min-height: 52px; }
 .nav-links { display: flex; align-items: center; gap: 2px; }
-.nav-link { position: relative; padding: 16px 17px 14px; font-size: 13.5px; font-weight: 700; transition: color .2s ease; }
+.nav-link { position: relative; padding: 16px 17px 14px; font-size: 13.5px; font-weight: 700; transition: color .2s ease; display: flex; align-items: center; gap: 4px; }
 .nav-link:hover, .nav-link.active { color: hsl(var(--primary)); }
 .nav-link.active::after { position: absolute; content: ''; left: 17px; right: 17px; bottom: -2px; height: 3px; background: hsl(var(--primary)); }
+.nav-caret { font-size: 9px; opacity: .6; transition: transform .2s ease; line-height: 1; }
+/* Dropdown */
+.nav-item { position: relative; }
+.nav-item--has-dropdown:hover > .nav-link { color: hsl(var(--primary)); }
+.nav-item--has-dropdown:hover > .nav-link .nav-caret { transform: rotate(180deg); }
+.nav-dropdown { position: absolute; top: calc(100% + 2px); left: 0; min-width: 170px; background: hsl(var(--card)); border-top: 3px solid hsl(var(--primary)); box-shadow: 0 6px 24px rgba(0,0,0,.13); border-radius: 0 0 6px 6px; z-index: 50; opacity: 0; visibility: hidden; transform: translateY(-6px); transition: opacity .18s ease, transform .18s ease, visibility .18s; }
+.nav-item--has-dropdown:hover .nav-dropdown { opacity: 1; visibility: visible; transform: translateY(0); }
+.nav-dropdown-link { display: block; padding: 11px 18px; font-size: 13px; font-weight: 600; color: hsl(var(--foreground)); text-decoration: none; border-bottom: 1px solid hsl(var(--border)); transition: background .15s, color .15s; white-space: nowrap; }
+.nav-dropdown-link:last-child { border-bottom: none; }
+.nav-dropdown-link:hover { background: hsl(var(--background)); color: hsl(var(--primary)); }
 .nav-spacer { flex: 1; }
 .nav-search { width: 208px; display: flex; align-items: center; gap: 8px; padding: 8px 12px; margin: 7px 0; background: hsl(var(--background)); border: 1px solid hsl(var(--border)); border-radius: 5px; color: hsl(var(--muted-foreground)); }
 .nav-search input { min-width: 0; width: 100%; border: 0; outline: 0; background: transparent; color: hsl(var(--foreground)); font-size: 12.5px; }

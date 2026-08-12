@@ -536,7 +536,8 @@ export const ListCategoriesResponseItem = zod.object({
   "id": zod.number().int(),
   "name": zod.string(),
   "slug": zod.string(),
-  "description": zod.string().nullable()
+  "description": zod.string().nullable(),
+  "parentId": zod.number().int().nullable().optional()
 })
 export const ListCategoriesResponse = zod.array(ListCategoriesResponseItem)
 
