@@ -109,6 +109,45 @@ function mapArticle(r: Row, catRemap: Map<number, number>) {
   };
 }
 
+// ─── New feeds to ensure exist on every startup ───────────────────────────────
+const ENSURE_FEEDS = [
+  // Slovakia
+  { name: "SME.sk", url: "https://www.sme.sk/rss-title.asp", countryId: 2, categoryId: 1 },
+  { name: "Aktuality.sk", url: "https://www.aktuality.sk/rss/", countryId: 2, categoryId: 1 },
+  // Ba Lan
+  { name: "TVN24", url: "https://tvn24.pl/najnowsze.xml", countryId: 3, categoryId: 1 },
+  { name: "Polskie Radio 24", url: "https://www.polskieradio.pl/rss/4.xml", countryId: 3, categoryId: 1 },
+  // Đức
+  { name: "Tagesschau", url: "https://www.tagesschau.de/xml/rss2/", countryId: 4, categoryId: 1 },
+  { name: "Spiegel Online", url: "https://www.spiegel.de/schlagzeilen/tops/index.rss", countryId: 4, categoryId: 1 },
+];
+
+export async function ensureFeeds(): Promise<void> {
+  try {
+    for (const feed of ENSURE_FEEDS) {
+      const existing = await db
+        .select({ id: rssFeedsTable.id })
+        .from(rssFeedsTable)
+        .where(sql`url = ${feed.url}`)
+        .limit(1);
+
+      if (existing.length === 0) {
+        await db.insert(rssFeedsTable).values({
+          name: feed.name,
+          url: feed.url,
+          countryId: feed.countryId,
+          categoryId: feed.categoryId,
+          active: true,
+          itemsImported: 0,
+        });
+        logger.info({ name: feed.name }, "Added new RSS feed");
+      }
+    }
+  } catch (err) {
+    logger.error({ err }, "ensureFeeds failed");
+  }
+}
+
 export async function seedIfEmpty(): Promise<void> {
   try {
     const [{ count }] = await db

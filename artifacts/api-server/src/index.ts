@@ -1,6 +1,6 @@
 import app from "./app";
 import { logger } from "./lib/logger";
-import { seedIfEmpty } from "./seed/seeder.js";
+import { seedIfEmpty, ensureFeeds } from "./seed/seeder.js";
 
 const rawPort = process.env["PORT"];
 
@@ -26,4 +26,6 @@ app.listen(port, (err) => {
 
   // Seed production DB if empty (safe no-op when data already exists)
   seedIfEmpty().catch((e) => logger.error({ err: e }, "seedIfEmpty threw"));
+  // Ensure new RSS feeds are always present (runs on every startup)
+  ensureFeeds().catch((e) => logger.error({ err: e }, "ensureFeeds threw"));
 });
