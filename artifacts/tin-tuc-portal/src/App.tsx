@@ -31,6 +31,7 @@ import CountryPage from '@/pages/country';
 import SearchPage from '@/pages/search';
 import AdminRouter from '@/pages/admin/index';
 import { GoogleFormPage } from '@/pages/google-form-page';
+import EventsPage from '@/pages/events';
 import { Route, Switch, useLocation, Router as WouterRouter, useParams } from 'wouter';
 
 const queryClient = new QueryClient({
@@ -411,6 +412,7 @@ function Router() {
             formUrl="https://docs.google.com/forms/d/1xu9W4TxtlXe70_9ZKc3eLkfUtG9sqRLat1mvNX-6EpQ/viewform?embedded=true"
           />
         )} />
+        <Route path="/su-kien" component={EventsPage} />
         <Route path="/admin/:rest*" component={AdminPage} />
         <Route path="/admin" component={AdminPage} />
         <Route component={NotFound} />

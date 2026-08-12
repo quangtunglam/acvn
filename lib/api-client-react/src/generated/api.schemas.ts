@@ -157,5 +157,6 @@ pageSize?: PageSizeParameter;
 
 export type ListEventsParams = {
 eventType?: string;
+includePast?: boolean;
 };
 
