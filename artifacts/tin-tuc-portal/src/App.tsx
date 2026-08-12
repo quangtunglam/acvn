@@ -31,6 +31,7 @@ import CategoryPage from '@/pages/category';
 import CountryPage from '@/pages/country';
 import SearchPage from '@/pages/search';
 import AdminRouter from '@/pages/admin/index';
+import { GoogleFormPage } from '@/pages/google-form-page';
 import { Route, Switch, useLocation, Router as WouterRouter, useParams } from 'wouter';
 
 const queryClient = new QueryClient({
@@ -405,6 +406,12 @@ function Router() {
         <Route path="/danh-muc/:slug" component={CategoryPage} />
         <Route path="/khu-vuc/:slug" component={CountryPage} />
         <Route path="/tim-kiem" component={SearchPage} />
+        <Route path="/dang-ky/tai-tro" component={() => (
+          <GoogleFormPage
+            title="Đăng ký tài trợ"
+            formUrl="https://docs.google.com/forms/d/1xu9W4TxtlXe70_9ZKc3eLkfUtG9sqRLat1mvNX-6EpQ/viewform?embedded=true"
+          />
+        )} />
         <Route path="/admin/:rest*" component={AdminPage} />
         <Route path="/admin" component={AdminPage} />
         <Route component={NotFound} />
