@@ -406,6 +406,12 @@ function Router() {
         <Route path="/danh-muc/:slug" component={CategoryPage} />
         <Route path="/khu-vuc/:slug" component={CountryPage} />
         <Route path="/tim-kiem" component={SearchPage} />
+        <Route path="/dang-ky/thanh-vien" component={() => (
+          <GoogleFormPage
+            title="Đăng ký thành viên"
+            formUrl="https://docs.google.com/forms/d/1Ny4iXisVr1z2jvoWRnIYXX5gH4QAD6PSNQzqluf4_-0/viewform?embedded=true"
+          />
+        )} />
         <Route path="/dang-ky/tai-tro" component={() => (
           <GoogleFormPage
             title="Đăng ký tài trợ"
