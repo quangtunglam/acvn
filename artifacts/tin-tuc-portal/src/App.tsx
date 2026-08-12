@@ -280,28 +280,8 @@ function HomepageContent({ data }: { data: HomepagePayload }) {
           <div className="wrap">
             <section className="page-section" id="chuyen-muc">
               <SectionHeading title="Chuyên mục" more="/danh-muc/chuyen-muc" />
-              {featuresLead && (
-                <div className="feature-lead">
-                  <a className="feature-image" href={`/bai-viet/${featuresLead.slug}`} aria-label={featuresLead.title}>
-                    <Img src={img(featuresLead, 900)} alt={featuresLead.summary} />
-                  </a>
-                  <div className="feature-body">
-                    <span className="kicker">{featuresLead.category.name}</span>
-                    <h2>{featuresLead.title}</h2>
-                    <p>{featuresLead.summary}</p>
-                    {featuresLead.author && <div className="author">Tác giả: <strong>{featuresLead.author.name}</strong></div>}
-                  </div>
-                </div>
-              )}
-              <div className="feature-cards">
-                {featuresCards.map((a) => (
-                  <article className="card" key={a.id}>
-                    <a className="card-thumb" href={`/bai-viet/${a.slug}`} aria-label={a.title}><Img src={img(a, 600)} alt="" /></a>
-                    <span className="kicker">{a.category.name}</span>
-                    <h3><a href={`/bai-viet/${a.slug}`}>{a.title}</a></h3>
-                    {a.author && <div className="author">Tác giả: <strong>{a.author.name}</strong></div>}
-                  </article>
-                ))}
+              <div className="selected-grid">
+                {data.features.slice(0, 4).map((article, index) => <StoryCard key={article.id} article={article} index={index} />)}
               </div>
             </section>
           </div>
