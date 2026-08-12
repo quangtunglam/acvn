@@ -111,11 +111,12 @@ function mapArticle(r: Row, catRemap: Map<number, number>) {
 
 // ─── Categories to ensure exist on every startup ─────────────────────────────
 const ENSURE_CATEGORIES = [
-  { name: "Kinh doanh",           slug: "kinh-doanh"         },
-  { name: "Cộng đồng",            slug: "cong-dong"          },
+  { name: "Kinh doanh",           slug: "kinh-doanh"           },
+  { name: "Cộng đồng",            slug: "cong-dong"            },
   { name: "Văn hóa truyền thống", slug: "van-hoa-truyen-thong" },
-  { name: "Sức khỏe - Đời sống",  slug: "suc-khoe-doi-song"  },
-  { name: "Pháp luật",            slug: "phap-luat"          },
+  { name: "Sức khỏe - Đời sống",  slug: "suc-khoe-doi-song"   },
+  { name: "Pháp luật",            slug: "phap-luat"            },
+  { name: "Chuyên mục",           slug: "chuyen-muc"           },
 ];
 
 export async function ensureCategories(): Promise<void> {
@@ -139,8 +140,12 @@ export async function ensureCategories(): Promise<void> {
 // ─── Set parent_id for subcategories ─────────────────────────────────────────
 // "Tin Việt Nam" and "Tin thế giới" are children of "Tin tức"
 const SUBCATEGORY_MAP: { childSlug: string; parentSlug: string }[] = [
-  { childSlug: "tin-viet-nam", parentSlug: "tin-tuc" },
-  { childSlug: "tin-the-gioi", parentSlug: "tin-tuc" },
+  { childSlug: "tin-viet-nam",          parentSlug: "tin-tuc"    },
+  { childSlug: "tin-the-gioi",          parentSlug: "tin-tuc"    },
+  { childSlug: "van-hoa-truyen-thong",  parentSlug: "chuyen-muc" },
+  { childSlug: "suc-khoe-doi-song",     parentSlug: "chuyen-muc" },
+  { childSlug: "phap-luat",             parentSlug: "chuyen-muc" },
+  { childSlug: "kinh-doanh",            parentSlug: "chuyen-muc" },
 ];
 
 export async function ensureCategoryHierarchy(): Promise<void> {
