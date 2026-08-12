@@ -8,9 +8,9 @@ export interface CityWeather {
 }
 
 // WMO weather interpretation codes → emoji + description
-function wmoToEmoji(code: number): { emoji: string; desc: string } {
-  if (code === 0) return { emoji: '☀️', desc: 'Quang đãng' };
-  if (code === 1) return { emoji: '🌤️', desc: 'Ít mây' };
+function wmoToEmoji(code: number, isDay: boolean): { emoji: string; desc: string } {
+  if (code === 0) return { emoji: isDay ? '☀️' : '🌙', desc: isDay ? 'Quang đãng' : 'Đêm quang' };
+  if (code === 1) return { emoji: isDay ? '🌤️' : '🌙', desc: 'Ít mây' };
   if (code === 2) return { emoji: '⛅', desc: 'Có mây' };
   if (code === 3) return { emoji: '☁️', desc: 'Nhiều mây' };
   if (code === 45 || code === 48) return { emoji: '🌫️', desc: 'Sương mù' };
@@ -32,7 +32,7 @@ async function fetchCity(city: typeof CITIES[0]): Promise<CityWeather> {
   const url =
     `https://api.open-meteo.com/v1/forecast` +
     `?latitude=${city.lat}&longitude=${city.lon}` +
-    `&current=temperature_2m,weather_code` +
+    `&current=temperature_2m,weather_code,is_day` +
     `&timezone=${city.tz}`;
 
   const res = await fetch(url);
@@ -40,7 +40,8 @@ async function fetchCity(city: typeof CITIES[0]): Promise<CityWeather> {
   const data = await res.json();
   const temp = Math.round(data.current.temperature_2m as number);
   const code = data.current.weather_code as number;
-  const { emoji, desc } = wmoToEmoji(code);
+  const isDay = (data.current.is_day as number) === 1;
+  const { emoji, desc } = wmoToEmoji(code, isDay);
   return { city: city.name, temp, emoji, desc };
 }
 
