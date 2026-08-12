@@ -1,6 +1,6 @@
 import app from "./app";
 import { logger } from "./lib/logger";
-import { seedIfEmpty, ensureFeeds, ensureCategories } from "./seed/seeder.js";
+import { seedIfEmpty, ensureFeeds, ensureCategories, ensureCategoryHierarchy } from "./seed/seeder.js";
 
 const rawPort = process.env["PORT"];
 
@@ -30,4 +30,6 @@ app.listen(port, (err) => {
   ensureFeeds().catch((e) => logger.error({ err: e }, "ensureFeeds threw"));
   // Ensure required categories exist (runs on every startup)
   ensureCategories().catch((e) => logger.error({ err: e }, "ensureCategories threw"));
+  // Ensure subcategory hierarchy (runs on every startup)
+  ensureCategoryHierarchy().catch((e) => logger.error({ err: e }, "ensureCategoryHierarchy threw"));
 });

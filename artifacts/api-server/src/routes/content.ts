@@ -379,6 +379,7 @@ router.get("/categories", async (_req, res): Promise<void> => {
       name: categoriesTable.name,
       slug: categoriesTable.slug,
       description: categoriesTable.description,
+      parentId: categoriesTable.parentId,
     })
     .from(categoriesTable)
     .orderBy(asc(categoriesTable.name));

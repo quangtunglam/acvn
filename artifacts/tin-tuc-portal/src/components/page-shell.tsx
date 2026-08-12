@@ -55,13 +55,21 @@ export function Masthead() {
 
 // ─── Navigation ───────────────────────────────────────────────────────────────
 
-const NAV_LINKS: [string, string][] = [
-  ['Trang chủ', '/'],
-  ['Tin tức', '/danh-muc/tin-tuc'],
-  ['Kinh doanh', '/danh-muc/kinh-doanh'],
-  ['Chuyên mục', '/danh-muc/chuyen-dau-tu'],
-  ['Golf', '/danh-muc/golf'],
-  ['Cộng đồng', '/danh-muc/cong-dong'],
+type NavItem = { label: string; href: string; children?: { label: string; href: string }[] };
+
+const NAV_LINKS: NavItem[] = [
+  { label: 'Trang chủ', href: '/' },
+  {
+    label: 'Tin tức', href: '/danh-muc/tin-tuc',
+    children: [
+      { label: 'Tin Việt Nam', href: '/danh-muc/tin-viet-nam' },
+      { label: 'Tin thế giới', href: '/danh-muc/tin-the-gioi' },
+    ],
+  },
+  { label: 'Kinh doanh', href: '/danh-muc/kinh-doanh' },
+  { label: 'Chuyên mục', href: '/danh-muc/chuyen-dau-tu' },
+  { label: 'Golf', href: '/danh-muc/golf' },
+  { label: 'Cộng đồng', href: '/danh-muc/cong-dong' },
 ];
 
 export function Navigation({
@@ -91,17 +99,43 @@ export function Navigation({
           <span>Hà Nội 34°C</span>
         </div>
         <div className={`nav-links ${open ? 'open' : ''}`}>
-          {NAV_LINKS.map(([label, href], index) => (
-            <a
-              key={label}
-              className={`nav-link ${index === 0 ? 'active' : ''}`}
-              href={href}
-              onClick={onToggle}
-              data-testid={`link-nav-${label}`}
-            >
-              {label}
-            </a>
-          ))}
+          {NAV_LINKS.map((item, index) =>
+            item.children ? (
+              <div key={item.label} className="nav-item nav-item--has-dropdown">
+                <a
+                  className={`nav-link ${index === 0 ? 'active' : ''}`}
+                  href={item.href}
+                  onClick={onToggle}
+                  data-testid={`link-nav-${item.label}`}
+                >
+                  {item.label}
+                  <span className="nav-caret" aria-hidden="true">▾</span>
+                </a>
+                <div className="nav-dropdown">
+                  {item.children.map((child) => (
+                    <a
+                      key={child.label}
+                      className="nav-dropdown-link"
+                      href={child.href}
+                      onClick={onToggle}
+                    >
+                      {child.label}
+                    </a>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <a
+                key={item.label}
+                className={`nav-link ${index === 0 ? 'active' : ''}`}
+                href={item.href}
+                onClick={onToggle}
+                data-testid={`link-nav-${item.label}`}
+              >
+                {item.label}
+              </a>
+            )
+          )}
         </div>
         <div className="nav-spacer" />
         <label className="nav-search">

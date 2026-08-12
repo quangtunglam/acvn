@@ -133,6 +133,28 @@ export async function ensureCategories(): Promise<void> {
   }
 }
 
+// ─── Set parent_id for subcategories ─────────────────────────────────────────
+// "Tin Việt Nam" and "Tin thế giới" are children of "Tin tức"
+const SUBCATEGORY_MAP: { childSlug: string; parentSlug: string }[] = [
+  { childSlug: "tin-viet-nam", parentSlug: "tin-tuc" },
+  { childSlug: "tin-the-gioi", parentSlug: "tin-tuc" },
+];
+
+export async function ensureCategoryHierarchy(): Promise<void> {
+  try {
+    for (const { childSlug, parentSlug } of SUBCATEGORY_MAP) {
+      const [parent] = await db.select({ id: categoriesTable.id }).from(categoriesTable).where(sql`slug = ${parentSlug}`).limit(1);
+      const [child]  = await db.select({ id: categoriesTable.id, parentId: categoriesTable.parentId }).from(categoriesTable).where(sql`slug = ${childSlug}`).limit(1);
+      if (parent && child && child.parentId !== parent.id) {
+        await db.execute(sql`UPDATE categories SET parent_id = ${parent.id} WHERE id = ${child.id}`);
+        logger.info({ childSlug, parentSlug }, "Set category parent");
+      }
+    }
+  } catch (err) {
+    logger.error({ err }, "ensureCategoryHierarchy failed");
+  }
+}
+
 // ─── New feeds to ensure exist on every startup ───────────────────────────────
 const ENSURE_FEEDS = [
   // Slovakia
