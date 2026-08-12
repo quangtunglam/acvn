@@ -38,11 +38,6 @@ export function UtilityBar() {
             </span>
           )}
         </div>
-        <div className="u-right">
-          <a href="/api/ty-gia">Bảng tỷ giá</a>
-          <span className="u-sep">|</span>
-          <span className="lang"><b>VI</b> / <a href="/">CZ</a> / <a href="/">EN</a></span>
-        </div>
       </div>
     </div>
   );
