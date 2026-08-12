@@ -106,12 +106,17 @@ async function queryArticles(options: {
   limit?: number;
   offset?: number;
   category?: string;
+  categories?: string[];
   country?: string;
   search?: string;
   orderBy?: "publishedAt" | "views";
 }): Promise<ReturnType<typeof mapArticle>[]> {
   const filters = [publishedFilter];
-  if (options.category) {
+  if (options.categories && options.categories.length > 0) {
+    const allIds = (await Promise.all(options.categories.map(getCategoryIds))).flat();
+    if (allIds.length === 1) filters.push(eq(articlesTable.categoryId, allIds[0]));
+    else if (allIds.length > 1) filters.push(inArray(articlesTable.categoryId, allIds));
+  } else if (options.category) {
     const ids = await getCategoryIds(options.category);
     if (ids.length === 1) filters.push(eq(articlesTable.categoryId, ids[0]));
     else if (ids.length > 1) filters.push(inArray(articlesTable.categoryId, ids));
@@ -273,7 +278,7 @@ router.get("/homepage", async (_req, res): Promise<void> => {
     queryArticles({ limit: 6, country: "viet-nam" }),
     queryArticles({ limit: 6, category: "tin-the-gioi" }),
     queryArticles({ limit: 8, category: "kinh-doanh" }),
-    queryArticles({ limit: 8, orderBy: "publishedAt" }),
+    queryArticles({ limit: 8, categories: ["van-hoa-truyen-thong", "suc-khoe-doi-song", "phap-luat", "kinh-doanh"], orderBy: "publishedAt" }),
     queryEvents("community", true),
   ]);
 
