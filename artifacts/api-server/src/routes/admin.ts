@@ -89,12 +89,14 @@ router.get("/articles", async (req, res): Promise<void> => {
   const status = req.query.status as string | undefined;
   const categoryId = req.query.categoryId ? Number(req.query.categoryId) : undefined;
   const rssOnly = req.query.rssOnly === "1";
+  const sourceName = req.query.sourceName as string | undefined;
   const dateRange = req.query.date as string | undefined; // "today" | "week"
 
   const conditions = [];
   if (status) conditions.push(eq(articlesTable.status, status));
   if (categoryId) conditions.push(eq(articlesTable.categoryId, categoryId));
   if (rssOnly) conditions.push(isNotNull(articlesTable.sourceName));
+  if (sourceName) conditions.push(eq(articlesTable.sourceName, sourceName));
   if (dateRange === "today") {
     const start = new Date(); start.setHours(0, 0, 0, 0);
     conditions.push(gte(articlesTable.publishedAt, start));
