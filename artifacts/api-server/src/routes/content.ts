@@ -191,13 +191,13 @@ async function countArticles(options: {
   return Number(result?.count ?? 0);
 }
 
-async function queryEvents(eventType?: string) {
+async function queryEvents(eventType?: string, includePast = false) {
+  const dateCond = includePast ? undefined : sql`${eventsTable.startDate} >= now()`;
   const where = eventType
-    ? and(
-        eq(eventsTable.eventType, eventType),
-        sql`${eventsTable.startDate} >= now()`,
-      )
-    : sql`${eventsTable.startDate} >= now()`;
+    ? dateCond
+      ? and(eq(eventsTable.eventType, eventType), dateCond)
+      : eq(eventsTable.eventType, eventType)
+    : dateCond;
 
   return db
     .select()
@@ -274,7 +274,7 @@ router.get("/homepage", async (_req, res): Promise<void> => {
     queryArticles({ limit: 6, category: "tin-the-gioi" }),
     queryArticles({ limit: 8, category: "kinh-doanh" }),
     queryArticles({ limit: 8, category: "chuyen-dau-tu" }),
-    queryEvents("community"),
+    queryEvents("community", true),
   ]);
 
   const euCountries: Record<string, ReturnType<typeof mapArticle>[]> = {};

@@ -126,20 +126,31 @@ function NewsletterWidget() {
 }
 
 function CommunityWidget({ events }: { events: Event[] }) {
+  const now = new Date();
+  const upcoming = events
+    .filter((ev) => new Date(ev.startDate) >= now)
+    .sort((a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime());
+  const past = events
+    .filter((ev) => new Date(ev.startDate) < now)
+    .sort((a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime());
+  const sorted = [...upcoming, ...past];
+
   return (
     <div className="widget">
-      <div className="widget-head"><CalendarDays size={15} /> Sự kiện cộng đồng</div>
+      <div className="widget-head"><CalendarDays size={15} /> Sự kiện của Hội</div>
       <div className="widget-body">
-        {events.length === 0 ? (
-          <><p className="empty">Chưa có sự kiện sắp diễn ra.</p>
-            <p style={{ marginTop: 10 }}><a href="#cong-dong" className="more-link">Xem các sự kiện đã qua <ArrowRight size={13} /></a></p>
-          </>
-        ) : events.map((ev) => (
-          <div className="event" key={ev.id}>
-            <div className="event-title">{ev.title}</div>
-            <div className="event-meta"><strong>{fmtEventDate(ev)}</strong>{ev.location && <span>{ev.location}</span>}</div>
-          </div>
-        ))}
+        {sorted.length === 0 ? (
+          <p className="empty">Chưa có sự kiện nào.</p>
+        ) : sorted.map((ev) => {
+          const isPast = new Date(ev.startDate) < now;
+          return (
+            <div className={`event ${isPast ? 'event--past' : ''}`} key={ev.id}>
+              {isPast && <span className="event-past-badge">Đã diễn ra</span>}
+              <div className="event-title">{ev.title}</div>
+              <div className="event-meta"><strong>{fmtEventDate(ev)}</strong>{ev.location && <span>{ev.location}</span>}</div>
+            </div>
+          );
+        })}
       </div>
     </div>
   );
