@@ -58,9 +58,11 @@ export default function AdminArticles() {
   const [categoryFilter, setCategoryFilter] = useState('');
   const [rssOnly, setRssOnly] = useState(false);
   const [dateFilter, setDateFilter] = useState('');
+  const [feedFilter, setFeedFilter] = useState('');
   const [categories, setCategories] = useState<Category[]>([]);
   const [countries, setCountries] = useState<Country[]>([]);
   const [authors, setAuthors] = useState<Author[]>([]);
+  const [feeds, setFeeds] = useState<{ id: number; name: string }[]>([]);
   const [modal, setModal] = useState<{ open: boolean; editing: ArticleDetail | null }>({ open: false, editing: null });
   const [form, setForm] = useState<FormData>(EMPTY);
   const [saving, setSaving] = useState(false);
@@ -72,15 +74,17 @@ export default function AdminArticles() {
     if (categoryFilter) q.set('categoryId', categoryFilter);
     if (rssOnly) q.set('rssOnly', '1');
     if (dateFilter) q.set('date', dateFilter);
+    if (feedFilter) q.set('sourceName', feedFilter);
     const d = await apiFetch<ArticleList>(`/articles?${q}`);
     setData(d);
-  }, [apiFetch, page, statusFilter, categoryFilter, rssOnly, dateFilter]);
+  }, [apiFetch, page, statusFilter, categoryFilter, rssOnly, dateFilter, feedFilter]);
 
   useEffect(() => {
     load();
     apiFetch<Category[]>('/categories').then(setCategories).catch(() => {});
     apiFetch<Country[]>('/countries').then(setCountries).catch(() => {});
     apiFetch<Author[]>('/authors').then(setAuthors).catch(() => {});
+    apiFetch<{ id: number; name: string }[]>('/rss/feeds').then(setFeeds).catch(() => {});
   }, [load, apiFetch]);
 
   const openCreate = () => { setForm(EMPTY); setError(''); setModal({ open: true, editing: null }); };
@@ -183,9 +187,21 @@ export default function AdminArticles() {
           <option value="week">7 ngày qua</option>
         </select>
 
+        {/* Feed nguồn */}
+        {feeds.length > 0 && (
+          <select
+            value={feedFilter}
+            onChange={(e) => { setFeedFilter(e.target.value); setRssOnly(false); setPage(1); }}
+            style={feedFilter ? selActiveStyle : selStyle}
+          >
+            <option value="">Tất cả nguồn</option>
+            {feeds.map((f) => <option key={f.id} value={f.name}>{f.name}</option>)}
+          </select>
+        )}
+
         {/* Chỉ RSS */}
-        <label style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: '0.85rem', cursor: 'pointer', padding: '0.45rem 0.65rem', border: '1px solid var(--color-rule)', borderRadius: 4, background: rssOnly ? 'var(--color-navy)' : '#fff', color: rssOnly ? '#fff' : 'var(--color-ink)', userSelect: 'none' }}>
-          <input type="checkbox" checked={rssOnly} onChange={(e) => { setRssOnly(e.target.checked); setPage(1); }} style={{ display: 'none' }} />
+        <label style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: '0.85rem', cursor: 'pointer', padding: '0.45rem 0.65rem', border: '1px solid #94a3b8', borderRadius: 4, background: rssOnly ? 'var(--color-navy)' : '#fff', color: rssOnly ? '#fff' : '#111827', userSelect: 'none' }}>
+          <input type="checkbox" checked={rssOnly} onChange={(e) => { setRssOnly(e.target.checked); setFeedFilter(''); setPage(1); }} style={{ display: 'none' }} />
           RSS only
         </label>
 
