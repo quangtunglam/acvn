@@ -8,7 +8,7 @@ type Author = { id: number; name: string };
 type ArticleRow = {
   id: number; title: string; slug: string; status: string; featured: boolean;
   breakingNews: boolean; views: number; publishedAt: string | null;
-  category: Category | null; updatedAt: string;
+  category: Category | null; updatedAt: string; mostReadRank: number | null;
 };
 type ArticleDetail = ArticleRow & {
   summary: string; content: string; coverImage: string | null;
@@ -27,13 +27,14 @@ type FormData = {
   title: string; slug: string; summary: string; content: string; coverImage: string;
   categoryId: string; countryId: string; authorId: string; sourceName: string;
   sourceUrl: string; editor: string; publishedAt: string; status: string;
-  featured: boolean; breakingNews: boolean;
+  featured: boolean; breakingNews: boolean; mostReadRank: string;
 };
 
 const EMPTY: FormData = {
   title: '', slug: '', summary: '', content: '<p></p>', coverImage: '',
   categoryId: '', countryId: '', authorId: '', sourceName: '', sourceUrl: '',
   editor: 'VietPress EU', publishedAt: '', status: 'draft', featured: false, breakingNews: false,
+  mostReadRank: '',
 };
 
 const selStyle: React.CSSProperties = {
@@ -94,6 +95,7 @@ export default function AdminArticles() {
       editor: a.editor ?? '', status: a.status, featured: a.featured,
       breakingNews: a.breakingNews,
       publishedAt: a.publishedAt ? a.publishedAt.slice(0, 16) : '',
+      mostReadRank: a.mostReadRank ? String(a.mostReadRank) : '',
     });
     setModal({ open: true, editing: a });
   };
@@ -126,6 +128,7 @@ export default function AdminArticles() {
         sourceUrl: form.sourceUrl || null,
         editor: form.editor || null,
         publishedAt: form.publishedAt || null,
+        mostReadRank: form.mostReadRank ? Number(form.mostReadRank) : null,
       };
       if (modal.editing) {
         await apiFetch(`/articles/${modal.editing.id}`, { method: 'PATCH', body: JSON.stringify(body) });
@@ -273,7 +276,7 @@ export default function AdminArticles() {
               <Input label="Ngày xuất bản" type="datetime-local" value={form.publishedAt} onChange={(e) => f('publishedAt', e.target.value)} />
             </div>
 
-            <div style={{ display: 'flex', gap: '1.5rem', marginBottom: '1rem' }}>
+            <div style={{ display: 'flex', gap: '1.5rem', marginBottom: '0.75rem', alignItems: 'center', flexWrap: 'wrap' }}>
               <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: '0.85rem', cursor: 'pointer' }}>
                 <input type="checkbox" checked={form.featured} onChange={(e) => f('featured', e.target.checked)} />
                 Bài nổi bật (featured)
@@ -281,6 +284,17 @@ export default function AdminArticles() {
               <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: '0.85rem', cursor: 'pointer' }}>
                 <input type="checkbox" checked={form.breakingNews} onChange={(e) => f('breakingNews', e.target.checked)} />
                 Tin nóng (ticker)
+              </label>
+              <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '0.85rem' }}>
+                <span style={{ whiteSpace: 'nowrap', fontWeight: 600 }}>Đọc nhiều (vị trí):</span>
+                <select
+                  value={form.mostReadRank}
+                  onChange={(e) => f('mostReadRank', e.target.value)}
+                  style={{ padding: '0.3rem 0.5rem', border: '1px solid #94a3b8', borderRadius: 4, fontSize: '0.85rem', fontFamily: 'var(--font-sans)', background: form.mostReadRank ? '#fff8f0' : '#fff', color: '#111827', fontWeight: form.mostReadRank ? 700 : 400 }}
+                >
+                  <option value="">— Không ghim —</option>
+                  {[1,2,3,4,5].map(n => <option key={n} value={String(n)}>#{n}</option>)}
+                </select>
               </label>
             </div>
 

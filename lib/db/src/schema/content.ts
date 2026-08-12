@@ -59,6 +59,7 @@ export const articlesTable = pgTable(
     featured: boolean("featured").notNull().default(false),
     breakingNews: boolean("breaking_news").notNull().default(false),
     views: integer("views").notNull().default(0),
+    mostReadRank: integer("most_read_rank"),
     tags: text("tags").array().notNull().default([]),
   },
   (table) => ({
