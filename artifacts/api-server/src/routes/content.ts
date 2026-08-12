@@ -278,7 +278,7 @@ router.get("/homepage", async (_req, res): Promise<void> => {
     queryArticles({ limit: 6, country: "viet-nam" }),
     queryArticles({ limit: 6, category: "tin-the-gioi" }),
     queryArticles({ limit: 8, category: "kinh-doanh" }),
-    queryArticles({ limit: 8, categories: ["van-hoa-truyen-thong", "suc-khoe-doi-song", "phap-luat", "kinh-doanh"], orderBy: "publishedAt" }),
+    queryArticles({ limit: 8, category: "van-hoa-truyen-thong", orderBy: "publishedAt" }),
     queryEvents("community", true),
   ]);
 
