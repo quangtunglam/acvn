@@ -37,9 +37,16 @@ const EMPTY: FormData = {
 };
 
 const selStyle: React.CSSProperties = {
-  padding: '0.45rem 0.65rem', border: '1px solid var(--color-rule)',
+  padding: '0.45rem 0.65rem', border: '1px solid #94a3b8',
   borderRadius: 4, fontSize: '0.85rem', fontFamily: 'var(--font-sans)',
-  background: '#fff', color: 'var(--color-ink)',
+  background: '#fff', color: '#111827',
+};
+
+const selActiveStyle: React.CSSProperties = {
+  ...selStyle,
+  border: '1px solid var(--color-crimson)',
+  color: '#111827',
+  fontWeight: 600,
 };
 
 export default function AdminArticles() {
@@ -145,7 +152,7 @@ export default function AdminArticles() {
         <select
           value={statusFilter}
           onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
-          style={selStyle}
+          style={statusFilter ? selActiveStyle : selStyle}
         >
           <option value="">Tất cả trạng thái</option>
           <option value="published">Đã xuất bản</option>
@@ -156,7 +163,7 @@ export default function AdminArticles() {
         <select
           value={categoryFilter}
           onChange={(e) => { setCategoryFilter(e.target.value); setPage(1); }}
-          style={selStyle}
+          style={categoryFilter ? selActiveStyle : selStyle}
         >
           <option value="">Tất cả danh mục</option>
           {categories.map((c) => <option key={c.id} value={String(c.id)}>{c.name}</option>)}
@@ -166,7 +173,7 @@ export default function AdminArticles() {
         <select
           value={dateFilter}
           onChange={(e) => { setDateFilter(e.target.value); setPage(1); }}
-          style={selStyle}
+          style={dateFilter ? selActiveStyle : selStyle}
         >
           <option value="">Mọi thời gian</option>
           <option value="today">Hôm nay</option>
