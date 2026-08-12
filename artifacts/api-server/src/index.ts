@@ -1,6 +1,6 @@
 import app from "./app";
 import { logger } from "./lib/logger";
-import { seedIfEmpty, ensureFeeds } from "./seed/seeder.js";
+import { seedIfEmpty, ensureFeeds, ensureCategories } from "./seed/seeder.js";
 
 const rawPort = process.env["PORT"];
 
@@ -28,4 +28,6 @@ app.listen(port, (err) => {
   seedIfEmpty().catch((e) => logger.error({ err: e }, "seedIfEmpty threw"));
   // Ensure new RSS feeds are always present (runs on every startup)
   ensureFeeds().catch((e) => logger.error({ err: e }, "ensureFeeds threw"));
+  // Ensure required categories exist (runs on every startup)
+  ensureCategories().catch((e) => logger.error({ err: e }, "ensureCategories threw"));
 });

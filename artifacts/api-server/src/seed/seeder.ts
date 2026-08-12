@@ -109,6 +109,30 @@ function mapArticle(r: Row, catRemap: Map<number, number>) {
   };
 }
 
+// ─── Categories to ensure exist on every startup ─────────────────────────────
+const ENSURE_CATEGORIES = [
+  { name: "Kinh doanh", slug: "kinh-doanh" },
+  { name: "Cộng đồng",  slug: "cong-dong"  },
+];
+
+export async function ensureCategories(): Promise<void> {
+  try {
+    for (const cat of ENSURE_CATEGORIES) {
+      const existing = await db
+        .select({ id: categoriesTable.id })
+        .from(categoriesTable)
+        .where(sql`slug = ${cat.slug}`)
+        .limit(1);
+      if (existing.length === 0) {
+        await db.insert(categoriesTable).values({ name: cat.name, slug: cat.slug });
+        logger.info({ slug: cat.slug }, "Added missing category");
+      }
+    }
+  } catch (err) {
+    logger.error({ err }, "ensureCategories failed");
+  }
+}
+
 // ─── New feeds to ensure exist on every startup ───────────────────────────────
 const ENSURE_FEEDS = [
   // Slovakia
