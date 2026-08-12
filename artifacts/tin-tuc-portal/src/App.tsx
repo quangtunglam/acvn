@@ -279,7 +279,7 @@ function HomepageContent({ data }: { data: HomepagePayload }) {
         <section className="features">
           <div className="wrap">
             <section className="page-section" id="chuyen-muc">
-              <SectionHeading title="Chuyên mục" more="/danh-muc/chuyen-dau-tu" />
+              <SectionHeading title="Chuyên mục" more="/danh-muc/chuyen-muc" />
               {featuresLead && (
                 <div className="feature-lead">
                   <a className="feature-image" href={`/bai-viet/${featuresLead.slug}`} aria-label={featuresLead.title}>
