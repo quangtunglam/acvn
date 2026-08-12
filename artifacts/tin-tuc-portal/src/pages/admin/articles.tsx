@@ -188,7 +188,7 @@ export default function AdminArticles() {
           <thead>
             <tr style={{ background: 'var(--color-bone)', textAlign: 'left' }}>
               {['Tiêu đề', 'Danh mục', 'Trạng thái', 'Lượt đọc', 'Cập nhật', ''].map(h => (
-                <th key={h} style={{ padding: '0.6rem 0.75rem', fontWeight: 600, color: 'var(--color-ink)', fontSize: '0.8rem', borderBottom: '1px solid var(--color-rule)' }}>{h}</th>
+                <th key={h} style={{ padding: '0.6rem 0.75rem', fontWeight: 600, color: '#000', fontSize: '0.8rem', borderBottom: '1px solid var(--color-rule)' }}>{h}</th>
               ))}
             </tr>
           </thead>
