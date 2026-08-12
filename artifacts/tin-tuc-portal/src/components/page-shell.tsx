@@ -80,12 +80,27 @@ export function Navigation({
   onToggle: () => void;
 }) {
   const [query, setQuery] = useState('');
+  const [expandedMobile, setExpandedMobile] = useState<string | null>(null);
   const [, setLocation] = useLocation();
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && query.trim()) {
       setLocation(`/tim-kiem?q=${encodeURIComponent(query.trim())}`);
       setQuery('');
+    }
+  };
+
+  // Mobile: first tap expands subcategories, second tap navigates
+  const handleParentClick = (e: React.MouseEvent, item: NavItem) => {
+    if (!open) return; // desktop — let href work naturally
+    e.preventDefault();
+    if (expandedMobile === item.label) {
+      // already expanded → navigate + close
+      setExpandedMobile(null);
+      onToggle();
+      setLocation(item.href);
+    } else {
+      setExpandedMobile(item.label);
     }
   };
 
@@ -105,24 +120,30 @@ export function Navigation({
                 <a
                   className={`nav-link ${index === 0 ? 'active' : ''}`}
                   href={item.href}
-                  onClick={onToggle}
+                  onClick={(e) => handleParentClick(e, item)}
                   data-testid={`link-nav-${item.label}`}
                 >
                   {item.label}
-                  <span className="nav-caret" aria-hidden="true">▾</span>
+                  <span className={`nav-caret ${expandedMobile === item.label ? 'nav-caret--up' : ''}`} aria-hidden="true">▾</span>
                 </a>
+                {/* Desktop dropdown (CSS hover) */}
                 <div className="nav-dropdown">
                   {item.children.map((child) => (
-                    <a
-                      key={child.label}
-                      className="nav-dropdown-link"
-                      href={child.href}
-                      onClick={onToggle}
-                    >
+                    <a key={child.label} className="nav-dropdown-link" href={child.href} onClick={onToggle}>
                       {child.label}
                     </a>
                   ))}
                 </div>
+                {/* Mobile accordion */}
+                {open && expandedMobile === item.label && (
+                  <div className="nav-mobile-children">
+                    {item.children.map((child) => (
+                      <a key={child.label} className="nav-mobile-child-link" href={child.href} onClick={onToggle}>
+                        {child.label}
+                      </a>
+                    ))}
+                  </div>
+                )}
               </div>
             ) : (
               <a

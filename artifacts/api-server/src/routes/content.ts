@@ -1,4 +1,4 @@
-import { and, asc, desc, eq, ilike, or, sql } from "drizzle-orm";
+import { and, asc, desc, eq, ilike, inArray, or, sql } from "drizzle-orm";
 import { Router, type IRouter } from "express";
 import {
   GetArticleParams,
@@ -87,6 +87,21 @@ function mapArticle(row: ArticleJoinRow) {
   };
 }
 
+// Returns category IDs for a slug, including all child categories
+async function getCategoryIds(slug: string): Promise<number[]> {
+  const [parent] = await db
+    .select({ id: categoriesTable.id })
+    .from(categoriesTable)
+    .where(eq(categoriesTable.slug, slug))
+    .limit(1);
+  if (!parent) return [];
+  const children = await db
+    .select({ id: categoriesTable.id })
+    .from(categoriesTable)
+    .where(eq(categoriesTable.parentId, parent.id));
+  return [parent.id, ...children.map((c) => c.id)];
+}
+
 async function queryArticles(options: {
   limit?: number;
   offset?: number;
@@ -97,7 +112,9 @@ async function queryArticles(options: {
 }): Promise<ReturnType<typeof mapArticle>[]> {
   const filters = [publishedFilter];
   if (options.category) {
-    filters.push(eq(categoriesTable.slug, options.category));
+    const ids = await getCategoryIds(options.category);
+    if (ids.length === 1) filters.push(eq(articlesTable.categoryId, ids[0]));
+    else if (ids.length > 1) filters.push(inArray(articlesTable.categoryId, ids));
   }
   if (options.country) {
     filters.push(eq(countriesTable.slug, options.country));
@@ -145,7 +162,11 @@ async function countArticles(options: {
   search?: string;
 }): Promise<number> {
   const filters = [publishedFilter];
-  if (options.category) filters.push(eq(categoriesTable.slug, options.category));
+  if (options.category) {
+    const ids = await getCategoryIds(options.category);
+    if (ids.length === 1) filters.push(eq(articlesTable.categoryId, ids[0]));
+    else if (ids.length > 1) filters.push(inArray(articlesTable.categoryId, ids));
+  }
   if (options.country) filters.push(eq(countriesTable.slug, options.country));
   if (options.search) {
     const term = `%${options.search}%`;
