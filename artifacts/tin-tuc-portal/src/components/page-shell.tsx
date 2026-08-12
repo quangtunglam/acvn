@@ -1,7 +1,6 @@
 import { type ReactNode, useState } from 'react';
 import {
   ArrowRight,
-  CloudSun,
   Facebook,
   Mail,
   Menu,
@@ -11,6 +10,7 @@ import {
   Youtube,
 } from 'lucide-react';
 import { useLocation } from 'wouter';
+import { useWeather } from '../hooks/use-weather';
 
 // ─── Utility bar ──────────────────────────────────────────────────────────────
 
@@ -18,11 +18,25 @@ export function UtilityBar() {
   const today = new Intl.DateTimeFormat('vi-VN', {
     weekday: 'long', day: '2-digit', month: '2-digit', year: 'numeric',
   }).format(new Date());
+  const weather = useWeather();
+
   return (
     <div className="utility">
       <div className="wrap">
         <div className="u-left">
           <span className="u-date" data-testid="text-current-date">{today}</span>
+          {weather && (
+            <span className="u-weather" aria-label="Thời tiết hiện tại">
+              {weather.map((w, i) => (
+                <span key={w.city} className="u-weather-city">
+                  {i > 0 && <span className="u-weather-sep">·</span>}
+                  <span className="u-weather-emoji" title={w.desc}>{w.emoji}</span>
+                  <span className="u-weather-name">{w.city}</span>
+                  <span className="u-weather-temp">{w.temp}°C</span>
+                </span>
+              ))}
+            </span>
+          )}
         </div>
         <div className="u-right">
           <a href="/api/ty-gia">Bảng tỷ giá</a>
@@ -134,12 +148,6 @@ export function Navigation({
   return (
     <nav className="primary-nav" aria-label="Điều hướng chính">
       <div className="wrap">
-        <div className="nav-weather" aria-label="Thời tiết">
-          <CloudSun size={13} aria-hidden="true" />
-          <span>Praha 21°C</span>
-          <span className="nav-weather-sep">·</span>
-          <span>Hà Nội 34°C</span>
-        </div>
         <div className={`nav-links ${open ? 'open' : ''}`}>
           {NAV_LINKS.map((item, index) =>
             item.children ? (
