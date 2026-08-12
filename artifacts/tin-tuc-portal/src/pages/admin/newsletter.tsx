@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Edit2, Plus, Trash2 } from 'lucide-react';
 import { AdminPage, Badge, Btn, Input, Modal, useAdmin } from './layout';
+import { MediaPickerBtn } from './media-picker';
 
 type Subscriber = { id: number; email: string; active: boolean; subscribedAt: string };
 type SubList = { items: Subscriber[]; total: number; page: number; pageSize: number };
@@ -152,7 +153,14 @@ export default function AdminNewsletter() {
               <form onSubmit={saveBanner}>
                 <Input label="Tên banner *" value={bForm.name} onChange={(e) => bf('name', e.target.value)} required />
                 <Input label="Vị trí *" value={bForm.position} onChange={(e) => bf('position', e.target.value)} placeholder="sidebar / header / footer" required />
-                <Input label="Hình ảnh (URL)" value={bForm.image} onChange={(e) => bf('image', e.target.value)} placeholder="https://…" />
+                <div style={{ marginBottom: '0.75rem' }}>
+                  <div style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--color-ink)', marginBottom: 4 }}>Hình ảnh (URL)</div>
+                  <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                    <Input label="" value={bForm.image} onChange={(e) => bf('image', e.target.value)} placeholder="https://…" style={{ margin: 0, flex: 1 }} />
+                    <MediaPickerBtn onSelect={(url) => bf('image', url)} label="Chọn ảnh" />
+                  </div>
+                  {bForm.image && <img src={bForm.image} alt="" style={{ marginTop: 6, maxHeight: 80, borderRadius: 4, objectFit: 'cover', maxWidth: '100%' }} onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />}
+                </div>
                 <Input label="URL đích" value={bForm.targetUrl} onChange={(e) => bf('targetUrl', e.target.value)} placeholder="https://…" />
                 <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: '0.85rem', cursor: 'pointer', marginBottom: '1rem' }}>
                   <input type="checkbox" checked={bForm.enabled} onChange={(e) => bf('enabled', e.target.checked)} />

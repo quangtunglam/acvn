@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Edit2, Plus, Trash2 } from 'lucide-react';
 import { AdminPage, Badge, Btn, Input, Modal, Select, Textarea, useAdmin } from './layout';
+import { MediaPickerBtn } from './media-picker';
 
 type Event = {
   id: number; title: string; description: string | null; startDate: string; endDate: string | null;
@@ -112,7 +113,14 @@ export default function AdminEvents() {
               <Input label="Ngày kết thúc" type="datetime-local" value={form.endDate} onChange={(e) => f('endDate', e.target.value)} />
             </div>
             <Input label="Địa điểm" value={form.location} onChange={(e) => f('location', e.target.value)} />
-            <Input label="Hình ảnh (URL)" value={form.image} onChange={(e) => f('image', e.target.value)} placeholder="https://…" />
+            <div style={{ marginBottom: '0.75rem' }}>
+              <div style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--color-ink)', marginBottom: 4 }}>Hình ảnh (URL)</div>
+              <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                <Input label="" value={form.image} onChange={(e) => f('image', e.target.value)} placeholder="https://…" style={{ margin: 0, flex: 1 }} />
+                <MediaPickerBtn onSelect={(url) => f('image', url)} label="Chọn ảnh" />
+              </div>
+              {form.image && <img src={form.image} alt="" style={{ marginTop: 6, maxHeight: 80, borderRadius: 4, objectFit: 'cover', maxWidth: '100%' }} onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />}
+            </div>
             <Input label="URL đăng ký" value={form.registrationUrl} onChange={(e) => f('registrationUrl', e.target.value)} />
             <Textarea label="Mô tả" value={form.description} onChange={(e) => f('description', e.target.value)} rows={3} />
             {error && <p style={{ color: 'var(--color-crimson)', fontSize: '0.85rem', marginBottom: '0.75rem' }}>{error}</p>}

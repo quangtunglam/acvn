@@ -2,6 +2,7 @@ import { useLocation } from 'wouter';
 import { AdminLayout } from './layout';
 import AdminDashboard from './dashboard';
 import AdminArticles from './articles';
+import AdminMedia from './media';
 import AdminRSS from './rss';
 import AdminTaxonomy from './taxonomy';
 import AdminEvents from './events';
@@ -20,6 +21,7 @@ function AdminContent() {
   if (section === 'taxonomy') return <AdminTaxonomy />;
   if (section === 'events') return <AdminEvents />;
   if (section === 'newsletter' || section === 'banners') return <AdminNewsletter />;
+  if (section === 'media') return <AdminMedia />;
   if (section === 'ai') return <AdminAI />;
 
   return (

@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { Edit2, Eye, Plus, Trash2 } from 'lucide-react';
 import { AdminPage, Badge, Btn, Input, Modal, Select, Textarea, useAdmin } from './layout';
+import { MediaPickerBtn } from './media-picker';
 
 type Category = { id: number; name: string; slug: string };
 type Country = { id: number; name: string; slug: string };
@@ -265,7 +266,14 @@ export default function AdminArticles() {
           <form onSubmit={handleSave}>
             <Input label="Tiêu đề *" value={form.title} onChange={(e) => f('title', e.target.value)} required />
             <Input label="Slug (tự động từ tiêu đề)" value={form.slug} onChange={(e) => f('slug', e.target.value)} required style={{ fontFamily: 'var(--font-mono)', fontSize: '0.85rem' }} />
-            <Input label="Ảnh bìa (URL)" value={form.coverImage} onChange={(e) => f('coverImage', e.target.value)} placeholder="https://…" />
+            <div style={{ marginBottom: '0.75rem' }}>
+              <div style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--color-ink)', marginBottom: 4 }}>Ảnh bìa (URL)</div>
+              <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                <Input label="" value={form.coverImage} onChange={(e) => f('coverImage', e.target.value)} placeholder="https://…" style={{ margin: 0, flex: 1 }} />
+                <MediaPickerBtn onSelect={(url) => f('coverImage', url)} label="Chọn ảnh" />
+              </div>
+              {form.coverImage && <img src={form.coverImage} alt="" style={{ marginTop: 6, maxHeight: 80, borderRadius: 4, objectFit: 'cover', maxWidth: '100%' }} onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />}
+            </div>
             <Textarea label="Tóm tắt" value={form.summary} onChange={(e) => f('summary', e.target.value)} rows={2} />
             <Textarea label="Nội dung (HTML)" value={form.content} onChange={(e) => f('content', e.target.value)} rows={10} />
 

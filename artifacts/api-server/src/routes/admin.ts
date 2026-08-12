@@ -1,5 +1,6 @@
 import { and, asc, desc, eq, gte, isNotNull, sql } from "drizzle-orm";
 import { Router, type Request, type Response, type NextFunction } from "express";
+import { objectStorageClient, ObjectStorageService } from "../lib/objectStorage.js";
 import {
   adBannersTable,
   articlesTable,
@@ -498,6 +499,84 @@ router.post("/rss/feeds/:id/ingest", async (req, res): Promise<void> => {
 router.post("/rss/ingest-all", async (_req, res): Promise<void> => {
   const results = await ingestAllFeeds();
   res.json(results);
+});
+
+// ─── Media (Object Storage) ───────────────────────────────────────────────────
+
+const objectSvc = new ObjectStorageService();
+
+function parseObjectPath(path: string): { bucketName: string; objectName: string } {
+  if (!path.startsWith('/')) path = `/${path}`;
+  const parts = path.split('/');
+  return { bucketName: parts[1], objectName: parts.slice(2).join('/') };
+}
+
+/** POST /admin/media/upload-url — generate a presigned PUT URL */
+router.post("/media/upload-url", async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { name, size, contentType } = req.body as { name?: string; size?: number; contentType?: string };
+    if (!contentType || !contentType.startsWith('image/')) {
+      res.status(400).json({ error: 'Only image uploads are supported' });
+      return;
+    }
+    // generate presigned PUT URL; also build the public serving URL from the normalized path
+    const uploadURL = await objectSvc.getObjectEntityUploadURL();
+    const objectPath = objectSvc.normalizeObjectEntityPath(uploadURL); // /objects/uploads/{uuid}
+    // Serving path: /api/media/objects/uploads/{uuid}
+    const servingURL = `/api/media${objectPath}`;
+    res.json({ uploadURL, servingURL, objectPath });
+  } catch (err) {
+    res.status(500).json({ error: (err as Error).message });
+  }
+});
+
+/** GET /admin/media — list uploaded images */
+router.get("/media", async (_req: Request, res: Response): Promise<void> => {
+  try {
+    const privateDir = objectSvc.getPrivateObjectDir(); // e.g. /bucket/private
+    const { bucketName, objectName: privateDirName } = parseObjectPath(privateDir);
+    const prefix = privateDirName ? `${privateDirName}/uploads/` : 'uploads/';
+    const bucket = objectStorageClient.bucket(bucketName);
+    const [files] = await bucket.getFiles({ prefix });
+    const result = await Promise.all(
+      files.map(async (file) => {
+        const [meta] = await file.getMetadata();
+        // key within uploads dir: the uuid part
+        const relKey = file.name.slice(prefix.length); // uuid
+        const servingURL = `/api/media/objects/uploads/${relKey}`;
+        return {
+          key: `uploads/${relKey}`,
+          url: servingURL,
+          size: Number(meta.size ?? 0),
+          updatedAt: meta.updated as string ?? new Date().toISOString(),
+          contentType: (meta.contentType as string) ?? 'application/octet-stream',
+        };
+      })
+    );
+    // Newest first
+    result.sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ error: (err as Error).message });
+  }
+});
+
+/** DELETE /admin/media/uploads/:uuid — delete an uploaded image */
+router.delete("/media/uploads/:uuid", async (req: Request, res: Response): Promise<void> => {
+  try {
+    const uuid = req.params.uuid;
+    if (!uuid || uuid.includes('/')) {
+      res.status(400).json({ error: 'Invalid uuid' });
+      return;
+    }
+    const privateDir = objectSvc.getPrivateObjectDir();
+    const { bucketName, objectName: privateDirName } = parseObjectPath(privateDir);
+    const objectName = privateDirName ? `${privateDirName}/uploads/${uuid}` : `uploads/${uuid}`;
+    await objectStorageClient.bucket(bucketName).file(objectName).delete();
+    res.status(204).end();
+  } catch (err) {
+    res.status(500).json({ error: (err as Error).message });
+  }
 });
 
 export default router;
