@@ -66,9 +66,21 @@ const NAV_LINKS: NavItem[] = [
       { label: 'Tin thế giới', href: '/danh-muc/tin-the-gioi' },
     ],
   },
-  { label: 'Giới thiệu', href: '/gioi-thieu' },
+  {
+    label: 'Giới thiệu', href: '/gioi-thieu',
+    children: [
+      { label: 'Thông tin về Hội', href: '/gioi-thieu/thong-tin-ve-hoi' },
+      { label: 'Liên hệ', href: '/gioi-thieu/lien-he' },
+    ],
+  },
   { label: 'Sự kiện', href: '/su-kien' },
-  { label: 'Đăng ký', href: '/dang-ky' },
+  {
+    label: 'Đăng ký', href: '/dang-ky',
+    children: [
+      { label: 'Đăng ký thành viên', href: '/dang-ky/thanh-vien' },
+      { label: 'Đăng ký tài trợ', href: '/dang-ky/tai-tro' },
+    ],
+  },
 ];
 
 export function Navigation({
