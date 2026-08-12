@@ -4,7 +4,6 @@ import {
   ArrowRight,
   CalendarDays,
   Check,
-  Globe2,
 } from 'lucide-react';
 import {
   type Article,
@@ -126,22 +125,6 @@ function NewsletterWidget() {
   );
 }
 
-function GolfWidget({ events }: { events: Event[] }) {
-  return (
-    <div className="widget" id="golf">
-      <div className="widget-head red"><Globe2 size={15} /> Lịch giải Golf</div>
-      <div className="widget-body">
-        {events.length === 0 ? <p className="empty">Chưa có giải Golf sắp diễn ra.</p> : events.map((ev) => (
-          <div className="event" key={ev.id}>
-            <div className="event-title">{ev.title}</div>
-            <div className="event-meta"><strong>{fmtEventDate(ev)}</strong>{ev.location && <span>{ev.location}</span>}</div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
 function CommunityWidget({ events }: { events: Event[] }) {
   return (
     <div className="widget">
@@ -174,7 +157,7 @@ const EU_COUNTRY_ORDER = [
 // ─── Homepage content ─────────────────────────────────────────────────────────
 
 function HomepageContent({ data }: { data: HomepagePayload }) {
-  const topics = ['Tất cả','Chiến tranh Nga – Ukraina','Trí tuệ nhân tạo','Donald Trump','Golf','Luật pháp & hội nhập','Khoa học – Giáo dục','Kinh tế Séc','Cộng đồng người Việt'];
+  const topics = ['Tất cả','Chiến tranh Nga – Ukraina','Trí tuệ nhân tạo','Donald Trump','Luật pháp & hội nhập','Khoa học – Giáo dục','Kinh tế Séc','Cộng đồng người Việt'];
   const [topic, setTopic] = useState('Tất cả');
 
   const tickerItems = data.breakingNews.length
@@ -321,7 +304,6 @@ function HomepageContent({ data }: { data: HomepagePayload }) {
                 <div className="stack">{data.business.slice(0, 4).map((a) => <StoryRow key={a.id} article={a} />)}</div>
               </div>
               <aside id="cong-dong">
-                <GolfWidget events={data.golfEvents} />
                 <CommunityWidget events={data.communityEvents} />
                 <NewsletterWidget />
               </aside>

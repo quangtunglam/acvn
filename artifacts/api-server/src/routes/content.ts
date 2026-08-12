@@ -216,7 +216,6 @@ router.get("/homepage", async (_req, res): Promise<void> => {
     world,
     business,
     features,
-    golfEvents,
     communityEvents,
   ] = await Promise.all([
     // breaking news for ticker — scan more rows so we don't miss any
@@ -275,7 +274,6 @@ router.get("/homepage", async (_req, res): Promise<void> => {
     queryArticles({ limit: 6, category: "tin-the-gioi" }),
     queryArticles({ limit: 8, category: "kinh-doanh" }),
     queryArticles({ limit: 8, category: "chuyen-dau-tu" }),
-    queryEvents("golf"),
     queryEvents("community"),
   ]);
 
@@ -295,7 +293,6 @@ router.get("/homepage", async (_req, res): Promise<void> => {
       world,
       business,
       features,
-      golfEvents,
       communityEvents,
     }),
   );

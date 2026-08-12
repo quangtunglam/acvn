@@ -105,7 +105,6 @@ export default function AdminEvents() {
             <Input label="Tên sự kiện *" value={form.title} onChange={(e) => f('title', e.target.value)} required />
             <Select label="Loại sự kiện" value={form.eventType} onChange={(e) => f('eventType', e.target.value)}>
               <option value="community">Cộng đồng</option>
-              <option value="golf">Golf</option>
               <option value="business">Kinh doanh</option>
             </Select>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 1rem' }}>

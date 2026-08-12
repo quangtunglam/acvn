@@ -92,7 +92,6 @@ export interface HomepagePayload {
   world: Article[];
   business: Article[];
   features: Article[];
-  golfEvents: Event[];
   communityEvents: Event[];
 }
 

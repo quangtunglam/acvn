@@ -278,7 +278,6 @@ export function Footer() {
             ['Tin tức', '/danh-muc/tin-tuc'],
             ['Kinh doanh', '/danh-muc/kinh-doanh'],
             ['Chuyện đầu tư', '/danh-muc/chuyen-dau-tu'],
-            ['Golf', '/danh-muc/golf'],
             ['Cộng đồng', '/danh-muc/cong-dong'],
           ]} />
           <FooterColumn title="Khu vực" links={[

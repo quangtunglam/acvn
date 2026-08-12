@@ -327,17 +327,6 @@ export const GetHomepageResponse = zod.object({
   "breakingNews": zod.boolean(),
   "views": zod.number().int()
 })),
-  "golfEvents": zod.array(zod.object({
-  "id": zod.number().int(),
-  "title": zod.string(),
-  "description": zod.string().nullable(),
-  "startDate": zod.coerce.date(),
-  "endDate": zod.coerce.date().nullable(),
-  "location": zod.string().nullable(),
-  "image": zod.string().nullable(),
-  "registrationUrl": zod.string().nullable(),
-  "eventType": zod.string()
-})),
   "communityEvents": zod.array(zod.object({
   "id": zod.number().int(),
   "title": zod.string(),
