@@ -423,7 +423,7 @@ router.get("/events", async (req, res): Promise<void> => {
     res.status(400).json({ error: parsed.error.message });
     return;
   }
-  const events = await queryEvents(parsed.data.eventType);
+  const events = await queryEvents(parsed.data.eventType, parsed.data.includePast ?? false);
   res.json(ListEventsResponse.parse(events));
 });
 

@@ -547,7 +547,8 @@ export const ListCountriesResponse = zod.array(ListCountriesResponseItem)
  * @summary List upcoming events
  */
 export const ListEventsQueryParams = zod.object({
-  "eventType": zod.coerce.string().optional()
+  "eventType": zod.coerce.string().optional(),
+  "includePast": zod.coerce.boolean().optional()
 })
 
 export const ListEventsResponseItem = zod.object({
