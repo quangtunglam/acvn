@@ -66,10 +66,9 @@ const NAV_LINKS: NavItem[] = [
       { label: 'Tin thế giới', href: '/danh-muc/tin-the-gioi' },
     ],
   },
-  { label: 'Kinh doanh', href: '/danh-muc/kinh-doanh' },
-  { label: 'Chuyên mục', href: '/danh-muc/chuyen-dau-tu' },
-  { label: 'Golf', href: '/danh-muc/golf' },
-  { label: 'Cộng đồng', href: '/danh-muc/cong-dong' },
+  { label: 'Giới thiệu', href: '/gioi-thieu' },
+  { label: 'Sự kiện', href: '/su-kien' },
+  { label: 'Đăng ký', href: '/dang-ky' },
 ];
 
 export function Navigation({
