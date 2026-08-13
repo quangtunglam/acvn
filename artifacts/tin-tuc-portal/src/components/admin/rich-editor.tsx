@@ -4,7 +4,10 @@ import Underline from '@tiptap/extension-underline';
 import Link from '@tiptap/extension-link';
 import TextAlign from '@tiptap/extension-text-align';
 import Placeholder from '@tiptap/extension-placeholder';
-import { useEffect, useCallback, useRef } from 'react';
+import Image from '@tiptap/extension-image';
+import Youtube from '@tiptap/extension-youtube';
+import { useEffect, useCallback, useRef, useState } from 'react';
+import { MediaPickerBtn } from '@/pages/admin/media-picker';
 
 // ── Toolbar button ──────────────────────────────────────────────────────────
 function Btn({
@@ -29,6 +32,65 @@ function Divider() {
   return <span className="rte-divider" aria-hidden="true" />;
 }
 
+// ── Image insert panel ──────────────────────────────────────────────────────
+function ImagePanel({ onInsert, onClose }: { onInsert: (url: string) => void; onClose: () => void }) {
+  const [url, setUrl] = useState('');
+  return (
+    <div className="rte-insert-panel">
+      <span className="rte-insert-panel-label">Chèn ảnh</span>
+      <input
+        autoFocus
+        className="rte-insert-input"
+        type="url"
+        placeholder="https://…"
+        value={url}
+        onChange={(e) => setUrl(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' && url) { onInsert(url); }
+          if (e.key === 'Escape') { onClose(); }
+        }}
+      />
+      <MediaPickerBtn onSelect={(u) => { setUrl(u); onInsert(u); }} label="Media" />
+      <button
+        type="button"
+        className="rte-insert-ok"
+        disabled={!url}
+        onMouseDown={(e) => { e.preventDefault(); if (url) onInsert(url); }}
+      >Chèn</button>
+      <button type="button" className="rte-insert-cancel" onMouseDown={(e) => { e.preventDefault(); onClose(); }}>✕</button>
+    </div>
+  );
+}
+
+// ── Video insert panel ──────────────────────────────────────────────────────
+function VideoPanel({ onInsert, onClose }: { onInsert: (url: string) => void; onClose: () => void }) {
+  const [url, setUrl] = useState('');
+  return (
+    <div className="rte-insert-panel">
+      <span className="rte-insert-panel-label">Nhúng video</span>
+      <input
+        autoFocus
+        className="rte-insert-input"
+        type="url"
+        placeholder="https://youtube.com/watch?v=… hoặc URL khác"
+        value={url}
+        onChange={(e) => setUrl(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' && url) { onInsert(url); }
+          if (e.key === 'Escape') { onClose(); }
+        }}
+      />
+      <button
+        type="button"
+        className="rte-insert-ok"
+        disabled={!url}
+        onMouseDown={(e) => { e.preventDefault(); if (url) onInsert(url); }}
+      >Chèn</button>
+      <button type="button" className="rte-insert-cancel" onMouseDown={(e) => { e.preventDefault(); onClose(); }}>✕</button>
+    </div>
+  );
+}
+
 // ── Main editor ─────────────────────────────────────────────────────────────
 interface RichEditorProps {
   value: string;
@@ -36,28 +98,26 @@ interface RichEditorProps {
   placeholder?: string;
 }
 
+type Panel = 'image' | 'video' | null;
+
 export function RichEditor({ value, onChange, placeholder = 'Nhập nội dung bài viết…' }: RichEditorProps) {
-  // Track the last HTML value emitted by this editor so we can distinguish
-  // "change came from inside the editor" vs "change came from outside (e.g. switching articles)".
   const lastEmittedRef = useRef<string>(value);
+  const [panel, setPanel] = useState<Panel>(null);
 
   const editor = useEditor({
     extensions: [
-      StarterKit.configure({
-        heading: { levels: [2, 3, 4] },
-        // Disable built-ins we're replacing with configured versions below
-        // (StarterKit doesn't include Link or Underline — warning came from
-        //  a previous HMR state; keeping explicit configure for safety)
-      }),
+      StarterKit.configure({ heading: { levels: [2, 3, 4] } }),
       Underline,
       Link.configure({ openOnClick: false, HTMLAttributes: { rel: 'noopener noreferrer' } }),
       TextAlign.configure({ types: ['heading', 'paragraph'] }),
       Placeholder.configure({ placeholder }),
+      Image.configure({ allowBase64: false, HTMLAttributes: { class: 'rte-image' } }),
+      Youtube.configure({ controls: true, nocookie: true, HTMLAttributes: { class: 'rte-youtube' } }),
     ],
     content: value,
     onUpdate: ({ editor }) => {
       const html = editor.getHTML();
-      lastEmittedRef.current = html; // remember we emitted this value
+      lastEmittedRef.current = html;
       onChange(html);
     },
     editorProps: {
@@ -65,11 +125,9 @@ export function RichEditor({ value, onChange, placeholder = 'Nhập nội dung b
     },
   });
 
-  // Only sync content when the value changes from OUTSIDE (e.g. switching articles).
-  // If value === lastEmittedRef.current the change came from the editor itself — skip.
   useEffect(() => {
     if (!editor) return;
-    if (value === lastEmittedRef.current) return; // our own change — do nothing
+    if (value === lastEmittedRef.current) return;
     lastEmittedRef.current = value;
     editor.commands.setContent(value, false);
   }, [value, editor]);
@@ -82,6 +140,21 @@ export function RichEditor({ value, onChange, placeholder = 'Nhập nội dung b
     if (url === '') { editor.chain().focus().extendMarkRange('link').unsetLink().run(); return; }
     editor.chain().focus().extendMarkRange('link').setLink({ href: url }).run();
   }, [editor]);
+
+  const insertImage = useCallback((url: string) => {
+    if (!editor || !url) return;
+    editor.chain().focus().setImage({ src: url }).run();
+    setPanel(null);
+  }, [editor]);
+
+  const insertVideo = useCallback((url: string) => {
+    if (!editor || !url) return;
+    editor.commands.setYoutubeVideo({ src: url, width: 640, height: 360 });
+    editor.commands.focus();
+    setPanel(null);
+  }, [editor]);
+
+  const togglePanel = (p: Panel) => setPanel((prev) => (prev === p ? null : p));
 
   if (!editor) return null;
 
@@ -134,8 +207,21 @@ export function RichEditor({ value, onChange, placeholder = 'Nhập nội dung b
         <Btn title="Khối code" active={editor.isActive('codeBlock')} onClick={() => editor.chain().focus().toggleCodeBlock().run()}>{'{ }'}</Btn>
         <Btn title="Đường ngang" onClick={() => editor.chain().focus().setHorizontalRule().run()}>—</Btn>
         <Btn title="Liên kết" active={editor.isActive('link')} onClick={setLink}>🔗</Btn>
+
+        <Divider />
+
+        {/* Media */}
+        <Btn title="Chèn ảnh" active={panel === 'image'} onClick={() => togglePanel('image')}>🖼</Btn>
+        <Btn title="Nhúng video (YouTube…)" active={panel === 'video'} onClick={() => togglePanel('video')}>▶</Btn>
+
+        <Divider />
+
         <Btn title="Xóa định dạng" onClick={() => editor.chain().focus().clearNodes().unsetAllMarks().run()}>✕</Btn>
       </div>
+
+      {/* ── Insert panels ── */}
+      {panel === 'image' && <ImagePanel onInsert={insertImage} onClose={() => setPanel(null)} />}
+      {panel === 'video' && <VideoPanel onInsert={insertVideo} onClose={() => setPanel(null)} />}
 
       {/* ── Editing area ── */}
       <EditorContent editor={editor} className="rte-editor-wrap" />
