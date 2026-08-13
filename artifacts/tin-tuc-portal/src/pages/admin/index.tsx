@@ -8,6 +8,7 @@ import AdminTaxonomy from './taxonomy';
 import AdminEvents from './events';
 import AdminNewsletter from './newsletter';
 import AdminAI from './ai';
+import AdminContacts from './contacts';
 
 // Reads the current URL itself — no prop dependency
 function AdminContent() {
@@ -23,6 +24,7 @@ function AdminContent() {
   if (section === 'newsletter' || section === 'banners') return <AdminNewsletter />;
   if (section === 'media') return <AdminMedia />;
   if (section === 'ai') return <AdminAI />;
+  if (section === 'contacts') return <AdminContacts />;
 
   return (
     <div style={{ padding: '2rem', color: 'var(--color-ink-light)' }}>

@@ -6,6 +6,7 @@ import {
   articlesTable,
   authorsTable,
   categoriesTable,
+  contactSubmissionsTable,
   countriesTable,
   db,
   eventsTable,
@@ -328,6 +329,23 @@ router.patch("/events/:id", async (req, res): Promise<void> => {
 
 router.delete("/events/:id", async (req, res): Promise<void> => {
   await db.delete(eventsTable).where(eq(eventsTable.id, Number(req.params.id)));
+  res.status(204).end();
+});
+
+// ─── Contact submissions ──────────────────────────────────────────────────────
+
+router.get("/contacts", async (_req, res): Promise<void> => {
+  const rows = await db.select().from(contactSubmissionsTable).orderBy(desc(contactSubmissionsTable.createdAt));
+  res.json(rows);
+});
+
+router.patch("/contacts/:id/read", async (req, res): Promise<void> => {
+  await db.update(contactSubmissionsTable).set({ read: true }).where(eq(contactSubmissionsTable.id, Number(req.params.id)));
+  res.json({ ok: true });
+});
+
+router.delete("/contacts/:id", async (req, res): Promise<void> => {
+  await db.delete(contactSubmissionsTable).where(eq(contactSubmissionsTable.id, Number(req.params.id)));
   res.status(204).end();
 });
 

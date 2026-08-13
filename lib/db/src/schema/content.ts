@@ -107,6 +107,17 @@ export const adBannersTable = pgTable("ad_banners", {
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow().$onUpdate(() => new Date()),
 });
 
+export const contactSubmissionsTable = pgTable("contact_submissions", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  email: text("email").notNull(),
+  phone: text("phone"),
+  subject: text("subject").notNull(),
+  message: text("message").notNull(),
+  read: boolean("read").notNull().default(false),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
 export const rssFeedsTable = pgTable("rss_feeds", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
@@ -128,6 +139,7 @@ export const insertEventSchema = createInsertSchema(eventsTable).omit({ id: true
 export const insertNewsletterSubscriberSchema = createInsertSchema(newsletterSubscribersTable).omit({ id: true });
 export const insertAdBannerSchema = createInsertSchema(adBannersTable).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertRssFeedSchema = createInsertSchema(rssFeedsTable).omit({ id: true, createdAt: true, updatedAt: true, lastFetchedAt: true, itemsImported: true });
+export const insertContactSubmissionSchema = createInsertSchema(contactSubmissionsTable).omit({ id: true, read: true, createdAt: true });
 
 export type Author = typeof authorsTable.$inferSelect;
 export type InsertAuthor = z.infer<typeof insertAuthorSchema>;
@@ -145,3 +157,5 @@ export type AdBanner = typeof adBannersTable.$inferSelect;
 export type InsertAdBanner = z.infer<typeof insertAdBannerSchema>;
 export type RssFeed = typeof rssFeedsTable.$inferSelect;
 export type InsertRssFeed = z.infer<typeof insertRssFeedSchema>;
+export type ContactSubmission = typeof contactSubmissionsTable.$inferSelect;
+export type InsertContactSubmission = z.infer<typeof insertContactSubmissionSchema>;
