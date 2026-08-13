@@ -163,17 +163,17 @@
 .u-weather-temp { color: white; font-weight: 700; }
 .u-weather-sep { color: hsl(211 28% 52%); margin-right: 6px; }
 .masthead { background: hsl(var(--card)); border-bottom: 1px solid hsl(var(--border)); }
-.masthead-inner { display: flex; align-items: center; min-height: 130px; gap: 28px; padding-block: 20px; }
-/* Left logo */
-.masthead-logo-wrap { display: flex; flex-shrink: 0; }
-.masthead-logo-img { height: 100px; width: auto; object-fit: contain; display: block; transition: opacity .2s; }
+.masthead-inner { display: flex; align-items: center; min-height: 110px; gap: 24px; padding-block: 16px; }
+/* Logo — left */
+.masthead-logo-wrap { display: flex; flex-shrink: 0; text-decoration: none; }
+.masthead-logo-img { height: 90px; width: auto; object-fit: contain; display: block; transition: opacity .2s; }
 .masthead-logo-wrap:hover .masthead-logo-img { opacity: .85; }
-/* Side text */
-.masthead-side { display: flex; flex-direction: column; gap: 2px; text-decoration: none; align-items: flex-start; text-align: left; }
-.masthead-side--left  { }
-.masthead-side--right { margin-left: 32px; }
-.masthead-lang-name { font: 700 26px/1.35 var(--app-font-sans); color: #1a74c4; letter-spacing: .01em; transition: color .2s; }
-.masthead-side:hover .masthead-lang-name { color: #1456a0; }
+/* Names — right, stacked */
+.masthead-names { display: flex; flex-direction: column; gap: 4px; text-decoration: none; }
+.masthead-name { display: block; transition: color .2s; }
+.masthead-name--vi { font: 700 28px/1.2 var(--app-font-sans); color: var(--color-navy); letter-spacing: .01em; }
+.masthead-name--cs { font: 300 15px/1.4 var(--app-font-sans); color: var(--color-ink-light); letter-spacing: .01em; }
+.masthead-names:hover .masthead-name--vi { color: var(--color-crimson); }
 .primary-nav { position: sticky; top: 0; z-index: 20; background: hsl(var(--card)); border-bottom: 2px solid hsl(var(--foreground)); }
 .primary-nav .wrap { display: flex; align-items: center; min-height: 52px; }
 .nav-links { display: flex; align-items: center; gap: 2px; }
@@ -362,16 +362,10 @@ footer { padding: 48px 0 25px; background: hsl(220 18% 14%); color: hsl(220 12% 
   .u-weather-emoji { font-size: 13px; }
   .u-right { display: none; }
   /* Masthead — stacked vertically on mobile */
-  .masthead-inner {
-    flex-direction: column;
-    align-items: center;
-    gap: 12px;
-    padding-block: 24px;
-    min-height: unset;
-  }
-  .masthead-side--left  { align-items: center; text-align: center; margin-left: 0; order: -1; }
-  .masthead-side--right { align-items: center; text-align: center; margin-left: 0; order: 1;  }
-  .masthead-logo-wrap   { order: 0; }
+  .masthead-inner { flex-direction: column; align-items: center; gap: 12px; padding-block: 20px; min-height: unset; }
+  .masthead-names { align-items: center; text-align: center; }
+  .masthead-name--vi { font-size: 22px; }
+  .masthead-name--cs { font-size: 13px; }
   .masthead-lang-name   { font-size: 22px; line-height: 1.4; }
   .masthead-logo-img    { height: 120px; }
   .masthead-ad { display: none; }
