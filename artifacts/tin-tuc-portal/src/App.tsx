@@ -313,22 +313,6 @@ function HomepageContent({ data }: { data: HomepagePayload }) {
           </section>
         </div>
 
-        {/* ── Topics strip ── */}
-        <section className="topics">
-          <div className="wrap">
-            <section className="page-section">
-              <SectionHeading title="Theo dòng sự kiện" />
-              <div className="chips">
-                {topics.map((item) => (
-                  <button type="button" key={item} className={`chip ${item === 'Tất cả' ? 'hot' : ''} ${topic === item ? 'active' : ''}`} onClick={() => setTopic(item)} aria-pressed={topic === item} data-testid={`button-topic-${item}`}>
-                    {item}
-                  </button>
-                ))}
-              </div>
-              <p className="source" aria-live="polite">Đang xem: <strong>{topic}</strong></p>
-            </section>
-          </div>
-        </section>
       </main>
       <Footer />
     </>
