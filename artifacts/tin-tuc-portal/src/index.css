@@ -394,6 +394,28 @@ footer { padding: 48px 0 25px; background: hsl(220 18% 14%); color: hsl(220 12% 
   .footer-grid { grid-template-columns: 1fr 1fr; gap: 26px 18px; }
   .footer-brand { grid-column: 1 / -1; }
 }
+/* ─── About / Thông tin về Hội ──────────────────────────────────────────────── */
+.about-page { max-width: 740px; margin: 0 auto; padding-block: 3rem 4rem; }
+.about-breadcrumb { font-size: 0.78rem; color: var(--color-ink-light); margin-bottom: 1.5rem; }
+.about-breadcrumb a { color: var(--color-ink-light); text-decoration: none; }
+.about-breadcrumb a:hover { color: var(--color-crimson); }
+.about-title { font: 700 2rem/1.2 var(--app-font-sans); color: var(--color-navy); margin-bottom: 2.5rem; padding-bottom: 1rem; border-bottom: 3px solid var(--color-crimson); }
+.about-section { margin-bottom: 2.5rem; }
+.about-section-title { font: 700 1.2rem/1.3 var(--app-font-sans); color: var(--color-crimson); letter-spacing: .04em; text-transform: uppercase; margin-bottom: 1.5rem; }
+.about-section--czech .about-section-title { color: var(--color-navy); }
+.about-section p { font: 400 1.0625rem/1.85 var(--app-font-serif); color: var(--color-ink); margin-bottom: 1.25rem; }
+.about-salutation { font-weight: 600; font-style: italic; color: var(--color-navy) !important; }
+.about-signature { margin-top: 2rem; padding-top: 1.25rem; border-top: 1px solid var(--color-rule); }
+.about-signature-role { font-size: 0.85rem; color: var(--color-ink-light); margin-bottom: 0.25rem !important; }
+.about-signature-name { font: 700 1rem/1.3 var(--app-font-sans); color: var(--color-navy); margin: 0 !important; }
+.about-divider { height: 1px; background: var(--color-rule); margin: 2.5rem 0; position: relative; }
+.about-divider::before { content: '✦'; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); background: var(--color-bone); padding: 0 12px; color: var(--color-ink-light); font-size: 12px; }
+@media (max-width: 600px) {
+  .about-page { padding-block: 2rem 3rem; }
+  .about-title { font-size: 1.5rem; }
+  .about-section p { font-size: 1rem; line-height: 1.75; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition-duration: .001ms !important; }
 }
