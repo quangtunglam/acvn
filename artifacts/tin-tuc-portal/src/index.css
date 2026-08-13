@@ -338,6 +338,9 @@ footer { padding: 48px 0 25px; background: hsl(220 18% 14%); color: hsl(220 12% 
   .nav-search { display: none; }
   .menu-button { display: grid; place-items: center; }
   .nav-mobile-weather { display: flex; align-items: center; gap: 6px; padding-left: 4px; font-size: 12px; }
+  .nav-mobile-weather .u-weather-city { color: hsl(var(--foreground)); }
+  .nav-mobile-weather .u-weather-temp { color: hsl(var(--foreground)); }
+  .nav-mobile-weather .u-weather-sep  { color: hsl(var(--muted-foreground)); }
   .nav-links { position: absolute; top: 100%; left: 0; right: 0; display: flex; flex-direction: column; align-items: stretch; max-height: 0; overflow: hidden; background: hsl(var(--card)); box-shadow: var(--shadow-md); transition: max-height .3s ease; }
   .nav-links.open { max-height: 600px; }
   .nav-link { padding: 14px 24px; border-top: 1px solid hsl(var(--border)); }
