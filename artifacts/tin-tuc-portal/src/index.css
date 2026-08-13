@@ -361,8 +361,9 @@ footer { padding: 48px 0 25px; background: hsl(220 18% 14%); color: hsl(220 12% 
   .wrap { padding-inline: 18px; }
   /* Utility bar: ẩn dấu phân cách và thành phố thứ 2 trở đi */
   /* Utility bar mobile: date left, weather right */
-  .u-left { gap: 6px; font-size: 10px; }
-  .u-weather { gap: 6px; }
+  .utility .wrap { justify-content: center; flex-direction: column; gap: 2px; padding-block: 6px; min-height: unset; }
+  .u-left { gap: 6px; font-size: 10px; justify-content: center; }
+  .u-weather { gap: 6px; justify-content: center; }
   .u-weather-city { font-size: 10px; }
   .u-weather-emoji { font-size: 13px; }
   .u-right { display: none; }
