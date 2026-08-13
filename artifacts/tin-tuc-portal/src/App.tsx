@@ -60,9 +60,13 @@ function fmtDate(dateStr: string | null): string {
 }
 
 function fmtEventDate(event: Event): string {
-  const start = new Intl.DateTimeFormat('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' }).format(new Date(event.startDate));
-  if (!event.endDate) return start;
-  return `${start} – ${new Intl.DateTimeFormat('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' }).format(new Date(event.endDate))}`;
+  const fmt = (d: Date) => new Intl.DateTimeFormat('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' }).format(d);
+  const start = new Date(event.startDate);
+  const startStr = fmt(start);
+  if (!event.endDate) return startStr;
+  const end = new Date(event.endDate);
+  if (start.toDateString() === end.toDateString()) return startStr;
+  return `${startStr} – ${fmt(end)}`;
 }
 
 // ─── small UI atoms ───────────────────────────────────────────────────────────

@@ -12,8 +12,10 @@ function fmtDate(d: Date | string): string {
 function fmtDateRange(start: Date | string, end: Date | string | null): string {
   const s = fmtDate(start);
   if (!end) return s;
-  const e = fmtDate(end);
-  return s === e ? s : `${s} – ${e}`;
+  const startDay = new Date(start).toDateString();
+  const endDay   = new Date(end).toDateString();
+  if (startDay === endDay) return s;
+  return `${s} – ${fmtDate(end)}`;
 }
 
 export default function EventsPage() {
