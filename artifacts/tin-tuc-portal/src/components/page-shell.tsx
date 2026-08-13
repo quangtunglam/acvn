@@ -264,7 +264,7 @@ export function Footer() {
               <img src="/logo-hoi.png" alt="Logo" style={{ height: 48, width: 'auto', objectFit: 'contain' }} />
               <span className="logo-name" style={{ fontSize: '0.95rem', lineHeight: 1.3 }}>Hội người Séc<em style={{ fontStyle: 'normal' }}> gốc Việt Nam</em></span>
             </div>
-            <p>Cổng thông tin kết nối cộng đồng người Việt tại Cộng hòa Séc và châu Âu.</p>
+            <p>Cổng thông tin của Hội người Séc gốc Việt Nam.</p>
             <div className="socials">
               <a className="social-link" href="/" aria-label="Facebook"><Facebook size={16} /></a>
               <a className="social-link" href="/" aria-label="YouTube"><Youtube size={16} /></a>
