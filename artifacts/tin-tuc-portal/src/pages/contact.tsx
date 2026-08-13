@@ -61,11 +61,16 @@ export default function ContactPage() {
               <div className="contact-info-block">
                 <div className="contact-info-item">
                   <span className="contact-info-icon">📍</span>
-                  <span>Praha, Cộng hòa Séc</span>
+                  <span>
+                    Asociace Českých občanů<br />
+                    Vietnamského původu, z.&nbsp;s.<br />
+                    V lužích 735/6,<br />
+                    142 00 Praha 4 - Libuš
+                  </span>
                 </div>
                 <div className="contact-info-item">
-                  <span className="contact-info-icon">✉️</span>
-                  <a href="mailto:tung@pamacorp.com">tung@pamacorp.com</a>
+                  <span className="contact-info-icon">🏢</span>
+                  <span>IČO: 22840621</span>
                 </div>
               </div>
 
