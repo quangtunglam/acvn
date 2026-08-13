@@ -1,8 +1,31 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { PageShell } from '@/components/page-shell';
 import { Check } from 'lucide-react';
 
 const SPONSOR_TYPES = ['Tài chính', 'Hiện vật / Quà tặng', 'Dịch vụ / Kỹ thuật', 'Truyền thông', 'Khác'];
+
+// Compute Czech IBAN from local account number and bank code
+function czechIBAN(account: string, bankCode: string, prefix = '000000'): string {
+  const bban = bankCode + prefix.padStart(6, '0') + account.padStart(10, '0');
+  const numeric = (bban + 'CZ00').replace(/[A-Z]/g, (c) => String(c.charCodeAt(0) - 55));
+  let rem = 0;
+  for (const ch of numeric) rem = (rem * 10 + parseInt(ch)) % 97;
+  return `CZ${String(98 - rem).padStart(2, '0')}${bban}`;
+}
+
+const ACCOUNT_IBAN = czechIBAN('237949249', '0300');
+const PAYMENT_MSG = 'Sponzorský dar spolku';
+
+function buildSPD(amount: string): string {
+  const parts = [`SPD*1.0`, `ACC:${ACCOUNT_IBAN}`, `CC:CZK`, `MSG:${PAYMENT_MSG}`];
+  const num = parseFloat(amount.replace(',', '.'));
+  if (!isNaN(num) && num > 0) parts.splice(2, 0, `AM:${num.toFixed(2)}`);
+  return parts.join('*') + '*';
+}
+
+function qrUrl(spd: string): string {
+  return `https://api.qrserver.com/v1/create-qr-code/?size=220x220&ecc=M&data=${encodeURIComponent(spd)}`;
+}
 
 export default function SponsorRegistrationPage() {
   const [orgName, setOrgName] = useState('');
@@ -10,10 +33,13 @@ export default function SponsorRegistrationPage() {
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [sponsorType, setSponsorType] = useState('');
+  const [amount, setAmount] = useState('');
   const [details, setDetails] = useState('');
   const [notes, setNotes] = useState('');
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [errorMsg, setErrorMsg] = useState('');
+
+  const spd = useMemo(() => buildSPD(amount), [amount]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -82,10 +108,68 @@ export default function SponsorRegistrationPage() {
             </label>
 
             {sponsorType === 'Tài chính' && (
-              <div style={{ background: '#f0f7ff', border: '1px solid #bfdbfe', borderRadius: 8, padding: '1rem 1.25rem', fontSize: '0.875rem', lineHeight: 1.8 }}>
-                <p style={{ fontWeight: 700, color: 'var(--color-navy)', marginBottom: 6 }}>Thông tin chuyển khoản</p>
-                <p><span style={{ color: 'var(--color-ink-light)' }}>Số tài khoản:</span> <strong>237949249/0300</strong>, ngân hàng ČSOB</p>
-                <p><span style={{ color: 'var(--color-ink-light)' }}>Nội dung:</span> <strong>Sponzorský dar spolku</strong></p>
+              <div style={{ background: '#f0f7ff', border: '1px solid #bfdbfe', borderRadius: 8, padding: '1rem 1.25rem', fontSize: '0.875rem' }}>
+                <p style={{ fontWeight: 700, color: 'var(--color-navy)', marginBottom: 8 }}>Thông tin chuyển khoản</p>
+                <div style={{ lineHeight: 1.9 }}>
+                  <p><span style={{ color: 'var(--color-ink-light)' }}>Số tài khoản:</span> <strong>237949249/0300</strong>, ngân hàng ČSOB</p>
+                  <p><span style={{ color: 'var(--color-ink-light)' }}>Nội dung:</span> <strong>{PAYMENT_MSG}</strong></p>
+                </div>
+
+                {/* Amount input */}
+                <div style={{ marginTop: '1rem', borderTop: '1px solid #bfdbfe', paddingTop: '1rem' }}>
+                  <label style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                    <span style={{ fontWeight: 600, color: 'var(--color-navy)' }}>Số tiền muốn tài trợ</span>
+                    <div style={{ display: 'flex', gap: 0, alignItems: 'stretch' }}>
+                      <input
+                        type="number"
+                        min="0"
+                        step="100"
+                        value={amount}
+                        onChange={(e) => setAmount(e.target.value)}
+                        placeholder="0"
+                        style={{
+                          flex: 1, padding: '0.6rem 0.875rem',
+                          border: '1px solid #bfdbfe', borderRight: 'none',
+                          borderRadius: '6px 0 0 6px', fontSize: '1rem',
+                          fontFamily: 'var(--font-sans)', outline: 'none',
+                          background: '#fff',
+                        }}
+                      />
+                      <span style={{
+                        padding: '0.6rem 0.875rem', background: '#dbeafe',
+                        border: '1px solid #bfdbfe', borderRadius: '0 6px 6px 0',
+                        fontWeight: 700, color: 'var(--color-navy)', fontSize: '0.9rem',
+                        display: 'flex', alignItems: 'center',
+                      }}>CZK</span>
+                    </div>
+                  </label>
+                </div>
+
+                {/* QR code */}
+                <div style={{ marginTop: '1rem', borderTop: '1px solid #bfdbfe', paddingTop: '1rem', display: 'flex', gap: '1.25rem', alignItems: 'flex-start', flexWrap: 'wrap' }}>
+                  <div>
+                    <img
+                      src={qrUrl(spd)}
+                      alt="QR code chuyển khoản"
+                      width={160} height={160}
+                      style={{ display: 'block', borderRadius: 6, border: '4px solid #fff', boxShadow: '0 2px 8px rgba(0,0,0,0.12)' }}
+                    />
+                  </div>
+                  <div style={{ fontSize: '0.82rem', color: 'var(--color-ink-light)', lineHeight: 1.7 }}>
+                    <p style={{ fontWeight: 600, color: 'var(--color-navy)', marginBottom: 4 }}>Quét QR để chuyển khoản</p>
+                    <p>Mở ứng dụng ngân hàng, chọn<br />quét mã QR và xác nhận giao dịch.</p>
+                    {amount && parseFloat(amount) > 0 && (
+                      <p style={{ marginTop: 6, fontWeight: 600, color: 'var(--color-navy)' }}>
+                        Số tiền: {parseFloat(amount).toLocaleString('cs-CZ')} CZK
+                      </p>
+                    )}
+                    {(!amount || parseFloat(amount) <= 0) && (
+                      <p style={{ marginTop: 6, fontStyle: 'italic' }}>
+                        Nhập số tiền để QR tự điền sẵn.
+                      </p>
+                    )}
+                  </div>
+                </div>
               </div>
             )}
             <label style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
