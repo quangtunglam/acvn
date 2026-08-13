@@ -262,7 +262,7 @@ export function Footer() {
           <div className="footer-brand">
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
               <img src="/logo-hoi.png" alt="Logo" style={{ height: 48, width: 'auto', objectFit: 'contain' }} />
-              <span className="logo-name" style={{ fontSize: '0.95rem', lineHeight: 1.3 }}>Hội người Séc<em style={{ fontStyle: 'normal' }}> gốc Việt Nam</em></span>
+              <span className="logo-name" style={{ fontSize: '0.95rem', lineHeight: 1.3 }}>Hội người Czech<em style={{ fontStyle: 'normal' }}> gốc Việt Nam</em></span>
             </div>
             <p>Cổng thông tin của Hội người Czech gốc Việt Nam.</p>
             <div className="socials">
