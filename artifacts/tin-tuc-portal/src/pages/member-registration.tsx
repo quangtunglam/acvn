@@ -47,7 +47,7 @@ export default function MemberRegistrationPage() {
           Đăng ký thành viên
         </h1>
         <p style={{ color: 'var(--color-ink-light)', marginBottom: '2rem', lineHeight: 1.7 }}>
-          Điền thông tin bên dưới để đăng ký trở thành thành viên của Hội người Séc gốc Việt Nam.
+          Điền thông tin bên dưới để đăng ký trở thành thành viên của Hội người Czech gốc Việt Nam.
           Ban quản lý hội sẽ liên hệ lại với bạn trong thời gian sớm nhất.
         </p>
 

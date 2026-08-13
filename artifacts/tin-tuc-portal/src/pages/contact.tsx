@@ -54,7 +54,7 @@ export default function ContactPage() {
             {/* Info sidebar */}
             <aside className="contact-info">
               <div className="contact-info-block">
-                <h2 className="contact-info-heading">Hội người Séc gốc Việt Nam</h2>
+                <h2 className="contact-info-heading">Hội người Czech gốc Việt Nam</h2>
                 <p className="contact-info-sub">Asociace českých občanů vietnamského původu</p>
               </div>
 

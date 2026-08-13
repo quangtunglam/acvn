@@ -41,7 +41,7 @@ export default function SponsorRegistrationPage() {
           Đăng ký tài trợ
         </h1>
         <p style={{ color: 'var(--color-ink-light)', marginBottom: '2rem', lineHeight: 1.7 }}>
-          Hội người Séc gốc Việt Nam trân trọng sự đồng hành của các nhà tài trợ.
+          Hội người Czech gốc Việt Nam trân trọng sự đồng hành của các nhà tài trợ.
           Vui lòng điền thông tin để chúng tôi liên hệ và trao đổi thêm.
         </p>
 
