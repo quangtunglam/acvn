@@ -80,6 +80,14 @@ export default function SponsorRegistrationPage() {
                 {SPONSOR_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
               </select>
             </label>
+
+            {sponsorType === 'Tài chính' && (
+              <div style={{ background: '#f0f7ff', border: '1px solid #bfdbfe', borderRadius: 8, padding: '1rem 1.25rem', fontSize: '0.875rem', lineHeight: 1.8 }}>
+                <p style={{ fontWeight: 700, color: 'var(--color-navy)', marginBottom: 6 }}>Thông tin chuyển khoản</p>
+                <p><span style={{ color: 'var(--color-ink-light)' }}>Số tài khoản:</span> <strong>237949249/0300</strong>, ngân hàng ČSOB</p>
+                <p><span style={{ color: 'var(--color-ink-light)' }}>Nội dung:</span> <strong>Sponzorský dar spolku</strong></p>
+              </div>
+            )}
             <label style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
               <span style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-ink)' }}>Nội dung tài trợ dự kiến</span>
               <textarea rows={3} value={details} onChange={(e) => setDetails(e.target.value)} placeholder="Mô tả ngắn gọn nội dung hoặc giá trị tài trợ…" style={{ ...inputStyle, resize: 'vertical' }} />
