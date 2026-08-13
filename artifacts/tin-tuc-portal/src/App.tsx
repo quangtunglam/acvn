@@ -150,12 +150,13 @@ function CommunityWidget({ events }: { events: Event[] }) {
           <p className="empty">Chưa có sự kiện nào.</p>
         ) : sorted.map((ev) => {
           const isPast = new Date(ev.startDate) < now;
+          const href = ev.articleSlug ? `/bai-viet/${ev.articleSlug}` : `/su-kien`;
           return (
-            <div className={`event ${isPast ? 'event--past' : ''}`} key={ev.id}>
+            <a href={href} className={`event event--link ${isPast ? 'event--past' : ''}`} key={ev.id}>
               {isPast && <span className="event-past-badge">Đã diễn ra</span>}
               <div className="event-title">{ev.title}</div>
               <div className="event-meta"><strong>{fmtEventDate(ev)}</strong>{ev.location && <span>{ev.location}</span>}</div>
-            </div>
+            </a>
           );
         })}
       </div>
