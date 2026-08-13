@@ -119,6 +119,7 @@ export function Navigation({
   const [query, setQuery] = useState('');
   const [expandedMobile, setExpandedMobile] = useState<string | null>(null);
   const [, setLocation] = useLocation();
+  const weather = useWeather();
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && query.trim()) {
@@ -196,6 +197,18 @@ export function Navigation({
             )
           )}
         </div>
+        {/* Weather — visible only on mobile, left side opposite hamburger */}
+        {weather && (
+          <span className="nav-mobile-weather" aria-label="Thời tiết">
+            {weather.map((w, i) => (
+              <span key={w.city} className="u-weather-city">
+                {i > 0 && <span className="u-weather-sep">·</span>}
+                <span className="u-weather-emoji" title={w.desc}>{w.emoji}</span>
+                <span className="u-weather-temp">{w.temp}°C</span>
+              </span>
+            ))}
+          </span>
+        )}
         <div className="nav-spacer" />
         <label className="nav-search">
           <Search size={15} aria-hidden="true" />
