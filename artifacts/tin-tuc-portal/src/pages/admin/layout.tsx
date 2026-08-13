@@ -1,7 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react';
 import { Link, useLocation } from 'wouter';
 import {
-  BookOpen, FileText, Globe, ImageIcon, LayoutDashboard, Mail, Megaphone,
+  BookOpen, FileText, Globe, ImageIcon, Inbox, LayoutDashboard, Mail, Megaphone,
   Newspaper, Rss, Settings, Sparkles, X,
 } from 'lucide-react';
 
@@ -106,6 +106,7 @@ const NAV_ITEMS = [
   { icon: Rss, label: 'RSS & Dịch AI', href: '/admin/rss' },
   { icon: BookOpen, label: 'Danh mục & Tác giả', href: '/admin/taxonomy' },
   { icon: Globe, label: 'Sự kiện', href: '/admin/events' },
+  { icon: Inbox, label: 'Liên hệ', href: '/admin/contacts' },
   { icon: Mail, label: 'Newsletter', href: '/admin/newsletter' },
   { icon: Megaphone, label: 'Quảng cáo', href: '/admin/banners' },
   { icon: ImageIcon, label: 'Media', href: '/admin/media' },
