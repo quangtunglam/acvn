@@ -84,11 +84,14 @@ interface Ev {
   image: string | null;
   registrationUrl: string | null;
   eventType: string;
+  articleSlug: string | null;
 }
 
 function EventCard({ ev, past = false }: { ev: Ev; past?: boolean }) {
-  return (
-    <div className={`ev-card ${past ? 'ev-card--past' : ''}`}>
+  const articleHref = past && ev.articleSlug ? `/bai-viet/${ev.articleSlug}` : null;
+
+  const cardContent = (
+    <>
       {ev.image && (
         <div className="ev-card-img">
           <img src={ev.image} alt={ev.title} loading="lazy" />
@@ -120,7 +123,24 @@ function EventCard({ ev, past = false }: { ev: Ev; past?: boolean }) {
             Đăng ký tham dự →
           </a>
         )}
+        {articleHref && (
+          <span className="ev-card-cta ev-card-cta--article">Đọc bài tường thuật →</span>
+        )}
       </div>
+    </>
+  );
+
+  if (articleHref) {
+    return (
+      <a href={articleHref} className={`ev-card ev-card--link ${past ? 'ev-card--past' : ''}`}>
+        {cardContent}
+      </a>
+    );
+  }
+
+  return (
+    <div className={`ev-card ${past ? 'ev-card--past' : ''}`}>
+      {cardContent}
     </div>
   );
 }

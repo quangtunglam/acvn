@@ -307,6 +307,10 @@
 .ev-card-desc { font-size: 13px; color: hsl(var(--muted-foreground)); margin: 0; line-height: 1.5; flex: 1; }
 .ev-card-cta { margin-top: auto; font-size: 12.5px; font-weight: 700; color: hsl(var(--primary)); text-decoration: none; }
 .ev-card-cta:hover { text-decoration: underline; }
+.ev-card--link { text-decoration: none; color: inherit; cursor: pointer; transition: box-shadow 0.15s, transform 0.15s; display: flex; flex-direction: column; }
+.ev-card--link:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.10); transform: translateY(-2px); }
+.ev-card--link .ev-card-title { color: var(--color-navy); }
+.ev-card-cta--article { color: var(--color-crimson); }
 @media (max-width: 900px) { .ev-grid { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 600px) { .ev-grid { grid-template-columns: 1fr; } }
 footer { padding: 48px 0 25px; background: hsl(220 18% 14%); color: hsl(220 12% 76%); }

@@ -6,14 +6,16 @@ import { MediaPickerBtn } from './media-picker';
 type Event = {
   id: number; title: string; description: string | null; startDate: string; endDate: string | null;
   location: string | null; image: string | null; registrationUrl: string | null; eventType: string;
+  articleSlug: string | null;
 };
 
 type FormData = {
   title: string; description: string; startDate: string; endDate: string;
   location: string; image: string; registrationUrl: string; eventType: string;
+  articleSlug: string;
 };
 
-const EMPTY: FormData = { title: '', description: '', startDate: '', endDate: '', location: '', image: '', registrationUrl: '', eventType: 'community' };
+const EMPTY: FormData = { title: '', description: '', startDate: '', endDate: '', location: '', image: '', registrationUrl: '', eventType: 'community', articleSlug: '' };
 
 function fmtDate(s: string) {
   return new Date(s).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' });
@@ -38,6 +40,7 @@ export default function AdminEvents() {
       startDate: ev.startDate.slice(0, 16), endDate: ev.endDate?.slice(0, 16) ?? '',
       location: ev.location ?? '', image: ev.image ?? '',
       registrationUrl: ev.registrationUrl ?? '', eventType: ev.eventType,
+      articleSlug: ev.articleSlug ?? '',
     });
     setModal({ open: true, editing: ev });
   };
@@ -50,7 +53,7 @@ export default function AdminEvents() {
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault(); setSaving(true); setError('');
     try {
-      const body = { ...form, endDate: form.endDate || null, description: form.description || null, location: form.location || null, image: form.image || null, registrationUrl: form.registrationUrl || null };
+      const body = { ...form, endDate: form.endDate || null, description: form.description || null, location: form.location || null, image: form.image || null, registrationUrl: form.registrationUrl || null, articleSlug: form.articleSlug || null };
       if (modal.editing) {
         await apiFetch(`/events/${modal.editing.id}`, { method: 'PATCH', body: JSON.stringify(body) });
       } else {
@@ -122,6 +125,7 @@ export default function AdminEvents() {
               {form.image && <img src={form.image} alt="" style={{ marginTop: 6, maxHeight: 80, borderRadius: 4, objectFit: 'cover', maxWidth: '100%' }} onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />}
             </div>
             <Input label="URL đăng ký" value={form.registrationUrl} onChange={(e) => f('registrationUrl', e.target.value)} />
+            <Input label="Slug bài viết (để liên kết sau sự kiện)" value={form.articleSlug} onChange={(e) => f('articleSlug', e.target.value)} placeholder="vd: ten-bai-viet-ve-su-kien" />
             <Textarea label="Mô tả" value={form.description} onChange={(e) => f('description', e.target.value)} rows={3} />
             {error && <p style={{ color: 'var(--color-crimson)', fontSize: '0.85rem', marginBottom: '0.75rem' }}>{error}</p>}
             <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>

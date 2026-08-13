@@ -78,6 +78,7 @@ export const eventsTable = pgTable("events", {
   image: text("image"),
   registrationUrl: text("registration_url"),
   eventType: text("event_type").notNull(),
+  articleSlug: text("article_slug"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow().$onUpdate(() => new Date()),
 });

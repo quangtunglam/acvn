@@ -78,6 +78,8 @@ export interface Event {
   /** @nullable */
   registrationUrl: string | null;
   eventType: string;
+  /** @nullable */
+  articleSlug: string | null;
 }
 
 export type HomepagePayloadEuCountries = {[key: string]: Article[]};
