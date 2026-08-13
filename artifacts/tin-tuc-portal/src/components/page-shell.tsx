@@ -284,11 +284,17 @@ export function Footer() {
             ['Đức', '/khu-vuc/duc'],
             ['Việt Nam', '/khu-vuc/viet-nam'],
           ]} />
-          <FooterColumn title="Liên hệ" links={[
-            ['Gửi tin bài', '/'],
-            ['Quảng cáo', '/'],
-            ['Về chúng tôi', '/'],
-          ]} />
+          <div className="footer-col">
+            <h3>Liên hệ</h3>
+            <address style={{ fontStyle: 'normal', fontSize: '0.85rem', lineHeight: 1.8, color: 'rgba(255,255,255,0.7)' }}>
+              <strong style={{ color: '#fff' }}>Hội người Séc gốc Việt Nam</strong><br />
+              Asociace Českých občanů<br />
+              Vietnamského původu, z. s.<br />
+              V lužích 735/6,<br />
+              142 00 Praha 4 - Libuš<br />
+              IČO: 22840621
+            </address>
+          </div>
         </div>
         <div className="footer-bottom">
           <span>© 2025–2026 Hội người Séc gốc Việt Nam. Bảo lưu mọi quyền.</span>
