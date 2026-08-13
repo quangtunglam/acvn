@@ -268,6 +268,8 @@
 .widget { overflow: hidden; margin-bottom: 22px; background: hsl(var(--card)); border: 1px solid hsl(var(--border)); border-radius: 7px; }
 .widget-head { display: flex; align-items: center; gap: 8px; padding: 12px 15px; background: hsl(var(--secondary)); color: white; font-size: 13px; font-weight: 800; }
 .widget-head.red { background: hsl(var(--primary)); }
+.widget-head--link { text-decoration: none; cursor: pointer; transition: opacity .15s; }
+.widget-head--link:hover { opacity: .85; }
 .widget-body { padding: 16px; }
 .event { padding: 12px 0; border-top: 1px solid hsl(var(--border)); }
 .event:first-child { padding-top: 0; border-top: 0; }
