@@ -90,7 +90,7 @@ interface Ev {
 }
 
 function EventCard({ ev, past = false }: { ev: Ev; past?: boolean }) {
-  const articleHref = past && ev.articleSlug ? `/bai-viet/${ev.articleSlug}` : null;
+  const articleHref = ev.articleSlug ? `/bai-viet/${ev.articleSlug}` : null;
 
   const cardContent = (
     <>

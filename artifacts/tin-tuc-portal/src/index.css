@@ -272,6 +272,9 @@
 .widget-head--link:hover { opacity: .85; }
 .widget-body { padding: 16px; }
 .event { padding: 12px 0; border-top: 1px solid hsl(var(--border)); }
+.event--link { display: block; text-decoration: none; color: inherit; transition: background .15s; margin: 0 -15px; padding: 12px 15px; border-top: 1px solid hsl(var(--border)); }
+.event--link:hover { background: hsl(var(--muted)); }
+.event--link:first-child { border-top: none; }
 .event:first-child { padding-top: 0; border-top: 0; }
 .event-title { font-size: 13px; font-weight: 800; }
 .event-meta { display: flex; flex-direction: column; gap: 3px; margin-top: 5px; color: hsl(var(--muted-foreground)); font-size: 11.5px; }
