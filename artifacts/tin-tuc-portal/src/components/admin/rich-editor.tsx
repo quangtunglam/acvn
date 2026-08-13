@@ -129,7 +129,7 @@ export function RichEditor({ value, onChange, placeholder = 'Nhập nội dung b
     if (!editor) return;
     if (value === lastEmittedRef.current) return;
     lastEmittedRef.current = value;
-    editor.commands.setContent(value, false);
+    editor.commands.setContent(value, { emitUpdate: false });
   }, [value, editor]);
 
   const setLink = useCallback(() => {
