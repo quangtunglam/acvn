@@ -283,8 +283,8 @@ function HomepageContent({ data }: { data: HomepagePayload }) {
             {data.activities.length > 0 && (
               <section className="page-section" id="tin-hoat-dong">
                 <SectionHeading title="Tin hoạt động" more="/danh-muc/tin-hoat-dong" />
-                <div className="stack">
-                  {data.activities.slice(0, 4).map((a) => <StoryRow key={a.id} article={a} />)}
+                <div className="selected-grid">
+                  {data.activities.slice(0, 4).map((article, index) => <StoryCard key={article.id} article={article} index={index} />)}
                 </div>
               </section>
             )}
