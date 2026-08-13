@@ -44,15 +44,15 @@ export default function AboutPage() {
             </p>
 
             <p>
-              Hội người Séc gốc Việt Nam được thành lập với mục tiêu gìn giữ và phát triển tiếng Việt, văn hóa Việt Nam và các truyền thống Việt Nam trong cộng đồng của chúng ta.
+              Hội người Czech gốc Việt Nam được thành lập với mục tiêu gìn giữ và phát triển tiếng Việt, văn hóa Việt Nam và các truyền thống Việt Nam trong cộng đồng của chúng ta.
             </p>
 
             <p>
-              Qua đây, tôi kêu gọi toàn thể bà con tích cực tham gia các hoạt động của Hội người Séc gốc Việt Nam, để chúng ta có thể cùng nhau góp sức gìn giữ và phát triển tiếng Việt, văn hóa Việt Nam và những truyền thống tốt đẹp của dân tộc. Mong rằng mỗi người trong chúng ta sẽ đóng góp cho cộng đồng bằng những ý tưởng, khả năng và những hành động thiết thực của mình.
+              Qua đây, tôi kêu gọi toàn thể bà con tích cực tham gia các hoạt động của Hội người Czech gốc Việt Nam, để chúng ta có thể cùng nhau góp sức gìn giữ và phát triển tiếng Việt, văn hóa Việt Nam và những truyền thống tốt đẹp của dân tộc. Mong rằng mỗi người trong chúng ta sẽ đóng góp cho cộng đồng bằng những ý tưởng, khả năng và những hành động thiết thực của mình.
             </p>
 
             <div className="about-signature">
-              <p className="about-signature-role">Thay mặt Hội người Séc gốc Việt Nam</p>
+              <p className="about-signature-role">Thay mặt Hội người Czech gốc Việt Nam</p>
               <p className="about-signature-name">Ing. Phạm Công Tú</p>
             </div>
           </section>

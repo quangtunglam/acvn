@@ -51,12 +51,12 @@ export function Masthead() {
       <div className="wrap masthead-inner">
         {/* Left — logo */}
         <a className="masthead-logo-wrap" href="/" aria-label="Trang chủ" data-testid="link-logo">
-          <img src="/logo-hoi.png" alt="Logo Hội người Séc gốc Việt Nam" className="masthead-logo-img" />
+          <img src="/logo-hoi.png" alt="Logo Hội người Czech gốc Việt Nam" className="masthead-logo-img" />
         </a>
 
         {/* Right — stacked names */}
         <a className="masthead-names" href="/" aria-label="Trang chủ">
-          <span className="masthead-name masthead-name--vi">Hội người Séc gốc Việt Nam</span>
+          <span className="masthead-name masthead-name--vi">Hội người Czech gốc Việt Nam</span>
           <span className="masthead-name masthead-name--cs">Asociace českých občanů vietnamského původu</span>
         </a>
       </div>
@@ -264,7 +264,7 @@ export function Footer() {
               <img src="/logo-hoi.png" alt="Logo" style={{ height: 48, width: 'auto', objectFit: 'contain' }} />
               <span className="logo-name" style={{ fontSize: '0.95rem', lineHeight: 1.3 }}>Hội người Séc<em style={{ fontStyle: 'normal' }}> gốc Việt Nam</em></span>
             </div>
-            <p>Cổng thông tin của Hội người Séc gốc Việt Nam.</p>
+            <p>Cổng thông tin của Hội người Czech gốc Việt Nam.</p>
             <div className="socials">
               <a className="social-link" href="/" aria-label="Facebook"><Facebook size={16} /></a>
               <a className="social-link" href="/" aria-label="YouTube"><Youtube size={16} /></a>
@@ -287,7 +287,7 @@ export function Footer() {
           <div className="footer-col">
             <h3>Liên hệ</h3>
             <address style={{ fontStyle: 'normal', fontSize: '0.85rem', lineHeight: 1.8, color: 'rgba(255,255,255,0.7)' }}>
-              <strong style={{ color: '#fff' }}>Hội người Séc gốc Việt Nam</strong><br />
+              <strong style={{ color: '#fff' }}>Hội người Czech gốc Việt Nam</strong><br />
               Asociace Českých občanů<br />
               Vietnamského původu, z. s.<br />
               V lužích 735/6,<br />
@@ -297,7 +297,7 @@ export function Footer() {
           </div>
         </div>
         <div className="footer-bottom">
-          <span>© 2026 Hội người Séc gốc Việt Nam. Bảo lưu mọi quyền.</span>
+          <span>© 2026 Hội người Czech gốc Việt Nam. Bảo lưu mọi quyền.</span>
           <span className="footer-links">
             <a href="/">Điều khoản sử dụng</a>
             <a href="/">Chính sách bảo mật</a>
