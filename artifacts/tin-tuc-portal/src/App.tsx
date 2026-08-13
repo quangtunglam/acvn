@@ -297,12 +297,12 @@ function HomepageContent({ data }: { data: HomepagePayload }) {
           </div>
         </section>
 
-        {/* ── Kinh doanh + sidebar ── */}
+        {/* ── Pháp luật + sidebar ── */}
         <div className="wrap">
-          <section className="page-section" id="kinh-doanh">
+          <section className="page-section" id="phap-luat">
             <div className="with-aside">
               <div>
-                <SectionHeading title="Tin kinh doanh" more="/danh-muc/kinh-doanh" />
+                <SectionHeading title="Tin Pháp luật" more="/danh-muc/phap-luat" />
                 <div className="stack">{data.business.slice(0, 4).map((a) => <StoryRow key={a.id} article={a} />)}</div>
               </div>
               <aside id="cong-dong">

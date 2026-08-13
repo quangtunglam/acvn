@@ -97,7 +97,7 @@ const NAV_LINKS: NavItem[] = [
       { label: 'Văn hóa truyền thống', href: '/danh-muc/van-hoa-truyen-thong' },
       { label: 'Sức khỏe - Đời sống', href: '/danh-muc/suc-khoe-doi-song' },
       { label: 'Pháp luật', href: '/danh-muc/phap-luat' },
-      { label: 'Kinh doanh', href: '/danh-muc/kinh-doanh' },
+      { label: 'Pháp luật', href: '/danh-muc/phap-luat' },
     ],
   },
   { label: 'Sự kiện', href: '/su-kien' },
@@ -280,7 +280,7 @@ export function Footer() {
           </div>
           <FooterColumn title="Chuyên mục" links={[
             ['Tin tức', '/danh-muc/tin-tuc'],
-            ['Kinh doanh', '/danh-muc/kinh-doanh'],
+            ['Pháp luật', '/danh-muc/phap-luat'],
             ['Chuyện đầu tư', '/danh-muc/chuyen-dau-tu'],
             ['Cộng đồng', '/danh-muc/cong-dong'],
           ]} />
