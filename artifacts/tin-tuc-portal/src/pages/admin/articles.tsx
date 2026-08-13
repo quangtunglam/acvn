@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { Edit2, Eye, Plus, Trash2 } from 'lucide-react';
 import { AdminPage, Badge, Btn, Input, Modal, Select, Textarea, useAdmin } from './layout';
 import { MediaPickerBtn } from './media-picker';
+import { RichEditor } from '@/components/admin/rich-editor';
 
 type Category = { id: number; name: string; slug: string };
 type Country = { id: number; name: string; slug: string };
@@ -275,7 +276,10 @@ export default function AdminArticles() {
               {form.coverImage && <img src={form.coverImage} alt="" style={{ marginTop: 6, maxHeight: 80, borderRadius: 4, objectFit: 'cover', maxWidth: '100%' }} onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />}
             </div>
             <Textarea label="Tóm tắt" value={form.summary} onChange={(e) => f('summary', e.target.value)} rows={2} />
-            <Textarea label="Nội dung (HTML)" value={form.content} onChange={(e) => f('content', e.target.value)} rows={10} />
+            <div style={{ marginBottom: '0.75rem' }}>
+              <div style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--color-ink)', marginBottom: 4 }}>Nội dung</div>
+              <RichEditor value={form.content} onChange={(html) => f('content', html)} />
+            </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 1rem' }}>
               <Select label="Danh mục *" value={form.categoryId} onChange={(e) => f('categoryId', e.target.value)} required>
