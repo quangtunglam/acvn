@@ -4,7 +4,7 @@ import Underline from '@tiptap/extension-underline';
 import Link from '@tiptap/extension-link';
 import TextAlign from '@tiptap/extension-text-align';
 import Placeholder from '@tiptap/extension-placeholder';
-import { useEffect, useCallback } from 'react';
+import { useEffect, useCallback, useRef } from 'react';
 
 // ── Toolbar button ──────────────────────────────────────────────────────────
 function Btn({
@@ -37,10 +37,17 @@ interface RichEditorProps {
 }
 
 export function RichEditor({ value, onChange, placeholder = 'Nhập nội dung bài viết…' }: RichEditorProps) {
+  // Track the last HTML value emitted by this editor so we can distinguish
+  // "change came from inside the editor" vs "change came from outside (e.g. switching articles)".
+  const lastEmittedRef = useRef<string>(value);
+
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
         heading: { levels: [2, 3, 4] },
+        // Disable built-ins we're replacing with configured versions below
+        // (StarterKit doesn't include Link or Underline — warning came from
+        //  a previous HMR state; keeping explicit configure for safety)
       }),
       Underline,
       Link.configure({ openOnClick: false, HTMLAttributes: { rel: 'noopener noreferrer' } }),
@@ -49,17 +56,21 @@ export function RichEditor({ value, onChange, placeholder = 'Nhập nội dung b
     ],
     content: value,
     onUpdate: ({ editor }) => {
-      onChange(editor.getHTML());
+      const html = editor.getHTML();
+      lastEmittedRef.current = html; // remember we emitted this value
+      onChange(html);
     },
     editorProps: {
       attributes: { class: 'rte-content', spellcheck: 'true' },
     },
   });
 
-  // Sync value from outside (e.g. when switching articles)
+  // Only sync content when the value changes from OUTSIDE (e.g. switching articles).
+  // If value === lastEmittedRef.current the change came from the editor itself — skip.
   useEffect(() => {
     if (!editor) return;
-    if (editor.getHTML() === value) return;
+    if (value === lastEmittedRef.current) return; // our own change — do nothing
+    lastEmittedRef.current = value;
     editor.commands.setContent(value, false);
   }, [value, editor]);
 
