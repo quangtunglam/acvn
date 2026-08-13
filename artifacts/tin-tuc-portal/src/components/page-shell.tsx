@@ -285,7 +285,6 @@ export function Footer() {
             ['Việt Nam', '/khu-vuc/viet-nam'],
           ]} />
           <FooterColumn title="Liên hệ" links={[
-            ['Email: toasoan@vietpress.eu', 'mailto:toasoan@vietpress.eu'],
             ['Gửi tin bài', '/'],
             ['Quảng cáo', '/'],
             ['Về chúng tôi', '/'],
