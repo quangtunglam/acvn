@@ -327,6 +327,40 @@ export const GetHomepageResponse = zod.object({
   "breakingNews": zod.boolean(),
   "views": zod.number().int()
 })),
+  "activities": zod.array(zod.object({
+  "id": zod.number().int(),
+  "title": zod.string(),
+  "slug": zod.string(),
+  "summary": zod.string(),
+  "content": zod.string(),
+  "coverImage": zod.string().nullable(),
+  "category": zod.object({
+  "id": zod.number().int(),
+  "name": zod.string(),
+  "slug": zod.string(),
+  "description": zod.string().nullable()
+}),
+  "country": zod.union([zod.object({
+  "id": zod.number().int(),
+  "name": zod.string(),
+  "slug": zod.string(),
+  "code": zod.string().nullable()
+}),zod.null()]),
+  "author": zod.union([zod.object({
+  "id": zod.number().int(),
+  "name": zod.string(),
+  "bio": zod.string().nullable(),
+  "avatar": zod.string().nullable()
+}),zod.null()]),
+  "sourceName": zod.string().nullable(),
+  "sourceUrl": zod.string().nullable(),
+  "editor": zod.string().nullable(),
+  "publishedAt": zod.coerce.date().nullable(),
+  "status": zod.string(),
+  "featured": zod.boolean(),
+  "breakingNews": zod.boolean(),
+  "views": zod.number().int()
+})),
   "communityEvents": zod.array(zod.object({
   "id": zod.number().int(),
   "title": zod.string(),
