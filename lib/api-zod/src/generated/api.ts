@@ -370,7 +370,8 @@ export const GetHomepageResponse = zod.object({
   "location": zod.string().nullable(),
   "image": zod.string().nullable(),
   "registrationUrl": zod.string().nullable(),
-  "eventType": zod.string()
+  "eventType": zod.string(),
+  "articleSlug": zod.string().nullable()
 }))
 })
 
@@ -594,7 +595,8 @@ export const ListEventsResponseItem = zod.object({
   "location": zod.string().nullable(),
   "image": zod.string().nullable(),
   "registrationUrl": zod.string().nullable(),
-  "eventType": zod.string()
+  "eventType": zod.string(),
+  "articleSlug": zod.string().nullable()
 })
 export const ListEventsResponse = zod.array(ListEventsResponseItem)
 

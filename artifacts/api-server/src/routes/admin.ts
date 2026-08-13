@@ -307,6 +307,7 @@ router.post("/events", async (req, res): Promise<void> => {
     image: b.image ?? null,
     registrationUrl: b.registrationUrl ?? null,
     eventType: b.eventType ?? "community",
+    articleSlug: (b as Record<string, unknown>).articleSlug as string ?? null,
   }).returning();
   res.status(201).json(row);
 });
@@ -314,7 +315,7 @@ router.post("/events", async (req, res): Promise<void> => {
 router.patch("/events/:id", async (req, res): Promise<void> => {
   const b = req.body as Record<string, unknown>;
   const update: Record<string, unknown> = {};
-  const strFields = ["title","description","location","image","registrationUrl","eventType"] as const;
+  const strFields = ["title","description","location","image","registrationUrl","eventType","articleSlug"] as const;
   for (const f of strFields) if (f in b) update[f] = b[f] ?? null;
   if ("startDate" in b && b.startDate) update.startDate = new Date(b.startDate as string);
   if ("endDate" in b) update.endDate = b.endDate ? new Date(b.endDate as string) : null;
