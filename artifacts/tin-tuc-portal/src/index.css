@@ -297,7 +297,7 @@
 .ev-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 12px; }
 .ev-grid--past { opacity: .7; }
 .ev-card { background: hsl(var(--card)); border: 1px solid hsl(var(--border)); border-radius: 8px; overflow: hidden; display: flex; flex-direction: column; }
-.ev-card--past { filter: grayscale(.3); }
+.ev-card--past { filter: none; }
 .ev-card-img { aspect-ratio: 16/7; overflow: hidden; background: hsl(var(--muted)); }
 .ev-card-img img { width: 100%; height: 100%; object-fit: cover; }
 .ev-card-body { padding: 16px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
