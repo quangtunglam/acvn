@@ -32,6 +32,7 @@ import SearchPage from '@/pages/search';
 import AdminRouter from '@/pages/admin/index';
 import { GoogleFormPage } from '@/pages/google-form-page';
 import EventsPage from '@/pages/events';
+import AboutPage from '@/pages/about';
 import { Route, Switch, useLocation, Router as WouterRouter, useParams } from 'wouter';
 
 const queryClient = new QueryClient({
@@ -393,6 +394,7 @@ function Router() {
           />
         )} />
         <Route path="/su-kien" component={EventsPage} />
+        <Route path="/gioi-thieu/thong-tin-ve-hoi" component={AboutPage} />
         <Route path="/admin/:rest*" component={AdminPage} />
         <Route path="/admin" component={AdminPage} />
         <Route component={NotFound} />
