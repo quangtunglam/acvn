@@ -280,6 +280,14 @@ function HomepageContent({ data }: { data: HomepagePayload }) {
         {/* ── Chuyên mục ── */}
         <section className="features">
           <div className="wrap">
+            {data.activities.length > 0 && (
+              <section className="page-section" id="tin-hoat-dong">
+                <SectionHeading title="Tin hoạt động" more="/danh-muc/tin-hoat-dong" />
+                <div className="stack">
+                  {data.activities.slice(0, 4).map((a) => <StoryRow key={a.id} article={a} />)}
+                </div>
+              </section>
+            )}
             <section className="page-section" id="chuyen-muc">
               <SectionHeading title="Văn hóa truyền thống" more="/danh-muc/van-hoa-truyen-thong" />
               <div className="selected-grid">

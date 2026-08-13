@@ -86,6 +86,7 @@ const NAV_LINKS: NavItem[] = [
   {
     label: 'Tin tức', href: '/danh-muc/tin-tuc',
     children: [
+      { label: 'Tin hoạt động', href: '/danh-muc/tin-hoat-dong' },
       { label: 'Tin Việt Nam', href: '/danh-muc/tin-viet-nam' },
       { label: 'Tin thế giới', href: '/danh-muc/tin-the-gioi' },
     ],

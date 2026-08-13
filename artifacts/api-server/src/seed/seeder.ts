@@ -117,6 +117,7 @@ const ENSURE_CATEGORIES = [
   { name: "Sức khỏe - Đời sống",  slug: "suc-khoe-doi-song"   },
   { name: "Pháp luật",            slug: "phap-luat"            },
   { name: "Chuyên mục",           slug: "chuyen-muc"           },
+  { name: "Tin hoạt động",        slug: "tin-hoat-dong"        },
 ];
 
 export async function ensureCategories(): Promise<void> {
@@ -140,6 +141,7 @@ export async function ensureCategories(): Promise<void> {
 // ─── Set parent_id for subcategories ─────────────────────────────────────────
 // "Tin Việt Nam" and "Tin thế giới" are children of "Tin tức"
 const SUBCATEGORY_MAP: { childSlug: string; parentSlug: string }[] = [
+  { childSlug: "tin-hoat-dong",         parentSlug: "tin-tuc"    },
   { childSlug: "tin-viet-nam",          parentSlug: "tin-tuc"    },
   { childSlug: "tin-the-gioi",          parentSlug: "tin-tuc"    },
   { childSlug: "van-hoa-truyen-thong",  parentSlug: "chuyen-muc" },
