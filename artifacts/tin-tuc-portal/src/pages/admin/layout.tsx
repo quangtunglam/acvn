@@ -7,10 +7,14 @@ import {
 
 // ─── Admin auth context ───────────────────────────────────────────────────────
 
+export type InboxCounts = { contacts: number; members: number; sponsors: number };
+
 type AdminCtx = {
   token: string;
   setToken: (t: string) => void;
   apiFetch: <T = unknown>(path: string, opts?: RequestInit) => Promise<T>;
+  inboxCounts: InboxCounts;
+  refreshInbox: () => void;
 };
 
 const AdminContext = createContext<AdminCtx | null>(null);
@@ -116,6 +120,13 @@ const NAV_ITEMS = [
 
 function Sidebar({ onLogout }: { onLogout: () => void }) {
   const [location] = useLocation();
+  const { inboxCounts } = useAdmin();
+
+  const badgeFor = (href: string): number => {
+    if (href === '/admin/contacts') return inboxCounts.contacts;
+    if (href === '/admin/registrations') return inboxCounts.members + inboxCounts.sponsors;
+    return 0;
+  };
 
   return (
     <aside style={{
@@ -134,6 +145,7 @@ function Sidebar({ onLogout }: { onLogout: () => void }) {
       <nav style={{ flex: 1, padding: '0.75rem 0' }}>
         {NAV_ITEMS.map(({ icon: Icon, label, href }) => {
           const active = location === href || (href !== '/admin' && location.startsWith(href));
+          const badge = badgeFor(href);
           return (
             <Link
               key={href}
@@ -149,7 +161,16 @@ function Sidebar({ onLogout }: { onLogout: () => void }) {
               }}
             >
               <Icon size={16} />
-              {label}
+              <span style={{ flex: 1 }}>{label}</span>
+              {badge > 0 && (
+                <span style={{
+                  background: 'var(--color-crimson)', color: '#fff',
+                  borderRadius: 99, fontSize: '0.7rem', fontWeight: 700,
+                  padding: '1px 6px', lineHeight: 1.5, minWidth: 18, textAlign: 'center',
+                }}>
+                  {badge}
+                </span>
+              )}
             </Link>
           );
         })}
@@ -182,6 +203,7 @@ export function AdminLayout({ children }: { children: ReactNode }) {
   const [token, setTokenState] = useState(() => localStorage.getItem(STORAGE_KEY) ?? '');
   const [verified, setVerified] = useState(false);
   const [checking, setChecking] = useState(true);
+  const [inboxCounts, setInboxCounts] = useState<InboxCounts>({ contacts: 0, members: 0, sponsors: 0 });
 
   const setToken = (t: string) => {
     setTokenState(t);
@@ -215,14 +237,27 @@ export function AdminLayout({ children }: { children: ReactNode }) {
     [token], // eslint-disable-line react-hooks/exhaustive-deps
   );
 
+  const refreshInbox = useCallback(() => {
+    if (!token) return;
+    fetch('/api/admin/inbox-counts', { headers: { 'X-Admin-Token': token } })
+      .then((r) => r.ok ? r.json() : null)
+      .then((data) => { if (data) setInboxCounts(data); })
+      .catch(() => {});
+  }, [token]);
+
   // Verify token on mount
   useEffect(() => {
     if (!token) { setChecking(false); return; }
     fetch('/api/admin/stats', { headers: { 'X-Admin-Token': token } })
-      .then((r) => { if (r.ok) setVerified(true); else logout(); })
+      .then((r) => { if (r.ok) { setVerified(true); } else logout(); })
       .catch(() => logout())
       .finally(() => setChecking(false));
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Fetch inbox counts once verified
+  useEffect(() => {
+    if (verified) refreshInbox();
+  }, [verified, refreshInbox]);
 
   const handleLogin = (t: string) => { setToken(t); setVerified(true); };
 
@@ -237,7 +272,7 @@ export function AdminLayout({ children }: { children: ReactNode }) {
   if (!verified) return <LoginScreen onLogin={handleLogin} />;
 
   return (
-    <AdminContext.Provider value={{ token, setToken, apiFetch }}>
+    <AdminContext.Provider value={{ token, setToken, apiFetch, inboxCounts, refreshInbox }}>
       <div style={{ display: 'flex', minHeight: '100vh', background: 'var(--color-bone)' }}>
         <Sidebar onLogout={logout} />
         <div style={{ flex: 1, overflow: 'auto' }}>

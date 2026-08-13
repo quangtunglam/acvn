@@ -85,6 +85,19 @@ router.get("/stats", async (_req, res): Promise<void> => {
   });
 });
 
+router.get("/inbox-counts", async (_req, res): Promise<void> => {
+  const [[contacts], [members], [sponsors]] = await Promise.all([
+    db.select({ count: sql<number>`count(*)` }).from(contactSubmissionsTable).where(eq(contactSubmissionsTable.read, false)),
+    db.select({ count: sql<number>`count(*)` }).from(memberRegistrationsTable).where(eq(memberRegistrationsTable.read, false)),
+    db.select({ count: sql<number>`count(*)` }).from(sponsorRegistrationsTable).where(eq(sponsorRegistrationsTable.read, false)),
+  ]);
+  res.json({
+    contacts: Number(contacts?.count ?? 0),
+    members: Number(members?.count ?? 0),
+    sponsors: Number(sponsors?.count ?? 0),
+  });
+});
+
 // ─── Articles ─────────────────────────────────────────────────────────────────
 
 router.get("/articles", async (req, res): Promise<void> => {
