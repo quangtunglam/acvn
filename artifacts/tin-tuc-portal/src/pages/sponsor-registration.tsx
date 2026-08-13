@@ -173,7 +173,7 @@ export default function SponsorRegistrationPage() {
               </div>
             )}
             <label style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-              <span style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-ink)' }}>Nội dung tài trợ dự kiến</span>
+              <span style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-ink)' }}>Nội dung tài trợ</span>
               <textarea rows={3} value={details} onChange={(e) => setDetails(e.target.value)} placeholder="Mô tả ngắn gọn nội dung hoặc giá trị tài trợ…" style={{ ...inputStyle, resize: 'vertical' }} />
             </label>
             <label style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
