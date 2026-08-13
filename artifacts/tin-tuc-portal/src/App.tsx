@@ -144,7 +144,7 @@ function CommunityWidget({ events }: { events: Event[] }) {
 
   return (
     <div className="widget">
-      <div className="widget-head"><CalendarDays size={15} /> Sự kiện của Hội</div>
+      <a className="widget-head widget-head--link" href="/su-kien"><CalendarDays size={15} /> Sự kiện của Hội</a>
       <div className="widget-body">
         {sorted.length === 0 ? (
           <p className="empty">Chưa có sự kiện nào.</p>
