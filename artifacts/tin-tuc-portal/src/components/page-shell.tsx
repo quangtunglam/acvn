@@ -272,10 +272,10 @@ export function Footer() {
             </div>
           </div>
           <FooterColumn title="Chuyên mục" links={[
+            ['Văn hóa truyền thống', '/danh-muc/van-hoa-truyen-thong'],
             ['Tin tức', '/danh-muc/tin-tuc'],
+            ['Sức khỏe - Đời sống', '/danh-muc/suc-khoe-doi-song'],
             ['Pháp luật', '/danh-muc/phap-luat'],
-            ['Chuyện đầu tư', '/danh-muc/chuyen-dau-tu'],
-            ['Cộng đồng', '/danh-muc/cong-dong'],
           ]} />
           <FooterColumn title="Khu vực" links={[
             ['Cộng hòa Séc', '/khu-vuc/sec'],
