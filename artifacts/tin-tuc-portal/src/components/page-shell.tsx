@@ -298,11 +298,6 @@ export function Footer() {
         </div>
         <div className="footer-bottom">
           <span>© 2026 Hội người Czech gốc Việt Nam. Bảo lưu mọi quyền.</span>
-          <span className="footer-links">
-            <a href="/">Điều khoản sử dụng</a>
-            <a href="/">Chính sách bảo mật</a>
-            <a href="/">Cookie</a>
-          </span>
         </div>
       </div>
     </footer>
