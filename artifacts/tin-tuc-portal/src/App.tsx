@@ -30,7 +30,8 @@ import CategoryPage from '@/pages/category';
 import CountryPage from '@/pages/country';
 import SearchPage from '@/pages/search';
 import AdminRouter from '@/pages/admin/index';
-import { GoogleFormPage } from '@/pages/google-form-page';
+import MemberRegistrationPage from '@/pages/member-registration';
+import SponsorRegistrationPage from '@/pages/sponsor-registration';
 import EventsPage from '@/pages/events';
 import AboutPage from '@/pages/about';
 import ContactPage from '@/pages/contact';
@@ -379,18 +380,8 @@ function Router() {
         <Route path="/danh-muc/:slug" component={CategoryPage} />
         <Route path="/khu-vuc/:slug" component={CountryPage} />
         <Route path="/tim-kiem" component={SearchPage} />
-        <Route path="/dang-ky/thanh-vien" component={() => (
-          <GoogleFormPage
-            title="Đăng ký thành viên"
-            formUrl="https://docs.google.com/forms/d/1Ny4iXisVr1z2jvoWRnIYXX5gH4QAD6PSNQzqluf4_-0/viewform?embedded=true"
-          />
-        )} />
-        <Route path="/dang-ky/tai-tro" component={() => (
-          <GoogleFormPage
-            title="Đăng ký tài trợ"
-            formUrl="https://docs.google.com/forms/d/1xu9W4TxtlXe70_9ZKc3eLkfUtG9sqRLat1mvNX-6EpQ/viewform?embedded=true"
-          />
-        )} />
+        <Route path="/dang-ky/thanh-vien" component={MemberRegistrationPage} />
+        <Route path="/dang-ky/tai-tro" component={SponsorRegistrationPage} />
         <Route path="/su-kien" component={EventsPage} />
         <Route path="/gioi-thieu/thong-tin-ve-hoi" component={AboutPage} />
         <Route path="/gioi-thieu/lien-he" component={ContactPage} />

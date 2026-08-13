@@ -9,6 +9,7 @@ import AdminEvents from './events';
 import AdminNewsletter from './newsletter';
 import AdminAI from './ai';
 import AdminContacts from './contacts';
+import AdminRegistrations from './registrations';
 
 // Reads the current URL itself — no prop dependency
 function AdminContent() {
@@ -25,6 +26,7 @@ function AdminContent() {
   if (section === 'media') return <AdminMedia />;
   if (section === 'ai') return <AdminAI />;
   if (section === 'contacts') return <AdminContacts />;
+  if (section === 'registrations') return <AdminRegistrations />;
 
   return (
     <div style={{ padding: '2rem', color: 'var(--color-ink-light)' }}>

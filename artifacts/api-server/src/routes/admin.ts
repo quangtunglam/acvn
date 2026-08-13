@@ -10,8 +10,10 @@ import {
   countriesTable,
   db,
   eventsTable,
+  memberRegistrationsTable,
   newsletterSubscribersTable,
   rssFeedsTable,
+  sponsorRegistrationsTable,
 } from "@workspace/db";
 import { openai } from "@workspace/integrations-openai-ai-server";
 import { ingestFeed, ingestAllFeeds } from "../services/rss-ingest.js";
@@ -329,6 +331,38 @@ router.patch("/events/:id", async (req, res): Promise<void> => {
 
 router.delete("/events/:id", async (req, res): Promise<void> => {
   await db.delete(eventsTable).where(eq(eventsTable.id, Number(req.params.id)));
+  res.status(204).end();
+});
+
+// ─── Member & Sponsor registrations ──────────────────────────────────────────
+
+router.get("/registrations/members", async (_req, res): Promise<void> => {
+  const rows = await db.select().from(memberRegistrationsTable).orderBy(desc(memberRegistrationsTable.createdAt));
+  res.json(rows);
+});
+
+router.patch("/registrations/members/:id/read", async (req, res): Promise<void> => {
+  await db.update(memberRegistrationsTable).set({ read: true }).where(eq(memberRegistrationsTable.id, Number(req.params.id)));
+  res.json({ ok: true });
+});
+
+router.delete("/registrations/members/:id", async (req, res): Promise<void> => {
+  await db.delete(memberRegistrationsTable).where(eq(memberRegistrationsTable.id, Number(req.params.id)));
+  res.status(204).end();
+});
+
+router.get("/registrations/sponsors", async (_req, res): Promise<void> => {
+  const rows = await db.select().from(sponsorRegistrationsTable).orderBy(desc(sponsorRegistrationsTable.createdAt));
+  res.json(rows);
+});
+
+router.patch("/registrations/sponsors/:id/read", async (req, res): Promise<void> => {
+  await db.update(sponsorRegistrationsTable).set({ read: true }).where(eq(sponsorRegistrationsTable.id, Number(req.params.id)));
+  res.json({ ok: true });
+});
+
+router.delete("/registrations/sponsors/:id", async (req, res): Promise<void> => {
+  await db.delete(sponsorRegistrationsTable).where(eq(sponsorRegistrationsTable.id, Number(req.params.id)));
   res.status(204).end();
 });
 

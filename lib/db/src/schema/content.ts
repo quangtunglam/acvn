@@ -107,6 +107,32 @@ export const adBannersTable = pgTable("ad_banners", {
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow().$onUpdate(() => new Date()),
 });
 
+export const memberRegistrationsTable = pgTable("member_registrations", {
+  id: serial("id").primaryKey(),
+  fullName: text("full_name").notNull(),
+  dateOfBirth: text("date_of_birth"),
+  address: text("address"),
+  email: text("email").notNull(),
+  phone: text("phone"),
+  occupation: text("occupation"),
+  notes: text("notes"),
+  read: boolean("read").notNull().default(false),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const sponsorRegistrationsTable = pgTable("sponsor_registrations", {
+  id: serial("id").primaryKey(),
+  orgName: text("org_name").notNull(),
+  representative: text("representative"),
+  email: text("email").notNull(),
+  phone: text("phone"),
+  sponsorType: text("sponsor_type"),
+  details: text("details"),
+  notes: text("notes"),
+  read: boolean("read").notNull().default(false),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
 export const contactSubmissionsTable = pgTable("contact_submissions", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
@@ -159,3 +185,5 @@ export type RssFeed = typeof rssFeedsTable.$inferSelect;
 export type InsertRssFeed = z.infer<typeof insertRssFeedSchema>;
 export type ContactSubmission = typeof contactSubmissionsTable.$inferSelect;
 export type InsertContactSubmission = z.infer<typeof insertContactSubmissionSchema>;
+export type MemberRegistration = typeof memberRegistrationsTable.$inferSelect;
+export type SponsorRegistration = typeof sponsorRegistrationsTable.$inferSelect;
