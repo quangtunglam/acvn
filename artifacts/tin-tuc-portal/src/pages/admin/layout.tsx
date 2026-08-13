@@ -107,6 +107,7 @@ const NAV_ITEMS = [
   { icon: BookOpen, label: 'Danh mục & Tác giả', href: '/admin/taxonomy' },
   { icon: Globe, label: 'Sự kiện', href: '/admin/events' },
   { icon: Inbox, label: 'Liên hệ', href: '/admin/contacts' },
+  { icon: Newspaper, label: 'Đăng ký', href: '/admin/registrations' },
   { icon: Mail, label: 'Newsletter', href: '/admin/newsletter' },
   { icon: Megaphone, label: 'Quảng cáo', href: '/admin/banners' },
   { icon: ImageIcon, label: 'Media', href: '/admin/media' },
