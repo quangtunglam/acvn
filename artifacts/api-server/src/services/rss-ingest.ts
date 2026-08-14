@@ -82,6 +82,33 @@ function extractImageUrl(item: Record<string, any>): string | null {
   return null;
 }
 
+// ─── Fetch og:image from article source page (fallback) ──────────────────────
+
+async function fetchOgImage(sourceUrl: string): Promise<string | null> {
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 5000);
+    const res = await fetch(sourceUrl, {
+      signal: controller.signal,
+      headers: { "User-Agent": "VietPressEU/1.0 (+https://vietpress.eu)" },
+    });
+    clearTimeout(timeout);
+    if (!res.ok) return null;
+    const html = await res.text();
+    // og:image
+    const og = /<meta[^>]+property=["']og:image["'][^>]+content=["']([^"']+)["']/i.exec(html)
+      ?? /<meta[^>]+content=["']([^"']+)["'][^>]+property=["']og:image["']/i.exec(html);
+    if (og?.[1]?.startsWith("http")) return og[1];
+    // twitter:image
+    const tw = /<meta[^>]+name=["']twitter:image["'][^>]+content=["']([^"']+)["']/i.exec(html)
+      ?? /<meta[^>]+content=["']([^"']+)["'][^>]+name=["']twitter:image["']/i.exec(html);
+    if (tw?.[1]?.startsWith("http")) return tw[1];
+    return null;
+  } catch {
+    return null;
+  }
+}
+
 // ─── Translate one RSS item to Vietnamese ─────────────────────────────────────
 
 type TranslateResult = {
@@ -228,7 +255,8 @@ export async function ingestFeed(feedId: number): Promise<IngestResult> {
       const translated = await translateItem(originalTitle, originalDesc, feed.name);
       const slug = await uniqueSlug(translated.slug);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const coverImage = extractImageUrl(item as Record<string, any>);
+      const coverImage = extractImageUrl(item as Record<string, any>)
+        ?? (sourceUrl ? await fetchOgImage(sourceUrl) : null);
 
       await db.insert(articlesTable).values({
         title: translated.title,
