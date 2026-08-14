@@ -168,7 +168,7 @@ function CommunityWidget({ events }: { events: Event[] }) {
 // ─── EU countries band ────────────────────────────────────────────────────────
 
 const EU_COUNTRY_ORDER = [
-  { slug: 'cong-hoa-sec', name: 'Cộng hòa Séc', flagClass: 'flag-cz' },
+  { slug: 'cong-hoa-sec', name: 'Cộng hòa Czech', flagClass: 'flag-cz' },
   { slug: 'slovakia', name: 'Slovakia', flagClass: 'flag-sk' },
   { slug: 'ba-lan', name: 'Ba Lan', flagClass: 'flag-pl' },
   { slug: 'duc', name: 'Đức', flagClass: 'flag-de' },
@@ -182,7 +182,7 @@ function HomepageContent({ data }: { data: HomepagePayload }) {
 
   const tickerItems = data.breakingNews.length
     ? data.breakingNews.map((a) => a.title)
-    : ['Vietjet Air mở đường bay Praha – Hà Nội hai chuyến mỗi tuần từ tháng 10','Cộng hòa Séc là điểm đến du lịch tăng trưởng nhanh nhất châu Âu','Luật Bảo vệ dữ liệu cá nhân của Việt Nam chính thức có hiệu lực','Doanh nghiệp Việt tại Séc mở rộng chuỗi bán lẻ sang Đức và Ba Lan'];
+    : ['Vietjet Air mở đường bay Praha – Hà Nội hai chuyến mỗi tuần từ tháng 10','Cộng hòa Czech là điểm đến du lịch tăng trưởng nhanh nhất châu Âu','Luật Bảo vệ dữ liệu cá nhân của Việt Nam chính thức có hiệu lực','Doanh nghiệp Việt tại Séc mở rộng chuỗi bán lẻ sang Đức và Ba Lan'];
 
   const hero = data.featured;
   const mostRead = data.mostRead.slice(0, 5);
@@ -329,7 +329,7 @@ function HomepageContent({ data }: { data: HomepagePayload }) {
 
 const FALLBACK_TICKER = [
   'Vietjet Air mở đường bay Praha – Hà Nội hai chuyến mỗi tuần từ tháng 10',
-  'Cộng hòa Séc là điểm đến du lịch tăng trưởng nhanh nhất châu Âu',
+  'Cộng hòa Czech là điểm đến du lịch tăng trưởng nhanh nhất châu Âu',
   'Luật Bảo vệ dữ liệu cá nhân của Việt Nam chính thức có hiệu lực',
   'Doanh nghiệp Việt tại Séc mở rộng chuỗi bán lẻ sang Đức và Ba Lan',
 ];

@@ -28,11 +28,11 @@ export default function AboutPage() {
             </p>
 
             <p>
-              Trong những thập kỷ vừa qua, vì nhiều lý do lịch sử khác nhau, hàng triệu người Việt Nam chúng ta đã rời quê hương và định cư tại nhiều quốc gia trên thế giới. Trong số đó có Cộng hòa Séc, nơi cộng đồng người Việt chúng ta là một trong những cộng đồng dân tộc trẻ nhất đang sinh sống tại đất nước này.
+              Trong những thập kỷ vừa qua, vì nhiều lý do lịch sử khác nhau, hàng triệu người Việt Nam chúng ta đã rời quê hương và định cư tại nhiều quốc gia trên thế giới. Trong số đó có Cộng hòa Czech, nơi cộng đồng người Việt chúng ta là một trong những cộng đồng dân tộc trẻ nhất đang sinh sống tại đất nước này.
             </p>
 
             <p>
-              Tại Cộng hòa Séc, chúng ta có nhiều thuận lợi nhưng đồng thời cũng phải đối mặt với không ít khó khăn. Chúng ta được sống trong một xã hội hiện đại, hòa bình, tự do và dân chủ; được hưởng sự bình đẳng cùng một hệ thống an sinh xã hội tốt của một quốc gia phát triển. Tuy nhiên, chúng ta cũng phải sống xa quê hương, xa những người thân yêu và thiếu đi môi trường văn hóa Việt Nam quen thuộc.
+              Tại Cộng hòa Czech, chúng ta có nhiều thuận lợi nhưng đồng thời cũng phải đối mặt với không ít khó khăn. Chúng ta được sống trong một xã hội hiện đại, hòa bình, tự do và dân chủ; được hưởng sự bình đẳng cùng một hệ thống an sinh xã hội tốt của một quốc gia phát triển. Tuy nhiên, chúng ta cũng phải sống xa quê hương, xa những người thân yêu và thiếu đi môi trường văn hóa Việt Nam quen thuộc.
             </p>
 
             <p>
