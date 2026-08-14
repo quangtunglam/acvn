@@ -278,7 +278,7 @@ export function Footer() {
             ['Pháp luật', '/danh-muc/phap-luat'],
           ]} />
           <FooterColumn title="Khu vực" links={[
-            ['Cộng hòa Séc', '/khu-vuc/sec'],
+            ['Cộng hòa Czech', '/khu-vuc/sec'],
             ['Slovakia', '/khu-vuc/slovakia'],
             ['Ba Lan', '/khu-vuc/ba-lan'],
             ['Đức', '/khu-vuc/duc'],
