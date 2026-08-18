@@ -467,4 +467,27 @@ router.post("/newsletter/subscribe", async (req, res): Promise<void> => {
   );
 });
 
+// ─── Forex proxy ─────────────────────────────────────────────────────────────
+// Proxy to frankfurter.app so the browser avoids CORS issues.
+// Cache in memory for 30 minutes.
+let fxCache: { usd: number; eur: number; ts: number } | null = null;
+
+router.get("/forex", async (_req, res): Promise<void> => {
+  const now = Date.now();
+  if (fxCache && now - fxCache.ts < 30 * 60 * 1000) {
+    res.json(fxCache);
+    return;
+  }
+  try {
+    const r = await fetch("https://api.frankfurter.app/latest?from=CZK&to=USD,EUR");
+    if (!r.ok) throw new Error("upstream error");
+    const j = await r.json() as { rates: { USD: number; EUR: number } };
+    fxCache = { usd: 1 / j.rates.USD, eur: 1 / j.rates.EUR, ts: now };
+    res.json(fxCache);
+  } catch {
+    if (fxCache) { res.json(fxCache); return; }
+    res.status(502).json({ error: "forex unavailable" });
+  }
+});
+
 export default router;

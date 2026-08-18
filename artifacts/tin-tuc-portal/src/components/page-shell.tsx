@@ -1,4 +1,4 @@
-import { type ReactNode, useState } from 'react';
+import { type ReactNode, useEffect, useState } from 'react';
 import {
   ArrowRight,
   Facebook,
@@ -10,7 +10,30 @@ import {
   Youtube,
 } from 'lucide-react';
 import { useLocation } from 'wouter';
-import { useWeather } from '../hooks/use-weather';
+// ─── Exchange rate hook ───────────────────────────────────────────────────────
+
+interface FxRates { usd: number; eur: number }
+
+function useExchangeRates(intervalMs = 30 * 60 * 1000) {
+  const [rates, setRates] = useState<FxRates | null>(null);
+  useEffect(() => {
+    let cancelled = false;
+    async function load() {
+      try {
+        // frankfurter.app: ECB rates, free, no key
+        const res = await fetch(`${import.meta.env.BASE_URL}api/forex`);
+        if (!res.ok) return;
+        const j = await res.json() as { usd: number; eur: number };
+        if (cancelled) return;
+        setRates({ usd: j.usd, eur: j.eur });
+      } catch { /* silent */ }
+    }
+    load();
+    const id = setInterval(load, intervalMs);
+    return () => { cancelled = true; clearInterval(id); };
+  }, [intervalMs]);
+  return rates;
+}
 
 // ─── Utility bar ──────────────────────────────────────────────────────────────
 
@@ -18,7 +41,8 @@ export function UtilityBar() {
   const today = new Intl.DateTimeFormat('vi-VN', {
     weekday: 'long', day: '2-digit', month: '2-digit', year: 'numeric',
   }).format(new Date());
-  const weather = useWeather();
+  const fx = useExchangeRates();
+  const fmt = (n: number) => n.toLocaleString('cs-CZ', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
   return (
     <div className="utility">
@@ -26,16 +50,17 @@ export function UtilityBar() {
         <div className="u-left">
           <span className="u-date" data-testid="text-current-date">{today}</span>
         </div>
-        {weather && (
-          <span className="u-weather" aria-label="Thời tiết hiện tại">
-            {weather.map((w, i) => (
-              <span key={w.city} className="u-weather-city">
-                {i > 0 && <span className="u-weather-sep">·</span>}
-                <span className="u-weather-emoji" title={w.desc}>{w.emoji}</span>
-                <span className="u-weather-name">{w.city}</span>
-                <span className="u-weather-temp">{w.temp}°C</span>
-              </span>
-            ))}
+        {fx && (
+          <span className="u-fx" aria-label="Tỉ giá ngoại tệ">
+            <span className="u-fx-pair">
+              <span className="u-fx-label">USD</span>
+              <span className="u-fx-rate">{fmt(fx.usd)} Kč</span>
+            </span>
+            <span className="u-fx-sep">·</span>
+            <span className="u-fx-pair">
+              <span className="u-fx-label">EUR</span>
+              <span className="u-fx-rate">{fmt(fx.eur)} Kč</span>
+            </span>
           </span>
         )}
       </div>
