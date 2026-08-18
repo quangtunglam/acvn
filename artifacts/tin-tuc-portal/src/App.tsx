@@ -237,15 +237,21 @@ interface PragueWeather {
   forecast: { date: string; max: number; min: number; code: number; precip: number }[];
 }
 
-function usePragueWeather() {
+const WX_CITIES = [
+  { key: 'praha',  label: 'Praha',   flag: <span className="flag flag-cz" style={{ display:'inline-block', verticalAlign:'middle', marginRight:6 }} />, lat: 50.0755,  lon: 14.4378,  tz: 'Europe%2FPrague' },
+  { key: 'hanoi',  label: 'Hà Nội',  flag: <span className="flag flag-vn" style={{ display:'inline-block', verticalAlign:'middle', marginRight:6 }} />, lat: 21.0285,  lon: 105.8542, tz: 'Asia%2FBangkok' },
+] as const;
+
+function useCityWeather(lat: number, lon: number, tz: string) {
   const [data, setData] = useState<PragueWeather | null>(null);
   useEffect(() => {
     let cancelled = false;
+    setData(null);
     async function load() {
       try {
         const url =
           'https://api.open-meteo.com/v1/forecast' +
-          '?latitude=50.0755&longitude=14.4378&timezone=Europe%2FPrague' +
+          `?latitude=${lat}&longitude=${lon}&timezone=${tz}` +
           '&current=temperature_2m,apparent_temperature,weather_code,is_day' +
           '&daily=temperature_2m_max,temperature_2m_min,weather_code,precipitation_probability_max' +
           '&forecast_days=4';
@@ -271,43 +277,55 @@ function usePragueWeather() {
     load();
     const id = setInterval(load, 15 * 60 * 1000);
     return () => { cancelled = true; clearInterval(id); };
-  }, []);
+  }, [lat, lon, tz]);
   return data;
 }
 
 function CzechWeatherWidget() {
-  const w = usePragueWeather();
-  if (!w) return (
-    <div className="wx-card wx-card--loading">
-      <div className="wx-loading">Đang tải thời tiết…</div>
-    </div>
-  );
+  const [idx, setIdx] = useState(0);
+  const city = WX_CITIES[idx];
+  const w = useCityWeather(city.lat, city.lon, city.tz);
+  const prev = () => setIdx((i) => (i - 1 + WX_CITIES.length) % WX_CITIES.length);
+  const next = () => setIdx((i) => (i + 1) % WX_CITIES.length);
+
   return (
     <div className="wx-card">
       <div className="wx-header">
-        <span className="wx-city"><span className="flag flag-cz" style={{ display: 'inline-block', verticalAlign: 'middle', marginRight: 6 }} />Praha</span>
-        <span className="wx-updated">Hôm nay</span>
-      </div>
-      <div className="wx-current">
-        <span className="wx-emoji"><WxIcon code={w.code} isDay={w.isDay} size={52} /></span>
-        <div>
-          <div className="wx-temp">{w.temp}°C</div>
-          <div className="wx-desc">{wmoDesc(w.code)} · Cảm giác {w.feelsLike}°C</div>
+        <span className="wx-city">{city.flag}{city.label}</span>
+        <div className="wx-nav">
+          <button className="wx-nav-btn" onClick={prev} aria-label="Thành phố trước">‹</button>
+          <span className="wx-nav-dots">
+            {WX_CITIES.map((_, i) => <span key={i} className={`wx-dot${i === idx ? ' wx-dot--active' : ''}`} />)}
+          </span>
+          <button className="wx-nav-btn" onClick={next} aria-label="Thành phố tiếp">›</button>
         </div>
       </div>
-      <div className="wx-forecast">
-        {w.forecast.map((d) => {
-          const day = VI_DAYS[new Date(d.date + 'T12:00:00').getDay()];
-          return (
-            <div className="wx-day" key={d.date}>
-              <span className="wx-day-name">{day}</span>
-              <span className="wx-day-emoji"><WxIcon code={d.code} size={28} /></span>
-              <span className="wx-day-temps"><b>{d.max}°</b><span>{d.min}°</span></span>
-              {d.precip > 20 && <span className="wx-precip">💧 {d.precip}%</span>}
+      {!w ? (
+        <div className="wx-loading" style={{ padding: '18px 0' }}>Đang tải…</div>
+      ) : (
+        <>
+          <div className="wx-current">
+            <span className="wx-emoji"><WxIcon code={w.code} isDay={w.isDay} size={52} /></span>
+            <div>
+              <div className="wx-temp">{w.temp}°C</div>
+              <div className="wx-desc">{wmoDesc(w.code)} · Cảm giác {w.feelsLike}°C</div>
             </div>
-          );
-        })}
-      </div>
+          </div>
+          <div className="wx-forecast">
+            {w.forecast.map((d) => {
+              const day = VI_DAYS[new Date(d.date + 'T12:00:00').getDay()];
+              return (
+                <div className="wx-day" key={d.date}>
+                  <span className="wx-day-name">{day}</span>
+                  <span className="wx-day-emoji"><WxIcon code={d.code} size={28} /></span>
+                  <span className="wx-day-temps"><b>{d.max}°</b><span>{d.min}°</span></span>
+                  {d.precip > 20 && <span className="wx-precip">💧 {d.precip}%</span>}
+                </div>
+              );
+            })}
+          </div>
+        </>
+      )}
     </div>
   );
 }

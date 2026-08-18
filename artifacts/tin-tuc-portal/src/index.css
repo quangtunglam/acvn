@@ -246,6 +246,14 @@
 .wx-day-temps b { color: hsl(214 60% 22%); font-weight: 700; }
 .wx-day-temps span { color: hsl(210 30% 55%); font-size: 11px; }
 .wx-precip { font-size: 10.5px; color: hsl(210 70% 42%); font-weight: 600; }
+.wx-nav { display: flex; align-items: center; gap: 4px; }
+.wx-nav-btn { background: none; border: none; cursor: pointer; color: hsl(214 50% 40%); font-size: 18px; line-height: 1; padding: 0 2px; border-radius: 4px; transition: background .15s, color .15s; }
+.wx-nav-btn:hover { background: hsl(210 40% 88%); color: hsl(214 60% 22%); }
+.wx-nav-dots { display: flex; gap: 4px; align-items: center; }
+.wx-dot { width: 5px; height: 5px; border-radius: 50%; background: hsl(210 30% 75%); transition: background .2s; }
+.wx-dot--active { background: hsl(214 60% 40%); }
+.flag-vn { background: #da251d; }
+.flag-vn::before { content: '★'; position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); color: #ffff00; font-size: 10px; line-height: 1; }
 .side-item { position: relative; display: flex; gap: 0; padding: 16px 0; border-top: 1px solid hsl(var(--border)); }
 .side-item:first-child { padding-top: 0; border-top: 0; }
 .rank { position: absolute; left: 0; top: 14px; width: 28px; text-align: center; color: hsl(var(--border)); font: 700 23px var(--app-font-serif); line-height: 1; }
