@@ -4,7 +4,7 @@ import { articlesTable, categoriesTable, countriesTable, db } from "@workspace/d
 
 const router: IRouter = Router();
 
-const BASE_URL = "https://vietpress.eu";
+const BASE_URL = "https://acvn.replit.app";
 const DEV_DOMAIN = process.env.REPLIT_DEV_DOMAIN
   ? `https://${process.env.REPLIT_DEV_DOMAIN}`
   : BASE_URL;
