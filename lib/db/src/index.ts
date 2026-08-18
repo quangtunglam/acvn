@@ -11,6 +11,13 @@ if (!process.env.DATABASE_URL) {
 }
 
 export const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+
+// Without this handler a transient connection error fires an unhandled
+// EventEmitter 'error' event, which crashes the Node.js process immediately.
+pool.on("error", (err) => {
+  console.error("pg pool error (idle client):", err.message);
+});
+
 export const db = drizzle(pool, { schema });
 
 export * from "./schema";

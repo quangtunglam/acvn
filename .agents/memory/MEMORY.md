@@ -1,0 +1,1 @@
+- [pg Pool error handler](pg-pool-error-handler.md) — pg.Pool without an error listener crashes Node.js on any idle-connection drop; caused intermittent promote-phase failures.
