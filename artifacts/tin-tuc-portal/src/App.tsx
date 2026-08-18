@@ -227,6 +227,9 @@ function HomepageContent({ data }: { data: HomepagePayload }) {
                     </div>
                   </div>
                 ))}
+                <div className="side-newsletter animate-in" style={{ animationDelay: '400ms' }}>
+                  <NewsletterWidget />
+                </div>
               </div>
             </div>
           </div>
