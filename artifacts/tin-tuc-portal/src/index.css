@@ -155,13 +155,12 @@
 .u-date { color: white; font-weight: 700; }
 .u-sep { color: hsl(211 28% 52%); }
 .utility a:hover { color: white; }
-/* Weather widget in utility bar */
-.u-weather { display: flex; align-items: center; gap: 10px; }
-.u-weather-city { display: flex; align-items: center; gap: 4px; color: hsl(210 22% 86%); font-size: 12px; font-weight: 500; white-space: nowrap; }
-.u-weather-emoji { font-size: 14px; line-height: 1; }
-.u-weather-name { opacity: .8; }
-.u-weather-temp { color: white; font-weight: 700; }
-.u-weather-sep { color: hsl(211 28% 52%); margin-right: 6px; }
+/* Forex widget in utility bar */
+.u-fx { display: flex; align-items: center; gap: 10px; }
+.u-fx-pair { display: flex; align-items: center; gap: 5px; white-space: nowrap; }
+.u-fx-label { font-size: 11px; font-weight: 700; color: hsl(210 22% 68%); letter-spacing: .06em; text-transform: uppercase; }
+.u-fx-rate { font-size: 12px; font-weight: 700; color: white; }
+.u-fx-sep { color: hsl(211 28% 52%); }
 .masthead { background: hsl(var(--card)); border-bottom: 1px solid hsl(var(--border)); }
 .masthead-inner { display: flex; align-items: center; min-height: 110px; gap: 24px; padding-block: 16px; }
 /* Logo — left */
@@ -385,9 +384,9 @@ footer { padding: 48px 0 25px; background: hsl(220 18% 14%); color: hsl(220 12% 
   /* Utility bar mobile: date left, weather right */
   .utility .wrap { justify-content: center; flex-direction: column; gap: 2px; padding-block: 6px; min-height: unset; }
   .u-left { gap: 6px; font-size: 10px; justify-content: center; }
-  .u-weather { gap: 6px; justify-content: center; }
-  .u-weather-city { font-size: 10px; }
-  .u-weather-emoji { font-size: 13px; }
+  .u-fx { gap: 8px; justify-content: center; }
+  .u-fx-label { font-size: 10px; }
+  .u-fx-rate { font-size: 11px; }
   .u-right { display: none; }
   /* Masthead — stacked vertically on mobile */
   .masthead-inner { flex-direction: column; align-items: center; gap: 12px; padding-block: 20px; min-height: unset; }
