@@ -225,6 +225,7 @@
 .lead h1 a:hover, .story-title a:hover, .card h3 a:hover { color: hsl(var(--primary)); }
 .dek { max-width: 65ch; color: hsl(var(--muted-foreground)); font-size: 15px; }
 .side-list { display: flex; flex-direction: column; }
+.side-newsletter { margin-top: auto; padding-top: 18px; }
 .side-item { position: relative; display: flex; gap: 0; padding: 16px 0; border-top: 1px solid hsl(var(--border)); }
 .side-item:first-child { padding-top: 0; border-top: 0; }
 .rank { position: absolute; left: 0; top: 14px; width: 28px; text-align: center; color: hsl(var(--border)); font: 700 23px var(--app-font-serif); line-height: 1; }
