@@ -107,6 +107,103 @@ function StoryRow({ article, size = 300 }: { article: Article; size?: number }) 
 
 const VI_DAYS = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
 
+// ── SVG weather icons ─────────────────────────────────────────────────────────
+function WxIcon({ code, isDay = true, size = 40 }: { code: number; isDay?: boolean; size?: number }) {
+  const s = size;
+  // Clear
+  if (code === 0 && isDay) return (
+    <svg width={s} height={s} viewBox="0 0 64 64" fill="none">
+      <circle cx="32" cy="32" r="13" fill="#FFD600"/>
+      {[0,45,90,135,180,225,270,315].map(a => (
+        <line key={a} x1="32" y1="6" x2="32" y2="13" stroke="#FFD600" strokeWidth="3.5" strokeLinecap="round"
+          transform={`rotate(${a} 32 32)`}/>
+      ))}
+    </svg>
+  );
+  if (code === 0 && !isDay) return (
+    <svg width={s} height={s} viewBox="0 0 64 64" fill="none">
+      <path d="M42 22a16 16 0 1 1-20 20 12 12 0 0 0 20-20z" fill="#FFC107"/>
+      <circle cx="46" cy="14" r="2.5" fill="#FFF9C4"/>
+      <circle cx="52" cy="22" r="1.8" fill="#FFF9C4"/>
+      <circle cx="40" cy="8" r="2" fill="#FFF9C4"/>
+    </svg>
+  );
+  // Partly cloudy
+  if (code <= 2) return (
+    <svg width={s} height={s} viewBox="0 0 64 64" fill="none">
+      {isDay && <><circle cx="22" cy="26" r="10" fill="#FFD600"/>
+      {[315,0,45].map(a=>(
+        <line key={a} x1="22" y1="8" x2="22" y2="14" stroke="#FFD600" strokeWidth="3" strokeLinecap="round"
+          transform={`rotate(${a} 22 26)`}/>
+      ))}</>}
+      <rect x="14" y="34" width="36" height="18" rx="9" fill="white"/>
+      <rect x="22" y="28" width="26" height="16" rx="8" fill="white"/>
+      <rect x="13" y="33" width="38" height="20" rx="10" fill="white" opacity=".7"/>
+      <rect x="14" y="35" width="36" height="17" rx="8.5" fill="#E3F2FD"/>
+    </svg>
+  );
+  // Overcast
+  if (code === 3) return (
+    <svg width={s} height={s} viewBox="0 0 64 64" fill="none">
+      <rect x="8" y="30" width="48" height="22" rx="11" fill="#B0BEC5"/>
+      <rect x="18" y="22" width="34" height="20" rx="10" fill="#CFD8DC"/>
+      <rect x="8" y="30" width="48" height="22" rx="11" fill="#90A4AE" opacity=".5"/>
+    </svg>
+  );
+  // Fog
+  if (code <= 48) return (
+    <svg width={s} height={s} viewBox="0 0 64 64" fill="none">
+      {[18,28,38,48].map((y,i)=>(
+        <rect key={y} x={8+i*2} y={y} width={48-i*4} height="4" rx="2" fill="#B0BEC5" opacity={1-i*0.15}/>
+      ))}
+    </svg>
+  );
+  // Drizzle / Light rain
+  if (code <= 65) return (
+    <svg width={s} height={s} viewBox="0 0 64 64" fill="none">
+      <rect x="10" y="14" width="44" height="22" rx="11" fill="#64B5F6"/>
+      <rect x="18" y="8" width="30" height="18" rx="9" fill="#90CAF9"/>
+      {[[20,42],[32,46],[44,42],[26,50],[38,50]].map(([x,y])=>(
+        <line key={`${x}${y}`} x1={x} y1={y} x2={x-3} y2={y+8} stroke="#1E88E5" strokeWidth="2.5" strokeLinecap="round"/>
+      ))}
+    </svg>
+  );
+  // Snow
+  if (code <= 77 || (code >= 85 && code <= 86)) return (
+    <svg width={s} height={s} viewBox="0 0 64 64" fill="none">
+      <rect x="10" y="10" width="44" height="22" rx="11" fill="#90CAF9"/>
+      <rect x="18" y="6" width="30" height="18" rx="9" fill="#BBDEFB"/>
+      {[[20,42],[32,44],[44,42],[26,52],[38,52]].map(([x,y])=>(
+        <g key={`${x}${y}`}>
+          <circle cx={x} cy={y} r="3" fill="white"/>
+          <line x1={x} y1={y-4} x2={x} y2={y+4} stroke="#90CAF9" strokeWidth="1.5"/>
+          <line x1={x-4} y1={y} x2={x+4} y2={y} stroke="#90CAF9" strokeWidth="1.5"/>
+        </g>
+      ))}
+    </svg>
+  );
+  // Storm
+  if (code >= 95) return (
+    <svg width={s} height={s} viewBox="0 0 64 64" fill="none">
+      <rect x="8" y="10" width="48" height="22" rx="11" fill="#546E7A"/>
+      <rect x="16" y="4" width="34" height="20" rx="10" fill="#607D8B"/>
+      <polygon points="36,34 28,48 33,48 27,62 42,44 36,44" fill="#FFD600"/>
+      {[[18,38],[22,46]].map(([x,y])=>(
+        <line key={`${x}${y}`} x1={x} y1={y} x2={x-2} y2={y+8} stroke="#90CAF9" strokeWidth="2" strokeLinecap="round"/>
+      ))}
+    </svg>
+  );
+  // Default rain
+  return (
+    <svg width={s} height={s} viewBox="0 0 64 64" fill="none">
+      <rect x="10" y="14" width="44" height="22" rx="11" fill="#64B5F6"/>
+      {[[20,42],[32,46],[44,42]].map(([x,y])=>(
+        <line key={`${x}${y}`} x1={x} y1={y} x2={x-3} y2={y+8} stroke="#1565C0" strokeWidth="2.5" strokeLinecap="round"/>
+      ))}
+    </svg>
+  );
+}
+
 function wmoEmoji(code: number, isDay = true): string {
   if (code === 0) return isDay ? '☀️' : '🌙';
   if (code <= 2) return '🌤️';
@@ -192,7 +289,7 @@ function CzechWeatherWidget() {
         <span className="wx-updated">Hôm nay</span>
       </div>
       <div className="wx-current">
-        <span className="wx-emoji">{wmoEmoji(w.code, w.isDay)}</span>
+        <span className="wx-emoji"><WxIcon code={w.code} isDay={w.isDay} size={48} /></span>
         <div>
           <div className="wx-temp">{w.temp}°C</div>
           <div className="wx-desc">{wmoDesc(w.code)} · Cảm giác {w.feelsLike}°C</div>
@@ -204,7 +301,7 @@ function CzechWeatherWidget() {
           return (
             <div className="wx-day" key={d.date}>
               <span className="wx-day-name">{day}</span>
-              <span className="wx-day-emoji">{wmoEmoji(d.code)}</span>
+              <span className="wx-day-emoji"><WxIcon code={d.code} size={24} /></span>
               <span className="wx-day-temps"><b>{d.max}°</b><span>{d.min}°</span></span>
               {d.precip > 20 && <span className="wx-precip">💧{d.precip}%</span>}
             </div>
