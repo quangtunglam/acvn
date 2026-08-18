@@ -158,7 +158,7 @@
 /* Forex widget in utility bar */
 .u-fx { display: flex; align-items: center; gap: 10px; }
 .u-fx-pair { display: flex; align-items: center; gap: 5px; white-space: nowrap; }
-.u-fx-label { font-size: 11px; font-weight: 700; color: hsl(210 22% 68%); letter-spacing: .06em; text-transform: uppercase; }
+.u-fx-icon { width: 16px; height: 16px; flex: 0 0 auto; border-radius: 50%; }
 .u-fx-rate { font-size: 12px; font-weight: 700; color: white; }
 .u-fx-sep { color: hsl(211 28% 52%); }
 .masthead { background: hsl(var(--card)); border-bottom: 1px solid hsl(var(--border)); }
