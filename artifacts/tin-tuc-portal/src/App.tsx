@@ -1,4 +1,4 @@
-import { type ReactNode, useMemo, useState } from 'react';
+import { type ReactNode, useEffect, useMemo, useState } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import {
   ArrowRight,
@@ -98,6 +98,118 @@ function StoryRow({ article, size = 300 }: { article: Article; size?: number }) 
       <div>
         <h3 className="story-title"><a href={`/bai-viet/${article.slug}`}>{article.title}</a></h3>
         {article.sourceName && <div className="source">{article.sourceName}</div>}
+      </div>
+    </div>
+  );
+}
+
+// ─── Czech weather widget ─────────────────────────────────────────────────────
+
+const VI_DAYS = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
+
+function wmoEmoji(code: number, isDay = true): string {
+  if (code === 0) return isDay ? '☀️' : '🌙';
+  if (code <= 2) return '🌤️';
+  if (code === 3) return '☁️';
+  if (code <= 48) return '🌫️';
+  if (code <= 55) return '🌦️';
+  if (code <= 65) return '🌧️';
+  if (code <= 77) return '🌨️';
+  if (code <= 82) return '🌧️';
+  if (code <= 86) return '🌨️';
+  return '⛈️';
+}
+function wmoDesc(code: number): string {
+  if (code === 0) return 'Quang đãng';
+  if (code <= 2) return 'Ít mây';
+  if (code === 3) return 'Nhiều mây';
+  if (code <= 48) return 'Sương mù';
+  if (code <= 55) return 'Mưa phùn';
+  if (code <= 65) return 'Mưa';
+  if (code <= 77) return 'Tuyết';
+  if (code <= 82) return 'Mưa rào';
+  if (code <= 86) return 'Tuyết rào';
+  return 'Giông bão';
+}
+
+interface PragueWeather {
+  temp: number;
+  feelsLike: number;
+  code: number;
+  isDay: boolean;
+  forecast: { date: string; max: number; min: number; code: number; precip: number }[];
+}
+
+function usePragueWeather() {
+  const [data, setData] = useState<PragueWeather | null>(null);
+  useEffect(() => {
+    let cancelled = false;
+    async function load() {
+      try {
+        const url =
+          'https://api.open-meteo.com/v1/forecast' +
+          '?latitude=50.0755&longitude=14.4378&timezone=Europe%2FPrague' +
+          '&current=temperature_2m,apparent_temperature,weather_code,is_day' +
+          '&daily=temperature_2m_max,temperature_2m_min,weather_code,precipitation_probability_max' +
+          '&forecast_days=4';
+        const res = await fetch(url);
+        if (!res.ok) return;
+        const j = await res.json();
+        if (cancelled) return;
+        setData({
+          temp: Math.round(j.current.temperature_2m),
+          feelsLike: Math.round(j.current.apparent_temperature),
+          code: j.current.weather_code,
+          isDay: j.current.is_day === 1,
+          forecast: (j.daily.time as string[]).slice(1, 4).map((date: string, i: number) => ({
+            date,
+            max: Math.round(j.daily.temperature_2m_max[i + 1]),
+            min: Math.round(j.daily.temperature_2m_min[i + 1]),
+            code: j.daily.weather_code[i + 1],
+            precip: j.daily.precipitation_probability_max[i + 1] ?? 0,
+          })),
+        });
+      } catch { /* silent */ }
+    }
+    load();
+    const id = setInterval(load, 15 * 60 * 1000);
+    return () => { cancelled = true; clearInterval(id); };
+  }, []);
+  return data;
+}
+
+function CzechWeatherWidget() {
+  const w = usePragueWeather();
+  if (!w) return (
+    <div className="wx-card wx-card--loading">
+      <div className="wx-loading">Đang tải thời tiết…</div>
+    </div>
+  );
+  return (
+    <div className="wx-card">
+      <div className="wx-header">
+        <span className="wx-city">🇨🇿 Praha</span>
+        <span className="wx-updated">Hôm nay</span>
+      </div>
+      <div className="wx-current">
+        <span className="wx-emoji">{wmoEmoji(w.code, w.isDay)}</span>
+        <div>
+          <div className="wx-temp">{w.temp}°C</div>
+          <div className="wx-desc">{wmoDesc(w.code)} · Cảm giác {w.feelsLike}°C</div>
+        </div>
+      </div>
+      <div className="wx-forecast">
+        {w.forecast.map((d) => {
+          const day = VI_DAYS[new Date(d.date + 'T12:00:00').getDay()];
+          return (
+            <div className="wx-day" key={d.date}>
+              <span className="wx-day-name">{day}</span>
+              <span className="wx-day-emoji">{wmoEmoji(d.code)}</span>
+              <span className="wx-day-temps"><b>{d.max}°</b><span>{d.min}°</span></span>
+              {d.precip > 20 && <span className="wx-precip">💧{d.precip}%</span>}
+            </div>
+          );
+        })}
       </div>
     </div>
   );
@@ -228,7 +340,7 @@ function HomepageContent({ data }: { data: HomepagePayload }) {
                   </div>
                 ))}
                 <div className="side-newsletter animate-in" style={{ animationDelay: '400ms' }}>
-                  <NewsletterWidget />
+                  <CzechWeatherWidget />
                 </div>
               </div>
             </div>
