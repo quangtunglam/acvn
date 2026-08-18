@@ -54,11 +54,13 @@ export function UtilityBar() {
           <span className="u-fx" aria-label="Tỉ giá ngoại tệ">
             <span className="u-fx-pair">
               <svg className="u-fx-icon u-fx-icon--usd" viewBox="0 0 18 18" aria-hidden="true"><circle cx="9" cy="9" r="9" fill="#22a55b"/><text x="9" y="13" textAnchor="middle" fontSize="11" fontWeight="700" fill="#fff">$</text></svg>
+              <span className="u-fx-label">USD</span>
               <span className="u-fx-rate">{fmt(fx.usd)} Kč</span>
             </span>
             <span className="u-fx-sep">·</span>
             <span className="u-fx-pair">
               <svg className="u-fx-icon u-fx-icon--eur" viewBox="0 0 18 18" aria-hidden="true"><circle cx="9" cy="9" r="9" fill="#2563eb"/><text x="9" y="13" textAnchor="middle" fontSize="11" fontWeight="700" fill="#fff">€</text></svg>
+              <span className="u-fx-label">EUR</span>
               <span className="u-fx-rate">{fmt(fx.eur)} Kč</span>
             </span>
           </span>
