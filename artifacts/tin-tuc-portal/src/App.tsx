@@ -242,43 +242,51 @@ const WX_CITIES = [
   { key: 'hanoi',  label: 'Hà Nội',  flag: <span className="flag flag-vn" style={{ display:'inline-block', verticalAlign:'middle', marginRight:6 }} />, lat: 21.0285,  lon: 105.8542, tz: 'Asia%2FBangkok' },
 ] as const;
 
-function useCityWeather(lat: number, lon: number, tz: string) {
-  const [data, setData] = useState<PragueWeather | null>(null);
+// Pre-fetch ALL cities in parallel so switching is instant — no loading flash
+function useAllCityWeather() {
+  const [all, setAll] = useState<(PragueWeather | null)[]>(WX_CITIES.map(() => null));
+
   useEffect(() => {
     let cancelled = false;
-    setData(null);
-    async function load() {
+    async function loadOne(i: number) {
+      const c = WX_CITIES[i];
       try {
         const url =
           'https://api.open-meteo.com/v1/forecast' +
-          `?latitude=${lat}&longitude=${lon}&timezone=${tz}` +
+          `?latitude=${c.lat}&longitude=${c.lon}&timezone=${c.tz}` +
           '&current=temperature_2m,apparent_temperature,weather_code,is_day' +
           '&daily=temperature_2m_max,temperature_2m_min,weather_code,precipitation_probability_max' +
           '&forecast_days=4';
         const res = await fetch(url);
-        if (!res.ok) return;
+        if (!res.ok || cancelled) return;
         const j = await res.json();
         if (cancelled) return;
-        setData({
-          temp: Math.round(j.current.temperature_2m),
-          feelsLike: Math.round(j.current.apparent_temperature),
-          code: j.current.weather_code,
-          isDay: j.current.is_day === 1,
-          forecast: (j.daily.time as string[]).slice(1, 4).map((date: string, i: number) => ({
-            date,
-            max: Math.round(j.daily.temperature_2m_max[i + 1]),
-            min: Math.round(j.daily.temperature_2m_min[i + 1]),
-            code: j.daily.weather_code[i + 1],
-            precip: j.daily.precipitation_probability_max[i + 1] ?? 0,
-          })),
+        setAll(prev => {
+          const next = [...prev];
+          next[i] = {
+            temp: Math.round(j.current.temperature_2m),
+            feelsLike: Math.round(j.current.apparent_temperature),
+            code: j.current.weather_code,
+            isDay: j.current.is_day === 1,
+            forecast: (j.daily.time as string[]).slice(1, 4).map((date: string, k: number) => ({
+              date,
+              max: Math.round(j.daily.temperature_2m_max[k + 1]),
+              min: Math.round(j.daily.temperature_2m_min[k + 1]),
+              code: j.daily.weather_code[k + 1],
+              precip: j.daily.precipitation_probability_max[k + 1] ?? 0,
+            })),
+          };
+          return next;
         });
       } catch { /* silent */ }
     }
-    load();
-    const id = setInterval(load, 15 * 60 * 1000);
+    const reload = () => WX_CITIES.forEach((_, i) => loadOne(i));
+    reload();
+    const id = setInterval(reload, 15 * 60 * 1000);
     return () => { cancelled = true; clearInterval(id); };
-  }, [lat, lon, tz]);
-  return data;
+  }, []);
+
+  return all;
 }
 
 function CzechWeatherWidget() {
@@ -286,8 +294,9 @@ function CzechWeatherWidget() {
   const [dir, setDir] = useState<'left' | 'right'>('left');
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
+  const all = useAllCityWeather();
   const city = WX_CITIES[idx];
-  const w = useCityWeather(city.lat, city.lon, city.tz);
+  const w = all[idx];
 
   // Reset and restart the 5-second auto-advance
   const resetTimer = () => {
