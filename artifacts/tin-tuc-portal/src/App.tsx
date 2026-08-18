@@ -290,27 +290,28 @@ function CzechWeatherWidget() {
 
   return (
     <div className="wx-card">
+      {/* City + nav row */}
       <div className="wx-header">
+        <button className="wx-nav-btn" onClick={prev} aria-label="Thành phố trước">‹</button>
         <span className="wx-city">{city.flag}{city.label}</span>
-        <div className="wx-nav">
-          <button className="wx-nav-btn" onClick={prev} aria-label="Thành phố trước">‹</button>
-          <span className="wx-nav-dots">
-            {WX_CITIES.map((_, i) => <span key={i} className={`wx-dot${i === idx ? ' wx-dot--active' : ''}`} />)}
-          </span>
-          <button className="wx-nav-btn" onClick={next} aria-label="Thành phố tiếp">›</button>
-        </div>
+        <button className="wx-nav-btn" onClick={next} aria-label="Thành phố tiếp">›</button>
       </div>
+
       {!w ? (
-        <div className="wx-loading" style={{ padding: '18px 0' }}>Đang tải…</div>
+        <div className="wx-loading" style={{ padding: '24px 0' }}>Đang tải…</div>
       ) : (
         <>
+          {/* Centered current weather */}
           <div className="wx-current">
-            <span className="wx-emoji"><WxIcon code={w.code} isDay={w.isDay} size={52} /></span>
-            <div>
+            <WxIcon code={w.code} isDay={w.isDay} size={56} />
+            <div className="wx-current-text">
               <div className="wx-temp">{w.temp}°C</div>
-              <div className="wx-desc">{wmoDesc(w.code)} · Cảm giác {w.feelsLike}°C</div>
+              <div className="wx-desc">{wmoDesc(w.code)}</div>
+              <div className="wx-feels">Cảm giác {w.feelsLike}°C</div>
             </div>
           </div>
+
+          {/* Forecast */}
           <div className="wx-forecast">
             {w.forecast.map((d) => {
               const day = VI_DAYS[new Date(d.date + 'T12:00:00').getDay()];
@@ -319,7 +320,7 @@ function CzechWeatherWidget() {
                   <span className="wx-day-name">{day}</span>
                   <span className="wx-day-emoji"><WxIcon code={d.code} size={28} /></span>
                   <span className="wx-day-temps"><b>{d.max}°</b><span>{d.min}°</span></span>
-                  {d.precip > 20 && <span className="wx-precip">💧 {d.precip}%</span>}
+                  {d.precip > 20 && <span className="wx-precip">💧{d.precip}%</span>}
                 </div>
               );
             })}
