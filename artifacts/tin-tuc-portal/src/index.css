@@ -247,8 +247,8 @@
 .wx-day-temps span { color: hsl(210 30% 55%); font-size: 11px; }
 .wx-precip { font-size: 10.5px; color: hsl(210 70% 42%); font-weight: 600; }
 .wx-nav { display: flex; align-items: center; gap: 4px; }
-.wx-nav-btn { background: none; border: none; cursor: pointer; color: hsl(214 50% 40%); font-size: 18px; line-height: 1; padding: 0 2px; border-radius: 4px; transition: background .15s, color .15s; }
-.wx-nav-btn:hover { background: hsl(210 40% 88%); color: hsl(214 60% 22%); }
+.wx-nav-btn { background: hsl(210 40% 88%); border: none; cursor: pointer; color: hsl(214 50% 35%); font-size: 22px; line-height: 1; padding: 2px 8px; border-radius: 6px; transition: background .15s, color .15s; font-weight: 700; }
+.wx-nav-btn:hover { background: hsl(210 40% 78%); color: hsl(214 60% 22%); }
 .wx-nav-dots { display: flex; gap: 4px; align-items: center; }
 .wx-dot { width: 5px; height: 5px; border-radius: 50%; background: hsl(210 30% 75%); transition: background .2s; }
 .wx-dot--active { background: hsl(214 60% 40%); }
