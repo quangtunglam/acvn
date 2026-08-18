@@ -246,6 +246,11 @@
 .wx-day-temps b { color: hsl(214 60% 22%); font-weight: 700; }
 .wx-day-temps span { color: hsl(210 30% 55%); font-size: 11px; }
 .wx-precip { font-size: 10.5px; color: hsl(210 70% 42%); font-weight: 600; }
+/* Slide animations */
+@keyframes wx-slide-left  { from { opacity: 0; transform: translateX(28px);  } to { opacity: 1; transform: translateX(0); } }
+@keyframes wx-slide-right { from { opacity: 0; transform: translateX(-28px); } to { opacity: 1; transform: translateX(0); } }
+.wx-slide--left  { animation: wx-slide-left  .35s ease; }
+.wx-slide--right { animation: wx-slide-right .35s ease; }
 .wx-nav { display: flex; align-items: center; gap: 4px; }
 .wx-nav-btn { background: hsl(210 40% 88%); border: none; cursor: pointer; color: hsl(214 50% 35%); font-size: 22px; line-height: 1; padding: 2px 8px; border-radius: 6px; transition: background .15s, color .15s; font-weight: 700; }
 .wx-nav-btn:hover { background: hsl(210 40% 78%); color: hsl(214 60% 22%); }

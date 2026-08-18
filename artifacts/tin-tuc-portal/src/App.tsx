@@ -1,4 +1,4 @@
-import { type ReactNode, useEffect, useMemo, useState } from 'react';
+import { type ReactNode, useEffect, useMemo, useRef, useState } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import {
   ArrowRight,
@@ -283,50 +283,70 @@ function useCityWeather(lat: number, lon: number, tz: string) {
 
 function CzechWeatherWidget() {
   const [idx, setIdx] = useState(0);
+  const [dir, setDir] = useState<'left' | 'right'>('left');
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
   const city = WX_CITIES[idx];
   const w = useCityWeather(city.lat, city.lon, city.tz);
-  const prev = () => setIdx((i) => (i - 1 + WX_CITIES.length) % WX_CITIES.length);
-  const next = () => setIdx((i) => (i + 1) % WX_CITIES.length);
+
+  // Reset and restart the 5-second auto-advance
+  const resetTimer = () => {
+    if (timerRef.current) clearInterval(timerRef.current);
+    timerRef.current = setInterval(() => {
+      setDir('left');
+      setIdx((i) => (i + 1) % WX_CITIES.length);
+    }, 5000);
+  };
+
+  useEffect(() => {
+    resetTimer();
+    return () => { if (timerRef.current) clearInterval(timerRef.current); };
+  }, []);
+
+  const prev = () => { setDir('right'); setIdx((i) => (i - 1 + WX_CITIES.length) % WX_CITIES.length); resetTimer(); };
+  const next = () => { setDir('left');  setIdx((i) => (i + 1) % WX_CITIES.length); resetTimer(); };
 
   return (
     <div className="wx-card">
       {/* City + nav row */}
       <div className="wx-header">
         <button className="wx-nav-btn" onClick={prev} aria-label="Thành phố trước">‹</button>
-        <span className="wx-city">{city.flag}{city.label}</span>
+        <span className="wx-city" key={`city-${idx}`} style={{ animation: `wx-slide-${dir} .35s ease` }}>
+          {city.flag}{city.label}
+        </span>
         <button className="wx-nav-btn" onClick={next} aria-label="Thành phố tiếp">›</button>
       </div>
 
-      {!w ? (
-        <div className="wx-loading" style={{ padding: '24px 0' }}>Đang tải…</div>
-      ) : (
-        <>
-          {/* Centered current weather */}
-          <div className="wx-current">
-            <WxIcon code={w.code} isDay={w.isDay} size={56} />
-            <div className="wx-current-text">
-              <div className="wx-temp">{w.temp}°C</div>
-              <div className="wx-desc">{wmoDesc(w.code)}</div>
-              <div className="wx-feels">Cảm giác {w.feelsLike}°C</div>
+      {/* Sliding content keyed to idx so animation re-triggers on change */}
+      <div key={idx} className={`wx-slide wx-slide--${dir}`}>
+        {!w ? (
+          <div className="wx-loading" style={{ padding: '18px 0' }}>Đang tải…</div>
+        ) : (
+          <>
+            <div className="wx-current">
+              <WxIcon code={w.code} isDay={w.isDay} size={56} />
+              <div className="wx-current-text">
+                <div className="wx-temp">{w.temp}°C</div>
+                <div className="wx-desc">{wmoDesc(w.code)}</div>
+                <div className="wx-feels">Cảm giác {w.feelsLike}°C</div>
+              </div>
             </div>
-          </div>
-
-          {/* Forecast */}
-          <div className="wx-forecast">
-            {w.forecast.map((d) => {
-              const day = VI_DAYS[new Date(d.date + 'T12:00:00').getDay()];
-              return (
-                <div className="wx-day" key={d.date}>
-                  <span className="wx-day-name">{day}</span>
-                  <span className="wx-day-emoji"><WxIcon code={d.code} size={28} /></span>
-                  <span className="wx-day-temps"><b>{d.max}°</b><span>{d.min}°</span></span>
-                  {d.precip > 20 && <span className="wx-precip">💧{d.precip}%</span>}
-                </div>
-              );
-            })}
-          </div>
-        </>
-      )}
+            <div className="wx-forecast">
+              {w.forecast.map((d) => {
+                const day = VI_DAYS[new Date(d.date + 'T12:00:00').getDay()];
+                return (
+                  <div className="wx-day" key={d.date}>
+                    <span className="wx-day-name">{day}</span>
+                    <span className="wx-day-emoji"><WxIcon code={d.code} size={28} /></span>
+                    <span className="wx-day-temps"><b>{d.max}°</b><span>{d.min}°</span></span>
+                    {d.precip > 20 && <span className="wx-precip">💧{d.precip}%</span>}
+                  </div>
+                );
+              })}
+            </div>
+          </>
+        )}
+      </div>
     </div>
   );
 }
