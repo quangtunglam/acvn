@@ -10,7 +10,7 @@ import { openai } from "@workspace/integrations-openai-ai-server";
 
 const parser = new Parser({
   timeout: 10_000,
-  headers: { "User-Agent": "VietPressEU/1.0 (+https://vietpress.eu)" },
+  headers: { "User-Agent": "ACVN/1.0 (+https://acvn.replit.app)" },
   customFields: {
     item: [
       ["media:content", "mediaContent", { keepArray: false }],
@@ -90,7 +90,7 @@ async function fetchOgImage(sourceUrl: string): Promise<string | null> {
     const timeout = setTimeout(() => controller.abort(), 5000);
     const res = await fetch(sourceUrl, {
       signal: controller.signal,
-      headers: { "User-Agent": "VietPressEU/1.0 (+https://vietpress.eu)" },
+      headers: { "User-Agent": "ACVN/1.0 (+https://acvn.replit.app)" },
     });
     clearTimeout(timeout);
     if (!res.ok) return null;
