@@ -285,11 +285,11 @@ function CzechWeatherWidget() {
   return (
     <div className="wx-card">
       <div className="wx-header">
-        <span className="wx-city">🇨🇿 Praha</span>
+        <span className="wx-city"><span className="flag flag-cz" style={{ display: 'inline-block', verticalAlign: 'middle', marginRight: 6 }} />Praha</span>
         <span className="wx-updated">Hôm nay</span>
       </div>
       <div className="wx-current">
-        <span className="wx-emoji"><WxIcon code={w.code} isDay={w.isDay} size={48} /></span>
+        <span className="wx-emoji"><WxIcon code={w.code} isDay={w.isDay} size={52} /></span>
         <div>
           <div className="wx-temp">{w.temp}°C</div>
           <div className="wx-desc">{wmoDesc(w.code)} · Cảm giác {w.feelsLike}°C</div>
@@ -301,9 +301,9 @@ function CzechWeatherWidget() {
           return (
             <div className="wx-day" key={d.date}>
               <span className="wx-day-name">{day}</span>
-              <span className="wx-day-emoji"><WxIcon code={d.code} size={24} /></span>
+              <span className="wx-day-emoji"><WxIcon code={d.code} size={28} /></span>
               <span className="wx-day-temps"><b>{d.max}°</b><span>{d.min}°</span></span>
-              {d.precip > 20 && <span className="wx-precip">💧{d.precip}%</span>}
+              {d.precip > 20 && <span className="wx-precip">💧 {d.precip}%</span>}
             </div>
           );
         })}

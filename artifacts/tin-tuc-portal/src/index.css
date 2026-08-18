@@ -231,21 +231,21 @@
 .wx-card { background: linear-gradient(135deg, hsl(204 80% 92%) 0%, hsl(220 70% 96%) 100%); border: 1px solid hsl(210 40% 85%); border-radius: 8px; padding: 16px; color: hsl(214 50% 20%); }
 .wx-card--loading { min-height: 80px; display: flex; align-items: center; justify-content: center; }
 .wx-loading { color: hsl(210 30% 55%); font-size: 13px; }
-.wx-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-.wx-city { font-size: 13px; font-weight: 700; letter-spacing: .02em; color: hsl(214 60% 25%); }
+.wx-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.wx-city { font-size: 13px; font-weight: 700; letter-spacing: .02em; color: hsl(214 60% 25%); display: flex; align-items: center; }
 .wx-updated { font-size: 11px; color: hsl(210 30% 55%); }
-.wx-current { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
-.wx-emoji { line-height: 1; display: flex; align-items: center; }
-.wx-temp { font-size: 34px; font-weight: 800; line-height: 1; font-family: var(--app-font-serif); color: hsl(214 60% 22%); }
-.wx-desc { font-size: 11.5px; color: hsl(210 30% 45%); margin-top: 3px; }
-.wx-forecast { display: flex; gap: 6px; border-top: 1px solid hsl(210 40% 82%); padding-top: 12px; }
-.wx-day { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; background: hsl(0 0% 100% / .55); border-radius: 6px; padding: 6px 2px; }
-.wx-day-name { font-size: 10.5px; font-weight: 700; color: hsl(210 30% 50%); text-transform: uppercase; }
-.wx-day-emoji { font-size: 18px; line-height: 1; }
-.wx-day-temps { font-size: 12px; display: flex; gap: 4px; }
+.wx-current { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; }
+.wx-emoji { line-height: 1; display: flex; align-items: center; flex: 0 0 auto; }
+.wx-temp { font-size: 36px; font-weight: 800; line-height: 1; font-family: var(--app-font-serif); color: hsl(214 60% 22%); }
+.wx-desc { font-size: 12px; color: hsl(210 30% 45%); margin-top: 4px; }
+.wx-forecast { display: flex; gap: 8px; border-top: 1px solid hsl(210 40% 82%); padding-top: 14px; }
+.wx-day { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; background: hsl(0 0% 100% / .6); border-radius: 8px; padding: 8px 4px; }
+.wx-day-name { font-size: 11px; font-weight: 700; color: hsl(210 30% 50%); text-transform: uppercase; }
+.wx-day-emoji { display: flex; align-items: center; justify-content: center; }
+.wx-day-temps { font-size: 12px; display: flex; gap: 5px; align-items: baseline; }
 .wx-day-temps b { color: hsl(214 60% 22%); font-weight: 700; }
-.wx-day-temps span { color: hsl(210 30% 55%); }
-.wx-precip { font-size: 10px; color: hsl(210 70% 45%); }
+.wx-day-temps span { color: hsl(210 30% 55%); font-size: 11px; }
+.wx-precip { font-size: 10.5px; color: hsl(210 70% 42%); font-weight: 600; }
 .side-item { position: relative; display: flex; gap: 0; padding: 16px 0; border-top: 1px solid hsl(var(--border)); }
 .side-item:first-child { padding-top: 0; border-top: 0; }
 .rank { position: absolute; left: 0; top: 14px; width: 28px; text-align: center; color: hsl(var(--border)); font: 700 23px var(--app-font-serif); line-height: 1; }
