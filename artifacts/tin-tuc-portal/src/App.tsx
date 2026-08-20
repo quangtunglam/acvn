@@ -333,9 +333,11 @@ function CzechWeatherWidget() {
         ) : (
           <>
             <div className="wx-current">
-              <WxIcon code={w.code} isDay={w.isDay} size={56} />
-              <div className="wx-current-text">
+              <div className="wx-current-main">
+                <WxIcon code={w.code} isDay={w.isDay} size={56} />
                 <div className="wx-temp">{w.temp}°C</div>
+              </div>
+              <div className="wx-current-details">
                 <div className="wx-desc">{wmoDesc(w.code)}</div>
                 <div className="wx-feels">Cảm giác {w.feelsLike}°C</div>
               </div>
