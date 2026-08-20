@@ -160,7 +160,7 @@ export default function ArticlePage() {
             <img
               src={article.coverImage}
               alt={article.title}
-              style={{ width: '100%', display: 'block', maxHeight: 420, objectFit: 'cover' }}
+              style={{ width: '100%', height: 'auto', display: 'block' }}
               loading="eager"
             />
           </figure>
