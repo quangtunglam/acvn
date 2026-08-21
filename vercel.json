@@ -1,4 +1,12 @@
 {
+  "functions": {
+    "api/**/*.ts": {
+      "runtime": "@vercel/node"
+    },
+    "api/*.ts": {
+      "runtime": "@vercel/node"
+    }
+  },
   "buildCommand": "vite build",
   "outputDirectory": "dist",
   "rewrites": [
