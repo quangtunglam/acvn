@@ -64,6 +64,14 @@ const router = express.Router();
 
 // ─── Health & Version ─────────────────────────────────────────────────────────
 
+router.get("/", (_req, res) => {
+  res.json({ name: "ACVN API Server", status: "ok", time: new Date().toISOString() });
+});
+
+router.get("/api", (_req, res) => {
+  res.json({ name: "ACVN API Server", status: "ok", time: new Date().toISOString() });
+});
+
 router.get("/healthz", (_req, res) => {
   res.json({ status: "ok", time: new Date().toISOString() });
 });
