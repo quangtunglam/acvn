@@ -232,6 +232,36 @@ app.get(["/api/admin/inbox-counts", "/admin/inbox-counts"], async (_req, res) =>
   }
 });
 
+// Articles CRUD
+app.post(["/api/admin/articles", "/admin/articles"], async (req, res) => {
+  try {
+    const { title, slug, summary, content, coverImage, categoryId, countryId, authorId, sourceName, sourceUrl, editor, status, featured, breakingNews, publishedAt, mostReadRank } = req.body;
+    const result = await query(`
+      INSERT INTO articles (title, slug, summary, content, cover_image, category_id, country_id, author_id, source_name, source_url, editor, status, featured, breaking_news, published_at, most_read_rank)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16) RETURNING *
+    `, [title, slug, summary, content, coverImage, categoryId || null, countryId || null, authorId || null, sourceName, sourceUrl, editor, status || 'draft', featured || false, breakingNews || false, publishedAt || null, mostReadRank || null]);
+    res.json(result.rows[0]);
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+app.patch(["/api/admin/articles/:id", "/admin/articles/:id"], async (req, res) => {
+  try {
+    const { title, slug, summary, content, coverImage, categoryId, countryId, authorId, sourceName, sourceUrl, editor, status, featured, breakingNews, publishedAt, mostReadRank } = req.body;
+    const result = await query(`
+      UPDATE articles SET title=$1, slug=$2, summary=$3, content=$4, cover_image=$5, category_id=$6, country_id=$7, author_id=$8, source_name=$9, source_url=$10, editor=$11, status=$12, featured=$13, breaking_news=$14, published_at=$15, most_read_rank=$16, updated_at=NOW()
+      WHERE id=$17 RETURNING *
+    `, [title, slug, summary, content, coverImage, categoryId || null, countryId || null, authorId || null, sourceName, sourceUrl, editor, status || 'draft', featured || false, breakingNews || false, publishedAt || null, mostReadRank || null, req.params.id]);
+    res.json(result.rows[0]);
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+app.delete(["/api/admin/articles/:id", "/admin/articles/:id"], async (req, res) => {
+  try {
+    await query("DELETE FROM articles WHERE id=$1", [req.params.id]);
+    res.json({ success: true });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
 app.get(["/api/admin/articles", "/admin/articles"], async (req, res) => {
   try {
     const page = Math.max(1, Number(req.query.page || 1));
