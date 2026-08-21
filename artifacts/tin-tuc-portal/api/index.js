@@ -552,7 +552,7 @@ app.post(["/api/admin/rss/ingest-all", "/api/admin/rss/feeds/:id/ingest", "/admi
                   const jsonPrompt = `Dịch các trường sau sang tiếng Việt chuẩn văn phong báo chí. Trả về ĐÚNG định dạng JSON nguyên chất (không có markdown code block) với 3 key: "title", "summary", "content". Giữ nguyên các thẻ HTML trong content.\n\nJSON gốc:\n${JSON.stringify({title, summary, content})}`;
                   
                   const response = await ai.models.generateContent({
-                    model: 'gemini-2.5-flash',
+                    model: 'gemini-3.6-flash',
                     contents: jsonPrompt,
                     config: {
                       temperature: 0.3,
@@ -784,7 +784,7 @@ app.post(["/api/admin/ai/translate", "/admin/ai/translate"], async (req, res) =>
     const jsonPrompt = `Dịch các trường sau sang tiếng Việt chuẩn báo chí. Trả về ĐÚNG định dạng JSON nguyên chất (không có markdown code block) với 3 key: "title", "summary", "content". Giữ nguyên HTML trong content.\n\nJSON gốc:\n${JSON.stringify({title, summary, content})}`;
     
     const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash',
+      model: 'gemini-3.6-flash',
       contents: jsonPrompt,
       config: {
         temperature: 0.3,
