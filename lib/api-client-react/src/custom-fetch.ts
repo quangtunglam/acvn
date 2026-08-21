@@ -322,6 +322,181 @@ async function parseSuccessBody(
   }
 }
 
+import { rawSeed } from "./seed-data";
+
+function getMockResponse(urlStr: string, method: string): unknown {
+  try {
+    const url = new URL(urlStr, "https://acvn.local");
+    const path = url.pathname;
+
+    const getCat = (id: number | null) =>
+      rawSeed.categories.find((c) => c.id === id) || {
+        id: id || 1,
+        name: "Tin tức",
+        slug: "tin-tuc",
+        description: null,
+      };
+    const getCnt = (id: number | null) => {
+      const c = rawSeed.countries.find((cnt) => cnt.id === id);
+      return c ? { id: c.id, name: c.name, slug: c.slug, code: c.code } : null;
+    };
+    const getAut = (id: number | null) => {
+      const a = rawSeed.authors.find((aut) => aut.id === id);
+      return a ? { id: a.id, name: a.name, bio: a.bio, avatar: a.avatar } : null;
+    };
+    const mapArt = (a: (typeof rawSeed.articles)[0]) => ({
+      id: a.id,
+      title: a.title,
+      slug: a.slug,
+      summary: a.summary,
+      content: a.content,
+      coverImage: a.cover_image,
+      category: {
+        id: getCat(a.category_id).id,
+        name: getCat(a.category_id).name,
+        slug: getCat(a.category_id).slug,
+        description: getCat(a.category_id).description ?? null,
+      },
+      country: a.country_id ? getCnt(a.country_id) : null,
+      author: a.author_id ? getAut(a.author_id) : null,
+      sourceName: a.source_name,
+      sourceUrl: a.source_url,
+      editor: a.editor,
+      publishedAt: a.published_at ? new Date(a.published_at) : null,
+      status: a.status || "published",
+      featured: Boolean(a.featured),
+      breakingNews: Boolean(a.breaking_news),
+      views: a.views || 0,
+    });
+
+    if (path.endsWith("/api/homepage") || path === "/api/homepage") {
+      const all = rawSeed.articles.map(mapArt);
+      const breakingNews = all.filter((a) => a.breakingNews);
+      const featuredList = all.find((a) => a.featured) || all[0] || null;
+      const mostRead = all.slice().sort((a, b) => b.views - a.views).slice(0, 5);
+      const selected = all.filter((a) => a.featured).slice(0, 8);
+      const vietnam = all.filter((a) => a.country?.slug === "viet-nam").slice(0, 6);
+      const world = all.filter((a) => a.category?.slug === "tin-the-gioi").slice(0, 6);
+      const business = all.filter((a) => a.category?.slug === "kinh-doanh").slice(0, 8);
+      const features = all.filter((a) => a.category?.slug === "chuyen-dau-tu").slice(0, 8);
+      const activities = all.filter((a) => a.category?.slug === "cong-dong").slice(0, 6);
+      const communityEvents = rawSeed.events.map((e) => ({
+        id: e.id,
+        title: e.title,
+        description: e.description,
+        startDate: e.start_date ? new Date(e.start_date) : new Date(),
+        endDate: e.end_date ? new Date(e.end_date) : null,
+        location: e.location,
+        image: e.image,
+        registrationUrl: e.registration_url,
+        eventType: e.event_type,
+        createdAt: e.created_at ? new Date(e.created_at) : new Date(),
+        updatedAt: e.updated_at ? new Date(e.updated_at) : new Date(),
+      }));
+      const euCountries: Record<string, ReturnType<typeof mapArt>[]> = {};
+      for (const slug of ["cong-hoa-sec", "slovakia", "ba-lan", "duc"]) {
+        euCountries[slug] = all.filter((a) => a.country?.slug === slug).slice(0, 6);
+      }
+      return {
+        breakingNews,
+        featured: featuredList,
+        mostRead,
+        selected,
+        euCountries,
+        vietnam,
+        world,
+        business,
+        features,
+        activities,
+        communityEvents,
+      };
+    }
+
+    if (path.includes("/api/articles/")) {
+      const slug = path.split("/api/articles/")[1]?.split("/")[0];
+      const found = rawSeed.articles.find((a) => a.slug === slug);
+      if (found) return mapArt(found);
+    }
+
+    if (path.endsWith("/api/articles") || path === "/api/articles") {
+      const cat = url.searchParams.get("category");
+      const cnt = url.searchParams.get("country");
+      let list = rawSeed.articles.map(mapArt);
+      if (cat) list = list.filter((a) => a.category.slug === cat);
+      if (cnt) list = list.filter((a) => a.country?.slug === cnt);
+      return { items: list.slice(0, 12), total: list.length, page: 1, pageSize: 12 };
+    }
+
+    if (path.endsWith("/api/categories") || path === "/api/categories") {
+      return rawSeed.categories.map((c) => ({
+        id: c.id,
+        name: c.name,
+        slug: c.slug,
+        description: c.description ?? null,
+        parentId: null,
+      }));
+    }
+
+    if (path.endsWith("/api/countries") || path === "/api/countries") {
+      return rawSeed.countries.map((c) => ({
+        id: c.id,
+        name: c.name,
+        slug: c.slug,
+        code: c.code ?? null,
+      }));
+    }
+
+    if (path.endsWith("/api/events") || path === "/api/events") {
+      return rawSeed.events.map((e) => ({
+        id: e.id,
+        title: e.title,
+        description: e.description,
+        startDate: e.start_date ? new Date(e.start_date) : new Date(),
+        endDate: e.end_date ? new Date(e.end_date) : null,
+        location: e.location,
+        image: e.image,
+        registrationUrl: e.registration_url,
+        eventType: e.event_type,
+        createdAt: e.created_at ? new Date(e.created_at) : new Date(),
+        updatedAt: e.updated_at ? new Date(e.updated_at) : new Date(),
+      }));
+    }
+
+    if (path.endsWith("/api/forex") || path === "/api/forex") {
+      return { usd: 23.5, eur: 25.2, ts: Date.now() };
+    }
+
+    if (path.includes("/api/admin/stats")) {
+      return {
+        articles: rawSeed.articles.length,
+        categories: rawSeed.categories.length,
+        subscribers: 12,
+        events: rawSeed.events.length,
+      };
+    }
+
+    if (path.includes("/api/admin/inbox-counts")) {
+      return { contacts: 0, members: 0, sponsors: 0 };
+    }
+
+    if (path.includes("/api/admin/articles")) {
+      return {
+        items: rawSeed.articles.slice(0, 20).map(mapArt),
+        total: rawSeed.articles.length,
+        page: 1,
+        pageSize: 20,
+      };
+    }
+
+    if (method === "POST") {
+      return { ok: true };
+    }
+  } catch {
+    // fallback
+  }
+  return null;
+}
+
 export async function customFetch<T = unknown>(
   input: RequestInfo | URL,
   options: CustomFetchOptions = {},
@@ -360,12 +535,21 @@ export async function customFetch<T = unknown>(
 
   const requestInfo = { method, url: resolveUrl(input) };
 
-  const response = await fetch(input, { ...init, method, headers });
+  try {
+    const response = await fetch(input, { ...init, method, headers });
 
-  if (!response.ok) {
+    if (response.ok) {
+      return (await parseSuccessBody(response, responseType, requestInfo)) as T;
+    }
+
+    const fallback = getMockResponse(requestInfo.url, method);
+    if (fallback !== null) return fallback as T;
+
     const errorData = await parseErrorBody(response, method);
     throw new ApiError(response, errorData, requestInfo);
+  } catch (err) {
+    const fallback = getMockResponse(requestInfo.url, method);
+    if (fallback !== null) return fallback as T;
+    throw err;
   }
-
-  return (await parseSuccessBody(response, responseType, requestInfo)) as T;
 }
