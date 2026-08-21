@@ -521,7 +521,7 @@ app.post(["/api/admin/rss/ingest-all", "/api/admin/rss/feeds/:id/ingest", "/admi
                 (title, slug, summary, content, cover_image, status, category_id, country_id, source_url, published_at)
                 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
               `, [
-                title, slug, summary, content, coverImage, 'published', 
+                title, slug, summary, content, coverImage, 'draft', 
                 feed.category_id, feed.country_id, item.link, 
                 item.pubDate ? new Date(item.pubDate) : new Date()
               ]);
