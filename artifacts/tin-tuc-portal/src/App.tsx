@@ -634,6 +634,21 @@ function AdminPage() {
 // ─── Router ───────────────────────────────────────────────────────────────────
 
 function Router() {
+  const [location] = useLocation();
+  const [isAdminParam, setIsAdminParam] = useState(false);
+
+  useEffect(() => {
+    const search = typeof window !== 'undefined' ? window.location.search : '';
+    const hash = typeof window !== 'undefined' ? window.location.hash : '';
+    if (search.includes('admin') || hash.includes('admin')) {
+      setIsAdminParam(true);
+    }
+  }, []);
+
+  if (isAdminParam || location.startsWith('/admin')) {
+    return <AdminRouter />;
+  }
+
   return (
     <RoutedErrorBoundary>
       <Switch>
