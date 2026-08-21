@@ -456,63 +456,75 @@ export function Btn({
   );
 }
 
-export function Input(props: React.InputHTMLAttributes<HTMLInputElement>) {
+export function Input(props: React.InputHTMLAttributes<HTMLInputElement> & { label?: React.ReactNode }) {
+  const { label, ...rest } = props;
   return (
-    <input
-      {...props}
-      style={{
-        width: '100%',
-        padding: '0.55rem 0.75rem',
-        border: '1px solid #cbd5e1',
-        borderRadius: 6,
-        fontSize: '0.875rem',
-        outline: 'none',
-        boxSizing: 'border-box',
-        background: '#fff',
-        ...props.style,
-      }}
-    />
+    <div style={{ marginBottom: '0.75rem' }}>
+      {label && <div style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--color-ink)', marginBottom: 4 }}>{label}</div>}
+      <input
+        {...rest}
+        style={{
+          width: '100%',
+          padding: '0.55rem 0.75rem',
+          border: '1px solid #cbd5e1',
+          borderRadius: 6,
+          fontSize: '0.875rem',
+          outline: 'none',
+          boxSizing: 'border-box',
+          background: '#fff',
+          ...rest.style,
+        }}
+      />
+    </div>
   );
 }
 
-export function Textarea(props: React.TextareaHTMLAttributes<HTMLTextAreaElement>) {
+export function Textarea(props: React.TextareaHTMLAttributes<HTMLTextAreaElement> & { label?: React.ReactNode }) {
+  const { label, ...rest } = props;
   return (
-    <textarea
-      {...props}
-      style={{
-        width: '100%',
-        padding: '0.55rem 0.75rem',
-        border: '1px solid #cbd5e1',
-        borderRadius: 6,
-        fontSize: '0.875rem',
-        outline: 'none',
-        boxSizing: 'border-box',
-        background: '#fff',
-        resize: 'vertical',
-        ...props.style,
-      }}
-    />
+    <div style={{ marginBottom: '0.75rem' }}>
+      {label && <div style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--color-ink)', marginBottom: 4 }}>{label}</div>}
+      <textarea
+        {...rest}
+        style={{
+          width: '100%',
+          padding: '0.55rem 0.75rem',
+          border: '1px solid #cbd5e1',
+          borderRadius: 6,
+          fontSize: '0.875rem',
+          outline: 'none',
+          boxSizing: 'border-box',
+          background: '#fff',
+          resize: 'vertical',
+          ...rest.style,
+        }}
+      />
+    </div>
   );
 }
 
-export function Select(props: React.SelectHTMLAttributes<HTMLSelectElement>) {
+export function Select(props: React.SelectHTMLAttributes<HTMLSelectElement> & { label?: React.ReactNode }) {
+  const { label, children, ...rest } = props;
   return (
-    <select
-      {...props}
-      style={{
-        width: '100%',
-        padding: '0.55rem 0.75rem',
-        border: '1px solid #cbd5e1',
-        borderRadius: 6,
-        fontSize: '0.875rem',
-        outline: 'none',
-        boxSizing: 'border-box',
-        background: '#fff',
-        ...props.style,
-      }}
-    >
-      {props.children}
-    </select>
+    <div style={{ marginBottom: '0.75rem' }}>
+      {label && <div style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--color-ink)', marginBottom: 4 }}>{label}</div>}
+      <select
+        {...rest}
+        style={{
+          width: '100%',
+          padding: '0.55rem 0.75rem',
+          border: '1px solid #cbd5e1',
+          borderRadius: 6,
+          fontSize: '0.875rem',
+          outline: 'none',
+          boxSizing: 'border-box',
+          background: '#fff',
+          ...rest.style,
+        }}
+      >
+        {children}
+      </select>
+    </div>
   );
 }
 
