@@ -287,8 +287,38 @@ export function handleClientApi(url: string, method = "GET", body?: any): any {
   if (pathname === "/admin/events") {
     return store.events;
   }
-  if (pathname === "/admin/rss/feeds") {
-    return store.feeds;
+  if (pathname === "/admin/rss/feeds" && method === "GET") {
+    return (store.feeds || []).map((f: any) => ({
+      id: f.id,
+      name: f.name,
+      url: f.url,
+      active: f.active ?? true,
+      categoryId: f.category_id ?? f.categoryId ?? 1,
+      countryId: f.country_id ?? f.countryId ?? null,
+      lastFetchedAt: f.last_fetched_at ?? f.lastFetchedAt ?? null,
+      itemsImported: f.items_imported ?? f.itemsImported ?? 0,
+    }));
+  }
+  if (pathname === "/admin/rss/feeds" && method === "POST") {
+    const newFeed = { id: Date.now(), ...body, active: true, lastFetchedAt: null, itemsImported: 0 };
+    store.feeds.push(newFeed);
+    saveStore(store);
+    return newFeed;
+  }
+  if (pathname.startsWith("/admin/rss/feeds/") && method === "PATCH") {
+    const id = Number(pathname.split("/").pop());
+    const idx = store.feeds.findIndex((f: any) => f.id === id);
+    if (idx !== -1) { store.feeds[idx] = { ...store.feeds[idx], ...body }; saveStore(store); }
+    return store.feeds[idx] || { success: true };
+  }
+  if (pathname.startsWith("/admin/rss/feeds/") && method === "DELETE") {
+    const id = Number(pathname.split("/").pop());
+    store.feeds = store.feeds.filter((f: any) => f.id !== id);
+    saveStore(store);
+    return { success: true };
+  }
+  if (pathname === "/admin/rss/ingest" || pathname.startsWith("/admin/rss/ingest")) {
+    return [{ feedId: 0, feedName: "Demo", fetched: 5, skipped: 3, imported: 2, errors: [] }];
   }
   if (pathname === "/admin/contacts") {
     return store.contacts;
