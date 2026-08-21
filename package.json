@@ -1,10 +1,11 @@
 {
   "name": "workspace",
   "version": "0.0.0",
+  "type": "module",
   "license": "MIT",
   "scripts": {
-    "build": "pnpm --filter @workspace/tin-tuc-portal run build && node -e \"const fs=require('fs'); fs.cpSync('artifacts/tin-tuc-portal/dist', 'dist', {recursive:true}); fs.cpSync('artifacts/tin-tuc-portal/dist', 'public', {recursive:true}); ['app.js','server.js','index.js'].forEach(f => { try{fs.copyFileSync(f, 'dist/'+f); fs.copyFileSync(f, 'public/'+f);}catch(e){} });\"",
-    "dev": "pnpm --filter @workspace/tin-tuc-portal run dev",
+    "build": "vite build && node -e \"const fs=require('fs'); try{fs.cpSync('dist', 'public', {recursive:true})}catch(e){}\"",
+    "dev": "vite",
     "typecheck:libs": "tsc --build",
     "typecheck": "pnpm run typecheck:libs && pnpm -r --filter \"./artifacts/**\" --filter \"./scripts\" --if-present run typecheck"
   },
@@ -13,7 +14,11 @@
     "@replit/connectors-sdk": "^0.4.1"
   },
   "devDependencies": {
+    "@tailwindcss/vite": "^4.1.14",
+    "@vitejs/plugin-react": "^5.0.4",
     "prettier": "^3.9.6",
-    "typescript": "~5.9.3"
+    "tailwindcss": "^4.1.14",
+    "typescript": "~5.9.3",
+    "vite": "^7.3.2"
   }
 }
