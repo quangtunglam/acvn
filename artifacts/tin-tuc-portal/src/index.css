@@ -155,13 +155,13 @@
 .u-date { color: white; font-weight: 700; }
 .u-sep { color: hsl(211 28% 52%); }
 .utility a:hover { color: white; }
-/* Weather widget in utility bar */
-.u-weather { display: flex; align-items: center; gap: 10px; }
-.u-weather-city { display: flex; align-items: center; gap: 4px; color: hsl(210 22% 86%); font-size: 12px; font-weight: 500; white-space: nowrap; }
-.u-weather-emoji { font-size: 14px; line-height: 1; }
-.u-weather-name { opacity: .8; }
-.u-weather-temp { color: white; font-weight: 700; }
-.u-weather-sep { color: hsl(211 28% 52%); margin-right: 6px; }
+/* Forex widget in utility bar */
+.u-fx { display: flex; align-items: center; gap: 10px; }
+.u-fx-pair { display: flex; align-items: center; gap: 5px; white-space: nowrap; }
+.u-fx-icon { width: 16px; height: 16px; flex: 0 0 auto; border-radius: 50%; }
+.u-fx-label { font-size: 11px; font-weight: 700; color: hsl(210 22% 75%); letter-spacing: .04em; }
+.u-fx-rate { font-size: 12px; font-weight: 700; color: white; }
+.u-fx-sep { color: hsl(211 28% 52%); }
 .masthead { background: hsl(var(--card)); border-bottom: 1px solid hsl(var(--border)); }
 .masthead-inner { display: flex; align-items: center; min-height: 110px; gap: 24px; padding-block: 16px; }
 /* Logo — left */
@@ -216,15 +216,54 @@
 .source { margin-top: 7px; color: hsl(var(--muted-foreground)); font-size: 11.5px; }
 .source strong { color: hsl(var(--foreground)); font-weight: 700; }
 .hero { background: hsl(var(--card)); border-bottom: 1px solid hsl(var(--border)); }
-.hero-grid { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(300px, 1fr); gap: 38px; }
+.hero-grid { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(300px, 1fr); gap: 38px; align-items: start; }
 .lead-thumb, .card-thumb, .stack-thumb, .feature-image { display: block; overflow: hidden; background: hsl(var(--muted)); }
-.lead-thumb { aspect-ratio: 16 / 8.8; border-radius: 7px; }
-.lead-thumb img, .card-thumb img, .stack-thumb img, .feature-image img { width: 100%; height: 100%; object-fit: cover; transition: transform .6s ease; }
+.lead { display: flex; flex-direction: column; }
+.lead-thumb { flex: none; border-radius: 7px; }
+.lead-thumb img { width: 100%; height: auto; display: block; object-fit: contain; transition: transform .6s ease; }
+.card-thumb img, .stack-thumb img, .feature-image img { width: 100%; height: 100%; object-fit: cover; transition: transform .6s ease; }
 .lead-thumb:hover img, .card-thumb:hover img, .stack-thumb:hover img, .feature-image:hover img { transform: scale(1.045); }
 .lead h1 { max-width: 760px; margin: 13px 0 10px; font: 700 clamp(28px, 4vw, 39px)/1.16 var(--app-font-serif); letter-spacing: -.035em; }
 .lead h1 a:hover, .story-title a:hover, .card h3 a:hover { color: hsl(var(--primary)); }
 .dek { max-width: 65ch; color: hsl(var(--muted-foreground)); font-size: 15px; }
 .side-list { display: flex; flex-direction: column; }
+.side-newsletter { margin-top: auto; padding-top: 18px; }
+
+/* ── Czech weather widget ── */
+.wx-card { background: linear-gradient(135deg, hsl(204 80% 92%) 0%, hsl(220 70% 96%) 100%); border: 1px solid hsl(210 40% 85%); border-radius: 8px; padding: 11px; color: hsl(214 50% 20%); }
+.wx-card--loading { min-height: 80px; display: flex; align-items: center; justify-content: center; }
+.wx-loading { color: hsl(210 30% 55%); font-size: 13px; }
+.wx-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.wx-city { font-size: 14px; font-weight: 700; letter-spacing: .02em; color: hsl(214 60% 25%); display: flex; align-items: center; }
+.wx-current { display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 25px; margin-bottom: 10px; }
+.wx-current-main { display: flex; align-items: center; gap: 8px; }
+.wx-current-main > svg { width: 44px; height: 44px; }
+.wx-current-details { display: flex; flex-direction: column; gap: 6px; min-width: 92px; }
+.wx-temp { font-size: 32px; font-weight: 800; line-height: 1; font-family: var(--app-font-serif); color: hsl(214 60% 22%); }
+.wx-desc { font-size: 13px; line-height: 1.2; color: hsl(210 30% 35%); font-weight: 600; }
+.wx-feels { font-size: 11px; color: hsl(210 30% 50%); }
+.wx-forecast { display: flex; gap: 6px; border-top: 1px solid hsl(210 40% 82%); padding-top: 10px; }
+.wx-day { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; background: hsl(0 0% 100% / .6); border-radius: 7px; padding: 6px 3px; }
+.wx-day-name { font-size: 11px; font-weight: 700; color: hsl(210 30% 50%); text-transform: uppercase; }
+.wx-day-emoji { display: flex; align-items: center; justify-content: center; }
+.wx-day-emoji svg { width: 23px; height: 23px; }
+.wx-day-temps { font-size: 12px; display: flex; gap: 5px; align-items: baseline; }
+.wx-day-temps b { color: hsl(214 60% 22%); font-weight: 700; }
+.wx-day-temps span { color: hsl(210 30% 55%); font-size: 11px; }
+.wx-precip { font-size: 10.5px; color: hsl(210 70% 42%); font-weight: 600; }
+/* Slide animations */
+@keyframes wx-slide-left  { from { opacity: 0; transform: translateX(28px);  } to { opacity: 1; transform: translateX(0); } }
+@keyframes wx-slide-right { from { opacity: 0; transform: translateX(-28px); } to { opacity: 1; transform: translateX(0); } }
+.wx-slide--left  { animation: wx-slide-left  .35s ease; }
+.wx-slide--right { animation: wx-slide-right .35s ease; }
+.wx-nav { display: flex; align-items: center; gap: 4px; }
+.wx-nav-btn { background: hsl(210 40% 88%); border: none; cursor: pointer; color: hsl(214 50% 35%); font-size: 19px; line-height: 1; padding: 1px 6px; border-radius: 5px; transition: background .15s, color .15s; font-weight: 700; }
+.wx-nav-btn:hover { background: hsl(210 40% 78%); color: hsl(214 60% 22%); }
+.wx-nav-dots { display: flex; gap: 4px; align-items: center; }
+.wx-dot { width: 5px; height: 5px; border-radius: 50%; background: hsl(210 30% 75%); transition: background .2s; }
+.wx-dot--active { background: hsl(214 60% 40%); }
+.flag-vn { background: #da251d; }
+.flag-vn::before { content: '★'; position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); color: #ffff00; font-size: 10px; line-height: 1; }
 .side-item { position: relative; display: flex; gap: 0; padding: 16px 0; border-top: 1px solid hsl(var(--border)); }
 .side-item:first-child { padding-top: 0; border-top: 0; }
 .rank { position: absolute; left: 0; top: 14px; width: 28px; text-align: center; color: hsl(var(--border)); font: 700 23px var(--app-font-serif); line-height: 1; }
@@ -361,10 +400,11 @@ footer { padding: 48px 0 25px; background: hsl(220 18% 14%); color: hsl(220 12% 
   .wrap { padding-inline: 18px; }
   /* Utility bar: ẩn dấu phân cách và thành phố thứ 2 trở đi */
   /* Utility bar mobile: date left, weather right */
-  .u-left { gap: 6px; font-size: 10px; }
-  .u-weather { gap: 6px; }
-  .u-weather-city { font-size: 10px; }
-  .u-weather-emoji { font-size: 13px; }
+  .utility .wrap { justify-content: center; flex-direction: column; gap: 2px; padding-block: 6px; min-height: unset; }
+  .u-left { gap: 6px; font-size: 10px; justify-content: center; }
+  .u-fx { gap: 8px; justify-content: center; }
+  .u-fx-label { font-size: 10px; }
+  .u-fx-rate { font-size: 11px; }
   .u-right { display: none; }
   /* Masthead — stacked vertically on mobile */
   .masthead-inner { flex-direction: column; align-items: center; gap: 12px; padding-block: 20px; min-height: unset; }

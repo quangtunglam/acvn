@@ -1,4 +1,4 @@
-import { type ReactNode, useState } from 'react';
+import { type ReactNode, useEffect, useState } from 'react';
 import {
   ArrowRight,
   Facebook,
@@ -10,7 +10,31 @@ import {
   Youtube,
 } from 'lucide-react';
 import { useLocation } from 'wouter';
-import { useWeather } from '../hooks/use-weather';
+// ─── Exchange rate hook ───────────────────────────────────────────────────────
+
+interface FxRates { usd: number; eur: number }
+
+function useExchangeRates(intervalMs = 30 * 60 * 1000) {
+  const [rates, setRates] = useState<FxRates | null>(null);
+  useEffect(() => {
+    let cancelled = false;
+    async function load() {
+      try {
+        // frankfurter.app: ECB rates, free, no key
+        const apiBase = import.meta.env.VITE_API_URL || '';
+        const res = await fetch(`${apiBase}/api/forex`);
+        if (!res.ok) return;
+        const j = await res.json() as { usd: number; eur: number };
+        if (cancelled) return;
+        setRates({ usd: j.usd, eur: j.eur });
+      } catch { /* silent */ }
+    }
+    load();
+    const id = setInterval(load, intervalMs);
+    return () => { cancelled = true; clearInterval(id); };
+  }, [intervalMs]);
+  return rates;
+}
 
 // ─── Utility bar ──────────────────────────────────────────────────────────────
 
@@ -18,7 +42,8 @@ export function UtilityBar() {
   const today = new Intl.DateTimeFormat('vi-VN', {
     weekday: 'long', day: '2-digit', month: '2-digit', year: 'numeric',
   }).format(new Date());
-  const weather = useWeather();
+  const fx = useExchangeRates();
+  const fmt = (n: number) => n.toLocaleString('cs-CZ', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
   return (
     <div className="utility">
@@ -26,16 +51,19 @@ export function UtilityBar() {
         <div className="u-left">
           <span className="u-date" data-testid="text-current-date">{today}</span>
         </div>
-        {weather && (
-          <span className="u-weather" aria-label="Thời tiết hiện tại">
-            {weather.map((w, i) => (
-              <span key={w.city} className="u-weather-city">
-                {i > 0 && <span className="u-weather-sep">·</span>}
-                <span className="u-weather-emoji" title={w.desc}>{w.emoji}</span>
-                <span className="u-weather-name">{w.city}</span>
-                <span className="u-weather-temp">{w.temp}°C</span>
-              </span>
-            ))}
+        {fx && (
+          <span className="u-fx" aria-label="Tỉ giá ngoại tệ">
+            <span className="u-fx-pair">
+              <svg className="u-fx-icon u-fx-icon--usd" viewBox="0 0 18 18" aria-hidden="true"><circle cx="9" cy="9" r="9" fill="#22a55b"/><text x="9" y="13" textAnchor="middle" fontSize="11" fontWeight="700" fill="#fff">$</text></svg>
+              <span className="u-fx-label">USD</span>
+              <span className="u-fx-rate">{fmt(fx.usd)} Kč</span>
+            </span>
+            <span className="u-fx-sep">·</span>
+            <span className="u-fx-pair">
+              <svg className="u-fx-icon u-fx-icon--eur" viewBox="0 0 18 18" aria-hidden="true"><circle cx="9" cy="9" r="9" fill="#2563eb"/><text x="9" y="13" textAnchor="middle" fontSize="11" fontWeight="700" fill="#fff">€</text></svg>
+              <span className="u-fx-label">EUR</span>
+              <span className="u-fx-rate">{fmt(fx.eur)} Kč</span>
+            </span>
           </span>
         )}
       </div>
@@ -51,12 +79,12 @@ export function Masthead() {
       <div className="wrap masthead-inner">
         {/* Left — logo */}
         <a className="masthead-logo-wrap" href="/" aria-label="Trang chủ" data-testid="link-logo">
-          <img src="/logo-hoi.png" alt="Logo Hội người Séc gốc Việt Nam" className="masthead-logo-img" />
+          <img src="/logo-hoi.png" alt="Logo Hội người Czech gốc Việt Nam" className="masthead-logo-img" />
         </a>
 
         {/* Right — stacked names */}
         <a className="masthead-names" href="/" aria-label="Trang chủ">
-          <span className="masthead-name masthead-name--vi">Hội người Séc gốc Việt Nam</span>
+          <span className="masthead-name masthead-name--vi">Hội người Czech gốc Việt Nam</span>
           <span className="masthead-name masthead-name--cs">Asociace českých občanů vietnamského původu</span>
         </a>
       </div>
@@ -262,9 +290,9 @@ export function Footer() {
           <div className="footer-brand">
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
               <img src="/logo-hoi.png" alt="Logo" style={{ height: 48, width: 'auto', objectFit: 'contain' }} />
-              <span className="logo-name" style={{ fontSize: '0.95rem', lineHeight: 1.3 }}>Hội người Séc<em style={{ fontStyle: 'normal' }}> gốc Việt Nam</em></span>
+              <span className="logo-name" style={{ fontSize: '0.95rem', lineHeight: 1.3 }}>Hội người Czech<em style={{ fontStyle: 'normal' }}> gốc Việt Nam</em></span>
             </div>
-            <p>Cổng thông tin của Hội người Séc gốc Việt Nam.</p>
+            <p>Cổng thông tin của Hội người Czech gốc Việt Nam.</p>
             <div className="socials">
               <a className="social-link" href="/" aria-label="Facebook"><Facebook size={16} /></a>
               <a className="social-link" href="/" aria-label="YouTube"><Youtube size={16} /></a>
@@ -278,7 +306,7 @@ export function Footer() {
             ['Pháp luật', '/danh-muc/phap-luat'],
           ]} />
           <FooterColumn title="Khu vực" links={[
-            ['Cộng hòa Séc', '/khu-vuc/sec'],
+            ['Cộng hòa Czech', '/khu-vuc/sec'],
             ['Slovakia', '/khu-vuc/slovakia'],
             ['Ba Lan', '/khu-vuc/ba-lan'],
             ['Đức', '/khu-vuc/duc'],
@@ -287,7 +315,7 @@ export function Footer() {
           <div className="footer-col">
             <h3>Liên hệ</h3>
             <address style={{ fontStyle: 'normal', fontSize: '0.85rem', lineHeight: 1.8, color: 'rgba(255,255,255,0.7)' }}>
-              <strong style={{ color: '#fff' }}>Hội người Séc gốc Việt Nam</strong><br />
+              <strong style={{ color: '#fff' }}>Hội người Czech gốc Việt Nam</strong><br />
               Asociace Českých občanů<br />
               Vietnamského původu, z. s.<br />
               V lužích 735/6,<br />
@@ -297,12 +325,7 @@ export function Footer() {
           </div>
         </div>
         <div className="footer-bottom">
-          <span>© 2026 Hội người Séc gốc Việt Nam. Bảo lưu mọi quyền.</span>
-          <span className="footer-links">
-            <a href="/">Điều khoản sử dụng</a>
-            <a href="/">Chính sách bảo mật</a>
-            <a href="/">Cookie</a>
-          </span>
+          <span>© 2026 Hội người Czech gốc Việt Nam. Bảo lưu mọi quyền.</span>
         </div>
       </div>
     </footer>

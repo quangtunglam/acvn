@@ -1,4 +1,4 @@
-import { type ReactNode, useMemo, useState } from 'react';
+import { type ReactNode, useEffect, useMemo, useRef, useState } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import {
   ArrowRight,
@@ -30,7 +30,8 @@ import CategoryPage from '@/pages/category';
 import CountryPage from '@/pages/country';
 import SearchPage from '@/pages/search';
 import AdminRouter from '@/pages/admin/index';
-import { GoogleFormPage } from '@/pages/google-form-page';
+import MemberRegistrationPage from '@/pages/member-registration';
+import SponsorRegistrationPage from '@/pages/sponsor-registration';
 import EventsPage from '@/pages/events';
 import AboutPage from '@/pages/about';
 import ContactPage from '@/pages/contact';
@@ -102,6 +103,265 @@ function StoryRow({ article, size = 300 }: { article: Article; size?: number }) 
   );
 }
 
+// ─── Czech weather widget ─────────────────────────────────────────────────────
+
+const VI_DAYS = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
+
+// ── SVG weather icons ─────────────────────────────────────────────────────────
+function WxIcon({ code, isDay = true, size = 40 }: { code: number; isDay?: boolean; size?: number }) {
+  const s = size;
+  // Clear
+  if (code === 0 && isDay) return (
+    <svg width={s} height={s} viewBox="0 0 64 64" fill="none">
+      <circle cx="32" cy="32" r="13" fill="#FFD600"/>
+      {[0,45,90,135,180,225,270,315].map(a => (
+        <line key={a} x1="32" y1="6" x2="32" y2="13" stroke="#FFD600" strokeWidth="3.5" strokeLinecap="round"
+          transform={`rotate(${a} 32 32)`}/>
+      ))}
+    </svg>
+  );
+  if (code === 0 && !isDay) return (
+    <svg width={s} height={s} viewBox="0 0 64 64" fill="none">
+      <path d="M42 22a16 16 0 1 1-20 20 12 12 0 0 0 20-20z" fill="#FFC107"/>
+      <circle cx="46" cy="14" r="2.5" fill="#FFF9C4"/>
+      <circle cx="52" cy="22" r="1.8" fill="#FFF9C4"/>
+      <circle cx="40" cy="8" r="2" fill="#FFF9C4"/>
+    </svg>
+  );
+  // Partly cloudy
+  if (code <= 2) return (
+    <svg width={s} height={s} viewBox="0 0 64 64" fill="none">
+      {isDay && <><circle cx="22" cy="26" r="10" fill="#FFD600"/>
+      {[315,0,45].map(a=>(
+        <line key={a} x1="22" y1="8" x2="22" y2="14" stroke="#FFD600" strokeWidth="3" strokeLinecap="round"
+          transform={`rotate(${a} 22 26)`}/>
+      ))}</>}
+      <rect x="14" y="34" width="36" height="18" rx="9" fill="white"/>
+      <rect x="22" y="28" width="26" height="16" rx="8" fill="white"/>
+      <rect x="13" y="33" width="38" height="20" rx="10" fill="white" opacity=".7"/>
+      <rect x="14" y="35" width="36" height="17" rx="8.5" fill="#E3F2FD"/>
+    </svg>
+  );
+  // Overcast
+  if (code === 3) return (
+    <svg width={s} height={s} viewBox="0 0 64 64" fill="none">
+      <rect x="8" y="30" width="48" height="22" rx="11" fill="#B0BEC5"/>
+      <rect x="18" y="22" width="34" height="20" rx="10" fill="#CFD8DC"/>
+      <rect x="8" y="30" width="48" height="22" rx="11" fill="#90A4AE" opacity=".5"/>
+    </svg>
+  );
+  // Fog
+  if (code <= 48) return (
+    <svg width={s} height={s} viewBox="0 0 64 64" fill="none">
+      {[18,28,38,48].map((y,i)=>(
+        <rect key={y} x={8+i*2} y={y} width={48-i*4} height="4" rx="2" fill="#B0BEC5" opacity={1-i*0.15}/>
+      ))}
+    </svg>
+  );
+  // Drizzle / Light rain
+  if (code <= 65) return (
+    <svg width={s} height={s} viewBox="0 0 64 64" fill="none">
+      <rect x="10" y="14" width="44" height="22" rx="11" fill="#64B5F6"/>
+      <rect x="18" y="8" width="30" height="18" rx="9" fill="#90CAF9"/>
+      {[[20,42],[32,46],[44,42],[26,50],[38,50]].map(([x,y])=>(
+        <line key={`${x}${y}`} x1={x} y1={y} x2={x-3} y2={y+8} stroke="#1E88E5" strokeWidth="2.5" strokeLinecap="round"/>
+      ))}
+    </svg>
+  );
+  // Snow
+  if (code <= 77 || (code >= 85 && code <= 86)) return (
+    <svg width={s} height={s} viewBox="0 0 64 64" fill="none">
+      <rect x="10" y="10" width="44" height="22" rx="11" fill="#90CAF9"/>
+      <rect x="18" y="6" width="30" height="18" rx="9" fill="#BBDEFB"/>
+      {[[20,42],[32,44],[44,42],[26,52],[38,52]].map(([x,y])=>(
+        <g key={`${x}${y}`}>
+          <circle cx={x} cy={y} r="3" fill="white"/>
+          <line x1={x} y1={y-4} x2={x} y2={y+4} stroke="#90CAF9" strokeWidth="1.5"/>
+          <line x1={x-4} y1={y} x2={x+4} y2={y} stroke="#90CAF9" strokeWidth="1.5"/>
+        </g>
+      ))}
+    </svg>
+  );
+  // Storm
+  if (code >= 95) return (
+    <svg width={s} height={s} viewBox="0 0 64 64" fill="none">
+      <rect x="8" y="10" width="48" height="22" rx="11" fill="#546E7A"/>
+      <rect x="16" y="4" width="34" height="20" rx="10" fill="#607D8B"/>
+      <polygon points="36,34 28,48 33,48 27,62 42,44 36,44" fill="#FFD600"/>
+      {[[18,38],[22,46]].map(([x,y])=>(
+        <line key={`${x}${y}`} x1={x} y1={y} x2={x-2} y2={y+8} stroke="#90CAF9" strokeWidth="2" strokeLinecap="round"/>
+      ))}
+    </svg>
+  );
+  // Default rain
+  return (
+    <svg width={s} height={s} viewBox="0 0 64 64" fill="none">
+      <rect x="10" y="14" width="44" height="22" rx="11" fill="#64B5F6"/>
+      {[[20,42],[32,46],[44,42]].map(([x,y])=>(
+        <line key={`${x}${y}`} x1={x} y1={y} x2={x-3} y2={y+8} stroke="#1565C0" strokeWidth="2.5" strokeLinecap="round"/>
+      ))}
+    </svg>
+  );
+}
+
+function wmoEmoji(code: number, isDay = true): string {
+  if (code === 0) return isDay ? '☀️' : '🌙';
+  if (code <= 2) return '🌤️';
+  if (code === 3) return '☁️';
+  if (code <= 48) return '🌫️';
+  if (code <= 55) return '🌦️';
+  if (code <= 65) return '🌧️';
+  if (code <= 77) return '🌨️';
+  if (code <= 82) return '🌧️';
+  if (code <= 86) return '🌨️';
+  return '⛈️';
+}
+function wmoDesc(code: number): string {
+  if (code === 0) return 'Quang đãng';
+  if (code <= 2) return 'Ít mây';
+  if (code === 3) return 'Nhiều mây';
+  if (code <= 48) return 'Sương mù';
+  if (code <= 55) return 'Mưa phùn';
+  if (code <= 65) return 'Mưa';
+  if (code <= 77) return 'Tuyết';
+  if (code <= 82) return 'Mưa rào';
+  if (code <= 86) return 'Tuyết rào';
+  return 'Giông bão';
+}
+
+interface PragueWeather {
+  temp: number;
+  feelsLike: number;
+  code: number;
+  isDay: boolean;
+  forecast: { date: string; max: number; min: number; code: number; precip: number }[];
+}
+
+const WX_CITIES = [
+  { key: 'praha',  label: 'Praha',   flag: <span className="flag flag-cz" style={{ display:'inline-block', verticalAlign:'middle', marginRight:6 }} />, lat: 50.0755,  lon: 14.4378,  tz: 'Europe%2FPrague' },
+  { key: 'hanoi',  label: 'Hà Nội',  flag: <span className="flag flag-vn" style={{ display:'inline-block', verticalAlign:'middle', marginRight:6 }} />, lat: 21.0285,  lon: 105.8542, tz: 'Asia%2FBangkok' },
+] as const;
+
+// Pre-fetch ALL cities in parallel so switching is instant — no loading flash
+function useAllCityWeather() {
+  const [all, setAll] = useState<(PragueWeather | null)[]>(WX_CITIES.map(() => null));
+
+  useEffect(() => {
+    let cancelled = false;
+    async function loadOne(i: number) {
+      const c = WX_CITIES[i];
+      try {
+        const url =
+          'https://api.open-meteo.com/v1/forecast' +
+          `?latitude=${c.lat}&longitude=${c.lon}&timezone=${c.tz}` +
+          '&current=temperature_2m,apparent_temperature,weather_code,is_day' +
+          '&daily=temperature_2m_max,temperature_2m_min,weather_code,precipitation_probability_max' +
+          '&forecast_days=4';
+        const res = await fetch(url);
+        if (!res.ok || cancelled) return;
+        const j = await res.json();
+        if (cancelled) return;
+        setAll(prev => {
+          const next = [...prev];
+          next[i] = {
+            temp: Math.round(j.current.temperature_2m),
+            feelsLike: Math.round(j.current.apparent_temperature),
+            code: j.current.weather_code,
+            isDay: j.current.is_day === 1,
+            forecast: (j.daily.time as string[]).slice(1, 4).map((date: string, k: number) => ({
+              date,
+              max: Math.round(j.daily.temperature_2m_max[k + 1]),
+              min: Math.round(j.daily.temperature_2m_min[k + 1]),
+              code: j.daily.weather_code[k + 1],
+              precip: j.daily.precipitation_probability_max[k + 1] ?? 0,
+            })),
+          };
+          return next;
+        });
+      } catch { /* silent */ }
+    }
+    const reload = () => WX_CITIES.forEach((_, i) => loadOne(i));
+    reload();
+    const id = setInterval(reload, 15 * 60 * 1000);
+    return () => { cancelled = true; clearInterval(id); };
+  }, []);
+
+  return all;
+}
+
+function CzechWeatherWidget() {
+  const [idx, setIdx] = useState(0);
+  const [dir, setDir] = useState<'left' | 'right'>('left');
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const all = useAllCityWeather();
+  const city = WX_CITIES[idx];
+  const w = all[idx];
+
+  // Reset and restart the 5-second auto-advance
+  const resetTimer = () => {
+    if (timerRef.current) clearInterval(timerRef.current);
+    timerRef.current = setInterval(() => {
+      setDir('left');
+      setIdx((i) => (i + 1) % WX_CITIES.length);
+    }, 5000);
+  };
+
+  useEffect(() => {
+    resetTimer();
+    return () => { if (timerRef.current) clearInterval(timerRef.current); };
+  }, []);
+
+  const prev = () => { setDir('right'); setIdx((i) => (i - 1 + WX_CITIES.length) % WX_CITIES.length); resetTimer(); };
+  const next = () => { setDir('left');  setIdx((i) => (i + 1) % WX_CITIES.length); resetTimer(); };
+
+  return (
+    <div className="wx-card">
+      {/* City + nav row */}
+      <div className="wx-header">
+        <button className="wx-nav-btn" onClick={prev} aria-label="Thành phố trước">‹</button>
+        <span className="wx-city" key={`city-${idx}`} style={{ animation: `wx-slide-${dir} .35s ease` }}>
+          {city.flag}{city.label}
+        </span>
+        <button className="wx-nav-btn" onClick={next} aria-label="Thành phố tiếp">›</button>
+      </div>
+
+      {/* Sliding content keyed to idx so animation re-triggers on change */}
+      <div key={idx} className={`wx-slide wx-slide--${dir}`}>
+        {!w ? (
+          <div className="wx-loading" style={{ padding: '18px 0' }}>Đang tải…</div>
+        ) : (
+          <>
+            <div className="wx-current">
+              <div className="wx-current-main">
+                <WxIcon code={w.code} isDay={w.isDay} size={56} />
+                <div className="wx-temp">{w.temp}°C</div>
+              </div>
+              <div className="wx-current-details">
+                <div className="wx-desc">{wmoDesc(w.code)}</div>
+                <div className="wx-feels">Cảm giác {w.feelsLike}°C</div>
+              </div>
+            </div>
+            <div className="wx-forecast">
+              {w.forecast.map((d) => {
+                const day = VI_DAYS[new Date(d.date + 'T12:00:00').getDay()];
+                return (
+                  <div className="wx-day" key={d.date}>
+                    <span className="wx-day-name">{day}</span>
+                    <span className="wx-day-emoji"><WxIcon code={d.code} size={28} /></span>
+                    <span className="wx-day-temps"><b>{d.max}°</b><span>{d.min}°</span></span>
+                    {d.precip > 20 && <span className="wx-precip">💧{d.precip}%</span>}
+                  </div>
+                );
+              })}
+            </div>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
 // ─── newsletter widget ────────────────────────────────────────────────────────
 
 function NewsletterWidget() {
@@ -167,7 +427,7 @@ function CommunityWidget({ events }: { events: Event[] }) {
 // ─── EU countries band ────────────────────────────────────────────────────────
 
 const EU_COUNTRY_ORDER = [
-  { slug: 'cong-hoa-sec', name: 'Cộng hòa Séc', flagClass: 'flag-cz' },
+  { slug: 'cong-hoa-sec', name: 'Cộng hòa Czech', flagClass: 'flag-cz' },
   { slug: 'slovakia', name: 'Slovakia', flagClass: 'flag-sk' },
   { slug: 'ba-lan', name: 'Ba Lan', flagClass: 'flag-pl' },
   { slug: 'duc', name: 'Đức', flagClass: 'flag-de' },
@@ -181,7 +441,7 @@ function HomepageContent({ data }: { data: HomepagePayload }) {
 
   const tickerItems = data.breakingNews.length
     ? data.breakingNews.map((a) => a.title)
-    : ['Vietjet Air mở đường bay Praha – Hà Nội hai chuyến mỗi tuần từ tháng 10','Cộng hòa Séc là điểm đến du lịch tăng trưởng nhanh nhất châu Âu','Luật Bảo vệ dữ liệu cá nhân của Việt Nam chính thức có hiệu lực','Doanh nghiệp Việt tại Séc mở rộng chuỗi bán lẻ sang Đức và Ba Lan'];
+    : ['Vietjet Air mở đường bay Praha – Hà Nội hai chuyến mỗi tuần từ tháng 10','Cộng hòa Czech là điểm đến du lịch tăng trưởng nhanh nhất châu Âu','Luật Bảo vệ dữ liệu cá nhân của Việt Nam chính thức có hiệu lực','Doanh nghiệp Việt tại Séc mở rộng chuỗi bán lẻ sang Đức và Ba Lan'];
 
   const hero = data.featured;
   const mostRead = data.mostRead.slice(0, 5);
@@ -226,6 +486,9 @@ function HomepageContent({ data }: { data: HomepagePayload }) {
                     </div>
                   </div>
                 ))}
+                <div className="side-newsletter animate-in" style={{ animationDelay: '400ms' }}>
+                  <CzechWeatherWidget />
+                </div>
               </div>
             </div>
           </div>
@@ -328,7 +591,7 @@ function HomepageContent({ data }: { data: HomepagePayload }) {
 
 const FALLBACK_TICKER = [
   'Vietjet Air mở đường bay Praha – Hà Nội hai chuyến mỗi tuần từ tháng 10',
-  'Cộng hòa Séc là điểm đến du lịch tăng trưởng nhanh nhất châu Âu',
+  'Cộng hòa Czech là điểm đến du lịch tăng trưởng nhanh nhất châu Âu',
   'Luật Bảo vệ dữ liệu cá nhân của Việt Nam chính thức có hiệu lực',
   'Doanh nghiệp Việt tại Séc mở rộng chuỗi bán lẻ sang Đức và Ba Lan',
 ];
@@ -379,18 +642,8 @@ function Router() {
         <Route path="/danh-muc/:slug" component={CategoryPage} />
         <Route path="/khu-vuc/:slug" component={CountryPage} />
         <Route path="/tim-kiem" component={SearchPage} />
-        <Route path="/dang-ky/thanh-vien" component={() => (
-          <GoogleFormPage
-            title="Đăng ký thành viên"
-            formUrl="https://docs.google.com/forms/d/1Ny4iXisVr1z2jvoWRnIYXX5gH4QAD6PSNQzqluf4_-0/viewform?embedded=true"
-          />
-        )} />
-        <Route path="/dang-ky/tai-tro" component={() => (
-          <GoogleFormPage
-            title="Đăng ký tài trợ"
-            formUrl="https://docs.google.com/forms/d/1xu9W4TxtlXe70_9ZKc3eLkfUtG9sqRLat1mvNX-6EpQ/viewform?embedded=true"
-          />
-        )} />
+        <Route path="/dang-ky/thanh-vien" component={MemberRegistrationPage} />
+        <Route path="/dang-ky/tai-tro" component={SponsorRegistrationPage} />
         <Route path="/su-kien" component={EventsPage} />
         <Route path="/gioi-thieu/thong-tin-ve-hoi" component={AboutPage} />
         <Route path="/gioi-thieu/lien-he" component={ContactPage} />
@@ -408,10 +661,11 @@ function RoutedErrorBoundary({ children }: { children: ReactNode }) {
 }
 
 function App() {
+  const base = (import.meta.env.BASE_URL || '').replace(/\/$/, '');
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, '')}>
+        <WouterRouter base={base}>
           <Router />
         </WouterRouter>
         <Toaster />
