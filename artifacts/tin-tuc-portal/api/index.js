@@ -663,6 +663,113 @@ app.get(["/api/admin/newsletter", "/admin/newsletter"], async (req, res) => {
 app.get(["/api/admin/media", "/admin/media"], (_req, res) => {
   res.json([]);
 });
+app.post(["/api/admin/media/upload", "/admin/media/upload"], (_req, res) => {
+  // Mock upload response
+  res.json({ url: "https://via.placeholder.com/600x400.png?text=Uploaded+Image", path: "mock-path" });
+});
+app.delete(["/api/admin/media/uploads/:id", "/admin/media/uploads/:id"], (_req, res) => {
+  res.json({ success: true });
+});
+
+// Events CRUD
+app.post(["/api/admin/events", "/admin/events"], async (req, res) => {
+  try {
+    const { title, slug, summary, content, coverImage, startDate, endDate, location, isOnline, registrationLink, eventType } = req.body;
+    const result = await query(`
+      INSERT INTO events (title, slug, summary, content, cover_image, start_date, end_date, location, is_online, registration_link, event_type)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) RETURNING *
+    `, [title, slug, summary, content, coverImage, startDate, endDate || null, location || null, isOnline || false, registrationLink || null, eventType || 'community']);
+    res.json(result.rows[0]);
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+app.patch(["/api/admin/events/:id", "/admin/events/:id"], async (req, res) => {
+  try {
+    const { title, slug, summary, content, coverImage, startDate, endDate, location, isOnline, registrationLink, eventType, status } = req.body;
+    const result = await query(`
+      UPDATE events SET title=$1, slug=$2, summary=$3, content=$4, cover_image=$5, start_date=$6, end_date=$7, location=$8, is_online=$9, registration_link=$10, event_type=$11, status=$12, updated_at=NOW()
+      WHERE id=$13 RETURNING *
+    `, [title, slug, summary, content, coverImage, startDate, endDate || null, location || null, isOnline || false, registrationLink || null, eventType || 'community', status || 'draft', req.params.id]);
+    res.json(result.rows[0]);
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+app.delete(["/api/admin/events/:id", "/admin/events/:id"], async (req, res) => {
+  try {
+    await query("DELETE FROM events WHERE id=$1", [req.params.id]);
+    res.json({ success: true });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// Contacts CRUD
+app.patch(["/api/admin/contacts/:id/read", "/admin/contacts/:id/read"], async (req, res) => {
+  try {
+    await query("UPDATE contact_submissions SET is_read=true WHERE id=$1", [req.params.id]);
+    res.json({ success: true });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+app.delete(["/api/admin/contacts/:id", "/admin/contacts/:id"], async (req, res) => {
+  try {
+    await query("DELETE FROM contact_submissions WHERE id=$1", [req.params.id]);
+    res.json({ success: true });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// Registrations CRUD
+app.patch(["/api/admin/registrations/:type/:id/read", "/admin/registrations/:type/:id/read"], async (req, res) => {
+  try {
+    const table = req.params.type === 'members' ? 'member_registrations' : 'sponsor_registrations';
+    await query(`UPDATE ${table} SET is_read=true WHERE id=$1`, [req.params.id]);
+    res.json({ success: true });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+app.delete(["/api/admin/registrations/:type/:id", "/admin/registrations/:type/:id"], async (req, res) => {
+  try {
+    const table = req.params.type === 'members' ? 'member_registrations' : 'sponsor_registrations';
+    await query(`DELETE FROM ${table} WHERE id=$1`, [req.params.id]);
+    res.json({ success: true });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// Banners CRUD
+app.post(["/api/admin/banners", "/admin/banners"], async (req, res) => {
+  try {
+    const { title, imageUrl, linkUrl, position, active } = req.body;
+    const result = await query(`
+      INSERT INTO ad_banners (title, image_url, link_url, position, active)
+      VALUES ($1, $2, $3, $4, $5) RETURNING *
+    `, [title, imageUrl, linkUrl || null, position, active ?? true]);
+    res.json(result.rows[0]);
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+app.patch(["/api/admin/banners/:id", "/admin/banners/:id"], async (req, res) => {
+  try {
+    const { title, imageUrl, linkUrl, position, active } = req.body;
+    const result = await query(`
+      UPDATE ad_banners SET title=$1, image_url=$2, link_url=$3, position=$4, active=$5 WHERE id=$6 RETURNING *
+    `, [title, imageUrl, linkUrl || null, position, active, req.params.id]);
+    res.json(result.rows[0]);
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+app.delete(["/api/admin/banners/:id", "/admin/banners/:id"], async (req, res) => {
+  try {
+    await query("DELETE FROM ad_banners WHERE id=$1", [req.params.id]);
+    res.json({ success: true });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// Newsletter CRUD
+app.patch(["/api/admin/newsletter/:id", "/admin/newsletter/:id"], async (req, res) => {
+  try {
+    const { active } = req.body;
+    const result = await query("UPDATE newsletter_subscribers SET active=$1 WHERE id=$2 RETURNING *", [active, req.params.id]);
+    res.json(result.rows[0]);
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+app.delete(["/api/admin/newsletter/:id", "/admin/newsletter/:id"], async (req, res) => {
+  try {
+    await query("DELETE FROM newsletter_subscribers WHERE id=$1", [req.params.id]);
+    res.json({ success: true });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
 
 app.post(["/api/admin/ai/translate", "/admin/ai/translate"], async (req, res) => {
   try {
