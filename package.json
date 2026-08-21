@@ -3,7 +3,8 @@
   "version": "0.0.0",
   "license": "MIT",
   "scripts": {
-    "build": "pnpm run typecheck && pnpm -r --if-present run build",
+    "build": "pnpm --filter @workspace/tin-tuc-portal run build && node -e \"const fs=require('fs'); fs.cpSync('artifacts/tin-tuc-portal/dist/public', 'public', {recursive:true}); fs.cpSync('artifacts/tin-tuc-portal/dist/public', 'dist', {recursive:true});\"",
+    "dev": "pnpm --filter @workspace/tin-tuc-portal run dev",
     "typecheck:libs": "tsc --build",
     "typecheck": "pnpm run typecheck:libs && pnpm -r --filter \"./artifacts/**\" --filter \"./scripts\" --if-present run typecheck"
   },

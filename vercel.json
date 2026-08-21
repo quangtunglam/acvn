@@ -1,8 +1,7 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "buildCommand": "pnpm --filter @workspace/tin-tuc-portal run build",
-  "outputDirectory": "artifacts/tin-tuc-portal/dist/public",
-  "framework": "vite",
+  "buildCommand": "pnpm build",
+  "outputDirectory": "public",
   "rewrites": [
     {
       "source": "/(.*)",
