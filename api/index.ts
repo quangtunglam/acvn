@@ -1,6 +1,6 @@
 import express, { type Request, type Response, type NextFunction, type Express } from "express";
 import cors from "cors";
-import rawSeed from "../artifacts/api-server/src/seed/seed-data.json" with { type: "json" };
+import rawSeed from "./seed-data.json";
 
 const app: Express = express();
 
