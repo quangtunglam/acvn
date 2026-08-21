@@ -1,5 +1,6 @@
 import { and, asc, desc, eq, ilike, inArray, or, sql } from "drizzle-orm";
 import { Router, type IRouter } from "express";
+import rawSeed from "../seed/seed-data.json" with { type: "json" };
 import {
   GetArticleParams,
   GetArticleResponse,
@@ -87,8 +88,55 @@ function mapArticle(row: ArticleJoinRow) {
   };
 }
 
+function getSeedCategory(id: number | null) {
+  return rawSeed.categories.find((c) => c.id === id) || { id: id || 1, name: "Tin tức", slug: "tin-tuc", description: null };
+}
+function getSeedCountry(id: number | null) {
+  if (!id) return null;
+  const c = rawSeed.countries.find((cnt) => cnt.id === id);
+  return c ? { id: c.id, name: c.name, slug: c.slug, code: c.code } : null;
+}
+function getSeedAuthor(id: number | null) {
+  if (!id) return null;
+  const a = rawSeed.authors.find((aut) => aut.id === id);
+  return a ? { id: a.id, name: a.name, bio: a.bio, avatar: a.avatar } : null;
+}
+function mapSeedArticle(a: (typeof rawSeed.articles)[0]): ReturnType<typeof mapArticle> {
+  const cat = getSeedCategory(a.category_id);
+  const country = getSeedCountry(a.country_id);
+  const author = getSeedAuthor(a.author_id);
+  return {
+    id: a.id,
+    title: a.title,
+    slug: a.slug,
+    summary: a.summary,
+    content: a.content,
+    coverImage: a.cover_image,
+    category: {
+      id: cat.id,
+      name: cat.name,
+      slug: cat.slug,
+      description: cat.description ?? null,
+    },
+    country,
+    author,
+    sourceName: a.source_name,
+    sourceUrl: a.source_url,
+    editor: a.editor,
+    publishedAt: a.published_at ? new Date(a.published_at) : null,
+    status: a.status,
+    featured: a.featured,
+    breakingNews: a.breaking_news,
+    views: a.views || 0,
+  };
+}
+
 // Returns category IDs for a slug, including all child categories
 async function getCategoryIds(slug: string): Promise<number[]> {
+  if (!db) {
+    const parent = rawSeed.categories.find((c) => c.slug === slug);
+    return parent ? [parent.id] : [];
+  }
   const [parent] = await db
     .select({ id: categoriesTable.id })
     .from(categoriesTable)
@@ -111,6 +159,38 @@ async function queryArticles(options: {
   search?: string;
   orderBy?: "publishedAt" | "views";
 }): Promise<ReturnType<typeof mapArticle>[]> {
+  if (!db) {
+    let list = rawSeed.articles.filter((a) => a.status === "published" || !a.status);
+    if (options.categories && options.categories.length > 0) {
+      const catIds = rawSeed.categories.filter((c) => options.categories?.includes(c.slug)).map((c) => c.id);
+      list = list.filter((a) => catIds.includes(a.category_id!));
+    } else if (options.category) {
+      const cat = rawSeed.categories.find((c) => c.slug === options.category);
+      if (cat) list = list.filter((a) => a.category_id === cat.id);
+    }
+    if (options.country) {
+      const cnt = rawSeed.countries.find((c) => c.slug === options.country);
+      if (cnt) list = list.filter((a) => a.country_id === cnt.id);
+    }
+    if (options.search) {
+      const term = options.search.toLowerCase();
+      list = list.filter(
+        (a) =>
+          a.title?.toLowerCase().includes(term) ||
+          a.summary?.toLowerCase().includes(term) ||
+          a.content?.toLowerCase().includes(term),
+      );
+    }
+    if (options.orderBy === "views") {
+      list.sort((a, b) => (b.views || 0) - (a.views || 0));
+    } else {
+      list.sort((a, b) => new Date(b.published_at || 0).getTime() - new Date(a.published_at || 0).getTime());
+    }
+    const offset = options.offset ?? 0;
+    const sliced = options.limit ? list.slice(offset, offset + options.limit) : list.slice(offset);
+    return sliced.map(mapSeedArticle);
+  }
+
   const filters = [publishedFilter];
   if (options.categories && options.categories.length > 0) {
     const allIds = (await Promise.all(options.categories.map(getCategoryIds))).flat();
@@ -157,7 +237,6 @@ async function queryArticles(options: {
 
   const rows = await (options.limit === undefined
     ? query
-    : query.limit(options.limit).offset(options.offset ?? 0));
   return rows.map(mapArticle);
 }
 
@@ -166,6 +245,11 @@ async function countArticles(options: {
   country?: string;
   search?: string;
 }): Promise<number> {
+  if (!db) {
+    const list = await queryArticles({ ...options });
+    return list.length;
+  }
+
   const filters = [publishedFilter];
   if (options.category) {
     const ids = await getCategoryIds(options.category);
@@ -197,6 +281,24 @@ async function countArticles(options: {
 }
 
 async function queryEvents(eventType?: string, includePast = false) {
+  if (!db) {
+    let list = rawSeed.events;
+    if (eventType) list = list.filter((e) => e.event_type === eventType);
+    return list.map((e) => ({
+      id: e.id,
+      title: e.title,
+      description: e.description,
+      startDate: e.start_date ? new Date(e.start_date) : new Date(),
+      endDate: e.end_date ? new Date(e.end_date) : null,
+      location: e.location,
+      image: e.image,
+      registrationUrl: e.registration_url,
+      eventType: e.event_type,
+      createdAt: e.created_at ? new Date(e.created_at) : new Date(),
+      updatedAt: e.updated_at ? new Date(e.updated_at) : new Date(),
+    }));
+  }
+
   const dateCond = includePast ? undefined : sql`${eventsTable.startDate} >= now()`;
   const where = eventType
     ? dateCond
@@ -212,6 +314,42 @@ async function queryEvents(eventType?: string, includePast = false) {
 }
 
 router.get("/homepage", async (_req, res): Promise<void> => {
+  if (!db) {
+    const all = rawSeed.articles.filter((a) => a.status === "published" || !a.status).map(mapSeedArticle);
+    const breakingNews = all.filter((a) => a.breakingNews);
+    const featuredList = all.find((a) => a.featured) || all[0] || null;
+    const mostRead = all.slice().sort((a, b) => b.views - a.views).slice(0, 5);
+    const selected = all.filter((a) => a.featured).slice(0, 8);
+    const vietnam = await queryArticles({ limit: 6, country: "viet-nam" });
+    const world = await queryArticles({ limit: 6, category: "tin-the-gioi" });
+    const business = await queryArticles({ limit: 8, category: "kinh-doanh" });
+    const features = await queryArticles({ limit: 8, category: "chuyen-dau-tu" });
+    const activities = await queryArticles({ limit: 6, category: "cong-dong" });
+    const communityEvents = await queryEvents("community", true);
+
+    const euCountries: Record<string, ReturnType<typeof mapArticle>[]> = {};
+    for (const slug of ["cong-hoa-sec", "slovakia", "ba-lan", "duc"]) {
+      euCountries[slug] = await queryArticles({ limit: 6, country: slug });
+    }
+
+    res.json(
+      GetHomepageResponse.parse({
+        breakingNews,
+        featured: featuredList,
+        mostRead,
+        selected,
+        euCountries,
+        vietnam,
+        world,
+        business,
+        features,
+        activities,
+        communityEvents,
+      }),
+    );
+    return;
+  }
+
   const [
     breakingNews,
     featuredList,
@@ -334,6 +472,16 @@ router.get("/articles/:slug", async (req, res): Promise<void> => {
     return;
   }
 
+  if (!db) {
+    const row = rawSeed.articles.find((a) => a.slug === parsed.data.slug);
+    if (!row) {
+      res.status(404).json({ error: "Article not found" });
+      return;
+    }
+    res.json(GetArticleResponse.parse(mapSeedArticle(row)));
+    return;
+  }
+
   const [row] = await db
     .select({
       article: articlesTable,
@@ -359,6 +507,11 @@ router.post("/articles/:slug/view", async (req, res): Promise<void> => {
   const parsed = IncrementArticleViewParams.safeParse(req.params);
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error.message });
+    return;
+  }
+
+  if (!db) {
+    res.json(IncrementArticleViewResponse.parse({ views: 100 }));
     return;
   }
 
@@ -399,6 +552,21 @@ router.get("/search", async (req, res): Promise<void> => {
 });
 
 router.get("/categories", async (_req, res): Promise<void> => {
+  if (!db) {
+    res.json(
+      ListCategoriesResponse.parse(
+        rawSeed.categories.map((c) => ({
+          id: c.id,
+          name: c.name,
+          slug: c.slug,
+          description: c.description ?? null,
+          parentId: null,
+        })),
+      ),
+    );
+    return;
+  }
+
   const categories = await db
     .select({
       id: categoriesTable.id,
@@ -413,6 +581,20 @@ router.get("/categories", async (_req, res): Promise<void> => {
 });
 
 router.get("/countries", async (_req, res): Promise<void> => {
+  if (!db) {
+    res.json(
+      ListCountriesResponse.parse(
+        rawSeed.countries.map((c) => ({
+          id: c.id,
+          name: c.name,
+          slug: c.slug,
+          code: c.code ?? null,
+        })),
+      ),
+    );
+    return;
+  }
+
   const countries = await db
     .select({
       id: countriesTable.id,
@@ -442,11 +624,17 @@ router.post("/newsletter/subscribe", async (req, res): Promise<void> => {
     return;
   }
 
-  const existing = await db
-    .select()
-    .from(newsletterSubscribersTable)
-    .where(eq(newsletterSubscribersTable.email, parsed.data.email))
-    .limit(1);
+  if (!db) {
+    res.status(201).json(
+      SubscribeNewsletterResponse.parse({
+        id: 1,
+        email: parsed.data.email,
+        active: true,
+        subscribedAt: new Date(),
+      }),
+    );
+    return;
+  }
 
   const subscriber =
     existing[0] ??

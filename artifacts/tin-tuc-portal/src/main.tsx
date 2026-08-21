@@ -6,8 +6,8 @@ import { ErrorBoundary } from '@/components/error-boundary';
 
 import './index.css';
 
-// Set API base URL to Replit backend or custom environment variable
-const apiBase = import.meta.env.VITE_API_URL || 'https://news-site-builder--quangtunglam.replit.app';
+// Use relative /api (Vercel Serverless Function) or custom VITE_API_URL if provided
+const apiBase = import.meta.env.VITE_API_URL || '';
 setBaseUrl(apiBase);
 
 createRoot(document.getElementById('root')!, {

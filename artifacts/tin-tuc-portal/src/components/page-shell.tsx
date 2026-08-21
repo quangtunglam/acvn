@@ -21,7 +21,7 @@ function useExchangeRates(intervalMs = 30 * 60 * 1000) {
     async function load() {
       try {
         // frankfurter.app: ECB rates, free, no key
-        const apiBase = import.meta.env.VITE_API_URL || 'https://news-site-builder--quangtunglam.replit.app';
+        const apiBase = import.meta.env.VITE_API_URL || '';
         const res = await fetch(`${apiBase}/api/forex`);
         if (!res.ok) return;
         const j = await res.json() as { usd: number; eur: number };

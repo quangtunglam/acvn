@@ -17,15 +17,17 @@ router.post('/register/member', async (req: Request, res: Response): Promise<voi
     res.status(400).json({ error: 'Địa chỉ email không hợp lệ.' });
     return;
   }
-  await db.insert(memberRegistrationsTable).values({
-    fullName: fullName.trim(),
-    email: email.trim(),
-    dateOfBirth: dateOfBirth?.trim() || null,
-    address: address?.trim() || null,
-    phone: phone?.trim() || null,
-    occupation: occupation?.trim() || null,
-    notes: notes?.trim() || null,
-  });
+  if (db) {
+    await db.insert(memberRegistrationsTable).values({
+      fullName: fullName.trim(),
+      email: email.trim(),
+      dateOfBirth: dateOfBirth?.trim() || null,
+      address: address?.trim() || null,
+      phone: phone?.trim() || null,
+      occupation: occupation?.trim() || null,
+      notes: notes?.trim() || null,
+    });
+  }
   res.json({ ok: true });
 });
 
@@ -39,15 +41,17 @@ router.post('/register/sponsor', async (req: Request, res: Response): Promise<vo
     res.status(400).json({ error: 'Địa chỉ email không hợp lệ.' });
     return;
   }
-  await db.insert(sponsorRegistrationsTable).values({
-    orgName: orgName.trim(),
-    email: email.trim(),
-    representative: representative?.trim() || null,
-    phone: phone?.trim() || null,
-    sponsorType: sponsorType?.trim() || null,
-    details: details?.trim() || null,
-    notes: notes?.trim() || null,
-  });
+  if (db) {
+    await db.insert(sponsorRegistrationsTable).values({
+      orgName: orgName.trim(),
+      email: email.trim(),
+      representative: representative?.trim() || null,
+      phone: phone?.trim() || null,
+      sponsorType: sponsorType?.trim() || null,
+      details: details?.trim() || null,
+      notes: notes?.trim() || null,
+    });
+  }
   res.json({ ok: true });
 });
 
