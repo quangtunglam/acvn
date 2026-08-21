@@ -493,11 +493,31 @@ function getMockResponse(urlStr: string, method: string): unknown {
     }
 
     if (path.includes("/api/admin/articles") || path.includes("/admin/articles")) {
+      let list = rawSeed.articles.map(mapArt);
+      const catId = url.searchParams.get("categoryId");
+      const status = url.searchParams.get("status");
+      const feed = url.searchParams.get("sourceName");
+      const rssOnly = url.searchParams.get("rssOnly");
+      const date = url.searchParams.get("date");
+      
+      if (catId) list = list.filter(a => a.category.id === Number(catId));
+      if (status) list = list.filter(a => a.status === status);
+      if (feed) list = list.filter(a => a.sourceName === feed);
+      if (rssOnly === "1") list = list.filter(a => a.sourceName && a.sourceUrl);
+      if (date === "today") {
+        const today = new Date().toDateString();
+        list = list.filter(a => a.publishedAt && new Date(a.publishedAt).toDateString() === today);
+      }
+      
+      const page = Number(url.searchParams.get("page") || 1);
+      const pageSize = Number(url.searchParams.get("pageSize") || 20);
+      const start = (page - 1) * pageSize;
+
       return {
-        items: rawSeed.articles.slice(0, 20).map(mapArt),
-        total: rawSeed.articles.length,
-        page: 1,
-        pageSize: 20,
+        items: list.slice(start, start + pageSize),
+        total: list.length,
+        page,
+        pageSize,
       };
     }
 
