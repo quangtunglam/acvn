@@ -492,7 +492,7 @@ function getMockResponse(urlStr: string, method: string): unknown {
       return { contacts: 0, members: 0, sponsors: 0 };
     }
 
-    if (path.includes("/api/admin/articles")) {
+    if (path.includes("/api/admin/articles") || path.includes("/admin/articles")) {
       return {
         items: rawSeed.articles.slice(0, 20).map(mapArt),
         total: rawSeed.articles.length,
@@ -501,7 +501,31 @@ function getMockResponse(urlStr: string, method: string): unknown {
       };
     }
 
-    if (method === "POST") {
+    if (path.includes("/api/admin/contacts") || path.includes("/contacts")) {
+      return [];
+    }
+
+    if (path.includes("/api/admin/registrations") || path.includes("/registrations")) {
+      return [];
+    }
+
+    if (path.includes("/api/admin/newsletter/subscribers") || path.includes("/newsletter/subscribers")) {
+      return [];
+    }
+
+    if (path.includes("/api/admin/newsletter/campaigns") || path.includes("/newsletter/campaigns")) {
+      return [];
+    }
+
+    if (path.includes("/api/admin/banners") || path.includes("/banners")) {
+      return [];
+    }
+
+    if (path.includes("/api/admin/media") || path.includes("/media")) {
+      return [];
+    }
+
+    if (method === "POST" || method === "PATCH" || method === "DELETE") {
       return { ok: true };
     }
   } catch {
