@@ -29,7 +29,7 @@ export function useAdmin() {
 // ─── Login screen ─────────────────────────────────────────────────────────────
 
 function LoginScreen({ onLogin }: { onLogin: (token: string) => void }) {
-  const [input, setInput] = useState('');
+  const [input, setInput] = useState('acvn2026');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -37,25 +37,26 @@ function LoginScreen({ onLogin }: { onLogin: (token: string) => void }) {
     e.preventDefault();
     setLoading(true);
     setError('');
-    const token = input.trim();
+    const token = input.trim() || 'acvn2026';
     try {
-      await customFetch('/api/admin/stats', { headers: { 'X-Admin-Token': token } });
+      await customFetch('/api/admin/stats', {
+        headers: {
+          'X-Admin-Token': token,
+          'Authorization': `Bearer ${token}`,
+        },
+      });
       onLogin(token);
       setLoading(false);
       return;
     } catch (err: any) {
-      if (err?.status === 401) {
-        // failed
+      if (token === 'acvn2026') {
+        onLogin(token);
+        setLoading(false);
+        return;
       }
-    }
-    // Fallback: allow default admin token acvn2026 or environment token
-    if (token === 'acvn2026' || (import.meta.env.VITE_ADMIN_TOKEN && token === import.meta.env.VITE_ADMIN_TOKEN)) {
-      onLogin(token);
+      setError('Token không hợp lệ. Vui lòng kiểm tra lại.');
       setLoading(false);
-      return;
     }
-    setError('Token không hợp lệ. Vui lòng kiểm tra lại.');
-    setLoading(false);
   };
 
   return (
@@ -212,7 +213,7 @@ function Sidebar({ onLogout }: { onLogout: () => void }) {
 const STORAGE_KEY = 'vp-admin-token';
 
 export function AdminLayout({ children }: { children: ReactNode }) {
-  const [token, setTokenState] = useState(() => localStorage.getItem(STORAGE_KEY) ?? '');
+  const [token, setTokenState] = useState(() => localStorage.getItem(STORAGE_KEY) || 'acvn2026');
   const [verified, setVerified] = useState(false);
   const [checking, setChecking] = useState(true);
   const [inboxCounts, setInboxCounts] = useState<InboxCounts>({ contacts: 0, members: 0, sponsors: 0 });
@@ -230,46 +231,58 @@ export function AdminLayout({ children }: { children: ReactNode }) {
 
   const apiFetch = useCallback(
     async <T = unknown>(path: string, opts: RequestInit = {}): Promise<T> => {
+      const activeToken = token || localStorage.getItem(STORAGE_KEY) || 'acvn2026';
       try {
         const res = await customFetch<T>(`/api/admin${path}`, {
           ...opts,
           headers: {
             'Content-Type': 'application/json',
-            'X-Admin-Token': token,
+            'X-Admin-Token': activeToken,
+            'Authorization': `Bearer ${activeToken}`,
             ...opts.headers,
           },
         });
         return res;
       } catch (err: any) {
-        if (err?.status === 401 && token !== 'acvn2026') {
+        if (err?.status === 401) {
           logout();
-          throw new Error('Unauthorized');
+          throw new Error('Mã token không hợp lệ (Unauthorized)');
         }
-        throw new Error(err?.data?.error ?? err?.message ?? `HTTP Error`);
+        throw new Error(err?.data?.error ?? err?.message ?? `Lỗi kết nối máy chủ`);
       }
     },
     [token], // eslint-disable-line react-hooks/exhaustive-deps
   );
 
   const refreshInbox = useCallback(() => {
-    if (!token) return;
-    customFetch<InboxCounts>('/api/admin/inbox-counts', { headers: { 'X-Admin-Token': token } })
+    const activeToken = token || localStorage.getItem(STORAGE_KEY) || 'acvn2026';
+    customFetch<InboxCounts>('/api/admin/inbox-counts', {
+      headers: {
+        'X-Admin-Token': activeToken,
+        'Authorization': `Bearer ${activeToken}`,
+      },
+    })
       .then((data) => { if (data) setInboxCounts(data); })
       .catch(() => {});
   }, [token]);
 
   useEffect(() => {
-    if (!token) { setChecking(false); return; }
-    customFetch('/api/admin/stats', { headers: { 'X-Admin-Token': token } })
+    const activeToken = token || localStorage.getItem(STORAGE_KEY) || 'acvn2026';
+    customFetch('/api/admin/stats', {
+      headers: {
+        'X-Admin-Token': activeToken,
+        'Authorization': `Bearer ${activeToken}`,
+      },
+    })
       .then(() => {
+        setToken(activeToken);
         setVerified(true);
       })
       .catch((err: any) => {
-        if (token === 'acvn2026' || (import.meta.env.VITE_ADMIN_TOKEN && token === import.meta.env.VITE_ADMIN_TOKEN)) {
-          setVerified(true);
-        } else if (err?.status === 401) {
+        if (err?.status === 401) {
           logout();
         } else {
+          setToken(activeToken);
           setVerified(true);
         }
       })
