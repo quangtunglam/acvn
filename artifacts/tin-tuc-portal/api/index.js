@@ -467,6 +467,14 @@ app.post(["/api/admin/ai/suggest", "/admin/ai/suggest"], (req, res) => {
     suggestedSlug: slugify(topic || "tin-tuc-moi"),
     status: "draft",
   });
+app.all("*", (req, res) => {
+  res.status(404).json({ 
+    error: "Route not found", 
+    method: req.method, 
+    url: req.url, 
+    originalUrl: req.originalUrl,
+    path: req.path
+  });
 });
 
 export default app;
