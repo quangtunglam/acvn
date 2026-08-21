@@ -68,11 +68,16 @@ function LoginScreen({ onLogin }: { onLogin: (token: string) => void }) {
         background: '#fff', borderRadius: 8, padding: '2.5rem 2rem', width: '100%', maxWidth: 380,
         boxShadow: '0 4px 24px rgba(0,0,0,0.08)',
       }}>
-        <div style={{ marginBottom: '1.5rem', textAlign: 'center' }}>
-          <span style={{ fontSize: '2rem', fontWeight: 900, fontFamily: 'var(--font-sans)', color: 'var(--color-navy)' }}>
-            VietPress<em style={{ color: 'var(--color-crimson)' }}>EU</em>
+        <div style={{ marginBottom: '1.5rem', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          <img
+            src="/logo-hoi.png"
+            alt="ACVN Logo"
+            style={{ height: 60, width: 'auto', objectFit: 'contain', marginBottom: '0.75rem' }}
+          />
+          <span style={{ fontSize: '1.2rem', fontWeight: 800, fontFamily: 'var(--font-sans)', color: 'var(--color-navy)', lineHeight: 1.3 }}>
+            Hội người Czech <em style={{ fontStyle: 'normal', color: 'var(--color-crimson)' }}>gốc Việt Nam</em>
           </span>
-          <p style={{ color: 'var(--color-ink-light)', fontSize: '0.9rem', marginTop: 4 }}>Quản trị nội dung</p>
+          <p style={{ color: 'var(--color-ink-light)', fontSize: '0.85rem', marginTop: 4 }}>Bảng Quản trị Nội dung ACVN</p>
         </div>
         <form onSubmit={handleSubmit}>
           <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: 6, color: 'var(--color-ink)' }}>

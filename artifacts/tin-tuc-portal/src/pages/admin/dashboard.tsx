@@ -106,7 +106,7 @@ export default function AdminDashboard() {
                 Thông tin hệ thống
               </h3>
               <div style={{ fontSize: '0.85rem', color: 'var(--color-ink-light)', display: 'flex', flexDirection: 'column', gap: 4 }}>
-                <span>Phiên bản: VietPress EU 1.0</span>
+                <span>Phiên bản: ACVN Portal 1.0</span>
                 <span>Database: PostgreSQL</span>
                 <span>API: /api</span>
                 <a href="/api/sitemap.xml" target="_blank" style={{ color: 'var(--color-crimson)' }}>Sitemap.xml ↗</a>
