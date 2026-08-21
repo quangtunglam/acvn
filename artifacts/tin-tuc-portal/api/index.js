@@ -467,6 +467,8 @@ app.post(["/api/admin/ai/suggest", "/admin/ai/suggest"], (req, res) => {
     suggestedSlug: slugify(topic || "tin-tuc-moi"),
     status: "draft",
   });
+});
+
 app.all("*", (req, res) => {
   res.status(404).json({ 
     error: "Route not found", 
@@ -478,3 +480,8 @@ app.all("*", (req, res) => {
 });
 
 export default app;
+
+if (process.env.NODE_ENV !== 'production' && !process.env.VERCEL) {
+  const port = 3001;
+  app.listen(port, () => console.log(`API running on http://localhost:${port}`));
+}
