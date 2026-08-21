@@ -427,7 +427,7 @@ function getMockResponse(urlStr: string, method: string): unknown {
       return { items: list.slice(0, 12), total: list.length, page: 1, pageSize: 12 };
     }
 
-    if (path.endsWith("/api/categories") || path === "/api/categories") {
+    if (path.includes("/categories")) {
       return rawSeed.categories.map((c) => ({
         id: c.id,
         name: c.name,
@@ -437,7 +437,7 @@ function getMockResponse(urlStr: string, method: string): unknown {
       }));
     }
 
-    if (path.endsWith("/api/countries") || path === "/api/countries") {
+    if (path.includes("/countries")) {
       return rawSeed.countries.map((c) => ({
         id: c.id,
         name: c.name,
@@ -446,7 +446,20 @@ function getMockResponse(urlStr: string, method: string): unknown {
       }));
     }
 
-    if (path.endsWith("/api/events") || path === "/api/events") {
+    if (path.includes("/authors")) {
+      return rawSeed.authors.map((a) => ({
+        id: a.id,
+        name: a.name,
+        bio: a.bio ?? null,
+        avatar: a.avatar ?? null,
+      }));
+    }
+
+    if (path.includes("/rss/feeds")) {
+      return [];
+    }
+
+    if (path.includes("/events")) {
       return rawSeed.events.map((e) => ({
         id: e.id,
         title: e.title,
@@ -462,11 +475,11 @@ function getMockResponse(urlStr: string, method: string): unknown {
       }));
     }
 
-    if (path.endsWith("/api/forex") || path === "/api/forex") {
+    if (path.includes("/forex")) {
       return { usd: 23.5, eur: 25.2, ts: Date.now() };
     }
 
-    if (path.includes("/api/admin/stats")) {
+    if (path.includes("/admin/stats")) {
       return {
         articles: rawSeed.articles.length,
         categories: rawSeed.categories.length,
@@ -538,15 +551,22 @@ export async function customFetch<T = unknown>(
   try {
     const response = await fetch(input, { ...init, method, headers });
 
-    if (response.ok) {
+    // Detect if Vercel SPA rewrite intercepted our API call by returning HTML
+    const contentType = response.headers.get("content-type") || "";
+    if (response.ok && !contentType.includes("text/html")) {
       return (await parseSuccessBody(response, responseType, requestInfo)) as T;
     }
 
     const fallback = getMockResponse(requestInfo.url, method);
     if (fallback !== null) return fallback as T;
 
-    const errorData = await parseErrorBody(response, method);
-    throw new ApiError(response, errorData, requestInfo);
+    if (!response.ok) {
+      const errorData = await parseErrorBody(response, method);
+      throw new ApiError(response, errorData, requestInfo);
+    }
+    
+    // If it was ok but was HTML and no fallback, just parse it anyway
+    return (await parseSuccessBody(response, responseType, requestInfo)) as T;
   } catch (err) {
     const fallback = getMockResponse(requestInfo.url, method);
     if (fallback !== null) return fallback as T;
