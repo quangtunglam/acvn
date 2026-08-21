@@ -502,9 +502,8 @@ app.post(["/api/admin/rss/ingest-all", "/api/admin/rss/feeds/:id/ingest", "/admi
                 continue;
               }
 
-              const title = item.title || "No Title";
-              const slug = slugify(title) + "-" + Math.random().toString(36).substr(2, 5);
-              const summary = item.contentSnippet?.substring(0, 250) || "";
+              let title = item.title || "No Title";
+              let summary = item.contentSnippet?.substring(0, 250) || "";
               let content = item.content || summary;
               let coverImage = "";
 
@@ -515,6 +514,28 @@ app.post(["/api/admin/rss/ingest-all", "/api/admin/rss/feeds/:id/ingest", "/admi
                 const imgMatch = content.match(/<img[^>]+src="([^">]+)"/);
                 if (imgMatch) coverImage = imgMatch[1];
               }
+
+              // Translate using OpenAI if configured
+              if (process.env.OPENAI_API_KEY) {
+                try {
+                  const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+                  const jsonPrompt = `Dịch các trường sau sang tiếng Việt chuẩn văn phong báo chí. Trả về đúng định dạng JSON với 3 key: "title", "summary", "content". Giữ nguyên HTML.\n\nJSON gốc:\n${JSON.stringify({title, summary, content})}`;
+                  const jsonResponse = await openai.chat.completions.create({
+                    model: "gpt-4o-mini",
+                    messages: [{ role: "user", content: jsonPrompt }],
+                    response_format: { type: "json_object" },
+                    temperature: 0.3,
+                  });
+                  const translatedJson = JSON.parse(jsonResponse.choices[0].message.content || "{}");
+                  if (translatedJson.title) title = translatedJson.title;
+                  if (translatedJson.summary) summary = translatedJson.summary;
+                  if (translatedJson.content) content = translatedJson.content;
+                } catch (aiErr) {
+                  console.error("Lỗi khi dịch AI:", aiErr.message);
+                }
+              }
+
+              const slug = slugify(title) + "-" + Math.random().toString(36).substr(2, 5);
 
               await query(`
                 INSERT INTO articles 
