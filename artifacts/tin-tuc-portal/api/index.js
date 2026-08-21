@@ -353,6 +353,72 @@ app.get(["/api/admin/authors", "/admin/authors"], async (_req, res) => {
   }
 });
 
+// Categories CRUD
+app.post(["/api/admin/categories", "/admin/categories"], async (req, res) => {
+  try {
+    const { name, slug, description } = req.body;
+    const result = await query("INSERT INTO categories (name, slug, description) VALUES ($1, $2, $3) RETURNING *", [name, slug, description || null]);
+    res.json(result.rows[0]);
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+app.patch(["/api/admin/categories/:id", "/admin/categories/:id"], async (req, res) => {
+  try {
+    const { name, slug, description } = req.body;
+    const result = await query("UPDATE categories SET name=$1, slug=$2, description=$3 WHERE id=$4 RETURNING *", [name, slug, description || null, req.params.id]);
+    res.json(result.rows[0]);
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+app.delete(["/api/admin/categories/:id", "/admin/categories/:id"], async (req, res) => {
+  try {
+    await query("DELETE FROM categories WHERE id=$1", [req.params.id]);
+    res.json({ success: true });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// Countries CRUD
+app.post(["/api/admin/countries", "/admin/countries"], async (req, res) => {
+  try {
+    const { name, slug, code } = req.body;
+    const result = await query("INSERT INTO countries (name, slug, code) VALUES ($1, $2, $3) RETURNING *", [name, slug, code || null]);
+    res.json(result.rows[0]);
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+app.patch(["/api/admin/countries/:id", "/admin/countries/:id"], async (req, res) => {
+  try {
+    const { name, slug, code } = req.body;
+    const result = await query("UPDATE countries SET name=$1, slug=$2, code=$3 WHERE id=$4 RETURNING *", [name, slug, code || null, req.params.id]);
+    res.json(result.rows[0]);
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+app.delete(["/api/admin/countries/:id", "/admin/countries/:id"], async (req, res) => {
+  try {
+    await query("DELETE FROM countries WHERE id=$1", [req.params.id]);
+    res.json({ success: true });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// Authors CRUD
+app.post(["/api/admin/authors", "/admin/authors"], async (req, res) => {
+  try {
+    const { name, bio, avatar } = req.body;
+    const result = await query("INSERT INTO authors (name, bio, avatar) VALUES ($1, $2, $3) RETURNING *", [name, bio || null, avatar || null]);
+    res.json(result.rows[0]);
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+app.patch(["/api/admin/authors/:id", "/admin/authors/:id"], async (req, res) => {
+  try {
+    const { name, bio, avatar } = req.body;
+    const result = await query("UPDATE authors SET name=$1, bio=$2, avatar=$3 WHERE id=$4 RETURNING *", [name, bio || null, avatar || null, req.params.id]);
+    res.json(result.rows[0]);
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+app.delete(["/api/admin/authors/:id", "/admin/authors/:id"], async (req, res) => {
+  try {
+    await query("DELETE FROM authors WHERE id=$1", [req.params.id]);
+    res.json({ success: true });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
 app.get(["/api/admin/events", "/admin/events"], async (_req, res) => {
   try {
     const events = await query("SELECT * FROM events ORDER BY start_date DESC");
