@@ -506,23 +506,19 @@ function getMockResponse(urlStr: string, method: string): unknown {
     }
 
     if (path.includes("/api/admin/registrations") || path.includes("/registrations")) {
-      return { items: [], total: 0, page: 1, pageSize: 20 };
+      return [];
     }
 
-    if (path.includes("/api/admin/newsletter/subscribers") || path.includes("/newsletter/subscribers")) {
-      return { items: [], total: 0, page: 1, pageSize: 20 };
-    }
-
-    if (path.includes("/api/admin/newsletter/campaigns") || path.includes("/newsletter/campaigns")) {
+    if (path.includes("/api/admin/newsletter") || path.includes("/newsletter")) {
       return { items: [], total: 0, page: 1, pageSize: 20 };
     }
 
     if (path.includes("/api/admin/banners") || path.includes("/banners")) {
-      return { items: [], total: 0, page: 1, pageSize: 20 };
+      return [];
     }
 
     if (path.includes("/api/admin/media") || path.includes("/media")) {
-      return { items: [], total: 0, page: 1, pageSize: 20 };
+      return [];
     }
 
     if (method === "POST" || method === "PATCH" || method === "DELETE") {
