@@ -44,6 +44,7 @@ export function UtilityBar() {
   }).format(new Date());
   const fx = useExchangeRates();
   const fmt = (n: number) => n.toLocaleString('cs-CZ', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const [, setLocation] = useLocation();
 
   return (
     <div className="utility">
@@ -66,9 +67,26 @@ export function UtilityBar() {
             </span>
           )}
         </div>
-        <a href="/admin" style={{ color: 'rgba(255,255,255,0.85)', fontSize: '0.75rem', textDecoration: 'none', fontWeight: 600 }}>
+        <button
+          type="button"
+          onClick={() => setLocation('/admin')}
+          style={{
+            background: 'rgba(255,255,255,0.12)',
+            border: '1px solid rgba(255,255,255,0.2)',
+            color: '#ffffff',
+            fontSize: '0.75rem',
+            fontWeight: 700,
+            cursor: 'pointer',
+            padding: '4px 10px',
+            borderRadius: 6,
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 6,
+            transition: 'background 0.2s',
+          }}
+        >
           🔐 Đăng nhập Quản trị
-        </a>
+        </button>
       </div>
     </div>
   );
@@ -79,16 +97,18 @@ export function UtilityBar() {
 export function Masthead() {
   return (
     <header className="masthead">
-      <div className="wrap masthead-inner">
-        {/* Left — logo */}
-        <a className="masthead-logo-wrap" href="/" aria-label="Trang chủ" data-testid="link-logo">
-          <img src="/logo-hoi.png" alt="Logo Hội người Czech gốc Việt Nam" className="masthead-logo-img" />
-        </a>
-
-        {/* Right — stacked names */}
-        <a className="masthead-names" href="/" aria-label="Trang chủ">
-          <span className="masthead-name masthead-name--vi">Hội người Czech gốc Việt Nam</span>
-          <span className="masthead-name masthead-name--cs">Asociace českých občanů vietnamského původu</span>
+      <div className="wrap masthead-content">
+        <a href="/" className="logo-group">
+          <img
+            src="/logo-hoi.png"
+            alt="Logo Hội người Czech gốc Việt Nam"
+            className="logo"
+            data-testid="img-logo"
+          />
+          <div className="org-text">
+            <span className="org-vn">Hội người Czech gốc Việt Nam</span>
+            <span className="org-cz">Asociace Českých občanů Vietnamského původu, z. s.</span>
+          </div>
         </a>
       </div>
     </header>
@@ -132,6 +152,7 @@ const NAV_LINKS: NavItem[] = [
       { label: 'Đăng ký tài trợ', href: '/dang-ky/tai-tro' },
     ],
   },
+  { label: 'Quản trị', href: '/admin' },
 ];
 
 export function Navigation({
