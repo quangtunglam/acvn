@@ -82,6 +82,10 @@
     "@tiptap/extension-youtube": "^3.30.0",
     "@tiptap/pm": "^3.30.0",
     "@tiptap/react": "^3.30.0",
-    "@tiptap/starter-kit": "^3.30.0"
+    "@tiptap/starter-kit": "^3.30.0",
+    "express": "^4.21.2",
+    "pg": "^8.22.0",
+    "cors": "^2.8.6",
+    "rss-parser": "^3.13.0"
   }
 }
