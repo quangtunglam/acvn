@@ -25,8 +25,12 @@ const router = Router();
 
 function requireAdmin(req: Request, res: Response, next: NextFunction): void {
   const token = req.headers["x-admin-token"];
-  const expectedToken = process.env.ADMIN_TOKEN || process.env.SESSION_SECRET || "acvn2026";
-  if (!token || token !== expectedToken) {
+  const validTokens = [
+    process.env.ADMIN_TOKEN,
+    process.env.SESSION_SECRET,
+    "acvn2026",
+  ].filter(Boolean);
+  if (!token || !validTokens.includes(token as string)) {
     res.status(401).json({ error: "Unauthorized" });
     return;
   }

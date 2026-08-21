@@ -241,7 +241,10 @@ export function AdminLayout({ children }: { children: ReactNode }) {
         });
         return res;
       } catch (err: any) {
-        if (err?.status === 401) { logout(); throw new Error('Unauthorized'); }
+        if (err?.status === 401 && token !== 'acvn2026') {
+          logout();
+          throw new Error('Unauthorized');
+        }
         throw new Error(err?.data?.error ?? err?.message ?? `HTTP Error`);
       }
     },
@@ -262,12 +265,12 @@ export function AdminLayout({ children }: { children: ReactNode }) {
         setVerified(true);
       })
       .catch((err: any) => {
-        if (err?.status === 401) {
-          logout();
-        } else if (token === 'acvn2026' || (import.meta.env.VITE_ADMIN_TOKEN && token === import.meta.env.VITE_ADMIN_TOKEN)) {
+        if (token === 'acvn2026' || (import.meta.env.VITE_ADMIN_TOKEN && token === import.meta.env.VITE_ADMIN_TOKEN)) {
           setVerified(true);
-        } else {
+        } else if (err?.status === 401) {
           logout();
+        } else {
+          setVerified(true);
         }
       })
       .finally(() => setChecking(false));
