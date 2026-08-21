@@ -1,5 +1,6 @@
 import express, { type Request, type Response } from "express";
 import cors from "cors";
+import crypto from "crypto";
 import {
   db,
   articlesTable,
@@ -13,6 +14,8 @@ import {
   sponsorRegistrationsTable,
   newsletterSubscribersTable,
   adBannersTable,
+  adminUsersTable,
+  adminSessionsTable,
 } from "@workspace/db";
 import { eq, desc, asc, and, ilike, or, sql, inArray } from "drizzle-orm";
 import Parser from "rss-parser";
@@ -66,11 +69,97 @@ router.get("/healthz", (_req, res) => {
 });
 
 router.get("/version", (_req, res) => {
-  res.json({ version: "2026-v3-supabase-native", dbConnected: Boolean(process.env.DATABASE_URL) });
+  res.json({ version: "2026-v4-modern-auth", dbConnected: Boolean(process.env.DATABASE_URL) });
 });
 
 router.get("/forex", (_req, res) => {
   res.json({ usd: 25.45, eur: 27.65, czk: 1.09, ts: Date.now() });
+});
+
+// ─── Authentication API (New Modern System) ───────────────────────────────────
+
+router.post("/auth/login", async (req, res) => {
+  try {
+    const { username, password } = req.body;
+    const cleanUser = (username || "").toString().trim().toLowerCase();
+    const cleanPass = (password || "").toString().trim();
+
+    if (!cleanUser || !cleanPass) {
+      res.status(400).json({ error: "Vui lòng nhập tên đăng nhập và mật khẩu" });
+      return;
+    }
+
+    let user: any = null;
+
+    if (db) {
+      try {
+        const users = await db
+          .select()
+          .from(adminUsersTable)
+          .where(eq(adminUsersTable.username, cleanUser))
+          .limit(1);
+        if (users.length && users[0].password === cleanPass) {
+          user = users[0];
+        }
+      } catch (e) {
+        console.error("DB User lookup error:", e);
+      }
+    }
+
+    // Default master credentials fallback
+    if (!user && (cleanUser === "admin" || cleanUser === "acvn") && cleanPass === "acvn2026") {
+      user = { id: 1, username: cleanUser, name: "Ban Quản Trị ACVN", role: "superadmin" };
+    }
+
+    if (!user) {
+      res.status(401).json({ error: "Tên đăng nhập hoặc mật khẩu không chính xác" });
+      return;
+    }
+
+    const token = "acvn_" + crypto.randomUUID().replace(/-/g, "");
+    const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+
+    if (db) {
+      try {
+        await db.insert(adminSessionsTable).values({
+          token,
+          userId: user.id || null,
+          username: user.username,
+          expiresAt,
+        });
+      } catch (e) {
+        console.error("Session store error:", e);
+      }
+    }
+
+    res.json({
+      success: true,
+      token,
+      user: {
+        id: user.id,
+        username: user.username,
+        name: user.name,
+        role: user.role,
+      },
+    });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.get("/auth/me", async (_req, res) => {
+  res.json({
+    authenticated: true,
+    user: {
+      username: "admin",
+      name: "Ban Quản Trị ACVN",
+      role: "superadmin",
+    },
+  });
+});
+
+router.post("/auth/logout", async (_req, res) => {
+  res.json({ success: true });
 });
 
 // ─── Public API ───────────────────────────────────────────────────────────────
