@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import crypto from "crypto";
 import Parser from "rss-parser";
+import OpenAI from "openai";
 import { query, pool } from "./db.js";
 
 const app = express();
@@ -605,15 +606,44 @@ app.get(["/api/admin/media", "/admin/media"], (_req, res) => {
   res.json([]);
 });
 
-app.post(["/api/admin/ai/suggest", "/admin/ai/suggest"], (req, res) => {
-  const { topic } = req.body || {};
-  res.json({
-    title: topic ? `Tin tiêu điểm: ${topic}` : "Bản tin cộng đồng người Việt tại Séc",
-    summary: "Tổng hợp các sự kiện và thông tin nổi bật nhất trong tuần.",
-    content: `<p>Nội dung chi tiết về ${topic || "sự kiện cộng đồng"}...</p>`,
-    suggestedSlug: slugify(topic || "tin-tuc-moi"),
-    status: "draft",
-  });
+app.post(["/api/admin/ai/translate", "/admin/ai/translate"], async (req, res) => {
+  try {
+    const { title, summary, content } = req.body;
+    
+    if (!process.env.OPENAI_API_KEY) {
+      return res.status(400).json({ error: "Chưa cấu hình OPENAI_API_KEY trong file .env" });
+    }
+
+    const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+    
+    const prompt = `Dịch nội dung bài báo sau sang tiếng Việt chuẩn văn phong báo chí. Giữ nguyên định dạng HTML nếu có.\n\nTiêu đề:\n${title}\n\nTóm tắt:\n${summary}\n\nNội dung:\n${content}`;
+    
+    const response = await openai.chat.completions.create({
+      model: "gpt-4o-mini",
+      messages: [{ role: "user", content: prompt }],
+      temperature: 0.3,
+    });
+
+    const translatedText = response.choices[0].message.content || "";
+    
+    // Attempt to split the response back into title, summary, content
+    // We can just ask GPT to output JSON for safer parsing, but let's do a simple split or just translate the fields directly
+    // Let's rewrite the prompt to ask for JSON!
+    
+    const jsonPrompt = `Dịch các trường sau sang tiếng Việt chuẩn báo chí. Trả về đúng định dạng JSON với 3 key: "title", "summary", "content". Giữ nguyên HTML trong content.\n\nJSON gốc:\n${JSON.stringify({title, summary, content})}`;
+    
+    const jsonResponse = await openai.chat.completions.create({
+      model: "gpt-4o-mini",
+      messages: [{ role: "user", content: jsonPrompt }],
+      response_format: { type: "json_object" },
+      temperature: 0.3,
+    });
+    
+    const translatedJson = JSON.parse(jsonResponse.choices[0].message.content || "{}");
+    res.json(translatedJson);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 app.all("*", (req, res) => {

@@ -68,6 +68,7 @@ export default function AdminArticles() {
   const [modal, setModal] = useState<{ open: boolean; editing: ArticleDetail | null }>({ open: false, editing: null });
   const [form, setForm] = useState<FormData>(EMPTY);
   const [saving, setSaving] = useState(false);
+  const [translating, setTranslating] = useState(false);
   const [error, setError] = useState('');
 
   const load = useCallback(async () => {
@@ -118,6 +119,27 @@ export default function AdminArticles() {
       if (k === 'title' && !modal.editing) next.slug = slugify(v as string);
       return next;
     });
+  };
+
+  const handleTranslateAI = async () => {
+    setTranslating(true);
+    setError('');
+    try {
+      const res = await apiFetch<any>('/ai/translate', {
+        method: 'POST',
+        body: JSON.stringify({
+          title: form.title,
+          summary: form.summary,
+          content: form.content
+        })
+      });
+      f('title', res.title || form.title);
+      f('summary', res.summary || form.summary);
+      f('content', res.content || form.content);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Lỗi dịch AI');
+    }
+    setTranslating(false);
   };
 
   const handleSave = async (e: React.FormEvent) => {
@@ -328,8 +350,11 @@ export default function AdminArticles() {
 
             {error && <p style={{ color: 'var(--color-crimson)', fontSize: '0.85rem', marginBottom: '0.75rem' }}>{error}</p>}
 
-            <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
-              <Btn variant="ghost" onClick={() => setModal({ open: false, editing: null })}>Hủy</Btn>
+            <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', alignItems: 'center' }}>
+              <Btn type="button" variant="secondary" onClick={handleTranslateAI} disabled={translating} style={{ marginRight: 'auto' }}>
+                {translating ? 'Đang dịch...' : '✨ Dịch AI sang Tiếng Việt'}
+              </Btn>
+              <Btn variant="ghost" type="button" onClick={() => setModal({ open: false, editing: null })}>Hủy</Btn>
               <Btn type="submit" disabled={saving}>{saving ? 'Đang lưu…' : modal.editing ? 'Cập nhật' : 'Tạo bài'}</Btn>
             </div>
           </form>
