@@ -232,12 +232,18 @@ export function AdminLayout({ children }: { children: ReactNode }) {
 
   const apiFetch = async <T = any>(path: string, opts: RequestInit = {}): Promise<T> => {
     const fullPath = path.startsWith('/api') ? path : `/api/admin${path}`;
-    const method = opts.method || 'GET';
-    let bodyData = undefined;
-    if (opts.body && typeof opts.body === 'string') {
-      try { bodyData = JSON.parse(opts.body); } catch {}
+    const token = localStorage.getItem('acvn_admin_token');
+    const headers = new Headers(opts.headers);
+    if (token) headers.set('Authorization', `Bearer ${token}`);
+    if (opts.body && typeof opts.body === 'string') headers.set('Content-Type', 'application/json');
+    
+    const res = await fetch(fullPath, { ...opts, headers });
+    if (!res.ok) {
+      let errText = await res.text().catch(() => 'Lỗi kết nối');
+      try { errText = JSON.parse(errText).error || errText; } catch {}
+      throw new Error(errText || `Lỗi HTTP ${res.status}`);
     }
-    return handleClientApi(fullPath, method, bodyData) as T;
+    return res.json() as Promise<T>;
   };
 
   if (!user) {
