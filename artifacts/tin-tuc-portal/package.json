@@ -82,12 +82,6 @@
     "@tiptap/extension-youtube": "^3.30.0",
     "@tiptap/pm": "^3.30.0",
     "@tiptap/react": "^3.30.0",
-    "@tiptap/starter-kit": "^3.30.0",
-    "@workspace/db": "workspace:*",
-    "cors": "^2.8.5",
-    "drizzle-orm": "^0.41.0",
-    "express": "^5.0.1",
-    "pg": "^8.13.3",
-    "rss-parser": "^3.13.0"
+    "@tiptap/starter-kit": "^3.30.0"
   }
 }

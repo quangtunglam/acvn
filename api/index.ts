@@ -16,7 +16,7 @@ import {
   adBannersTable,
   adminUsersTable,
   adminSessionsTable,
-} from "@workspace/db";
+} from "../lib/db/src/index.js";
 import { eq, desc, asc, and, ilike, or, sql, inArray } from "drizzle-orm";
 import Parser from "rss-parser";
 
