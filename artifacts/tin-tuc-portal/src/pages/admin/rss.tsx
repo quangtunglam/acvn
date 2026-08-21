@@ -93,7 +93,11 @@ export default function AdminRSS() {
     try {
       const path = feedId === 'all' ? '/rss/ingest-all' : `/rss/feeds/${feedId}/ingest`;
       const results = await apiFetch<IngestResult[]>(path, { method: 'POST' });
-      setIngestLog((prev) => [...results, ...prev].slice(0, 50));
+      if (Array.isArray(results)) {
+        setIngestLog((prev) => [...results, ...prev].slice(0, 50));
+      } else {
+        throw new Error('API return invalid format: ' + JSON.stringify(results));
+      }
       load();
       setTimeout(() => logRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
     } catch (err: unknown) {
