@@ -97,18 +97,18 @@ export function UtilityBar() {
 export function Masthead() {
   return (
     <header className="masthead">
-      <div className="wrap masthead-content">
-        <a href="/" className="logo-group">
+      <div className="wrap masthead-inner">
+        <a href="/" className="masthead-logo-wrap">
           <img
             src="/logo-hoi.png"
             alt="Logo Hội người Czech gốc Việt Nam"
-            className="logo"
+            className="masthead-logo-img"
             data-testid="img-logo"
           />
-          <div className="org-text">
-            <span className="org-vn">Hội người Czech gốc Việt Nam</span>
-            <span className="org-cz">Asociace Českých občanů Vietnamského původu, z. s.</span>
-          </div>
+        </a>
+        <a href="/" className="masthead-names">
+          <span className="masthead-name masthead-name--vi">Hội người Czech gốc Việt Nam</span>
+          <span className="masthead-name masthead-name--cs">Asociace Českých občanů Vietnamského původu, z. s.</span>
         </a>
       </div>
     </header>
