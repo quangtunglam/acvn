@@ -56,7 +56,8 @@ export default function AdminRSS() {
   useEffect(() => { load(); }, [apiFetch]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const openCreate = (preset?: typeof PRESETS[0]) => {
-    setForm(preset ? { ...EMPTY, name: preset.name, url: preset.url } : EMPTY);
+    const defaultCatId = categories.length > 0 ? String(categories[0].id) : '';
+    setForm(preset ? { ...EMPTY, name: preset.name, url: preset.url, categoryId: defaultCatId } : { ...EMPTY, categoryId: defaultCatId });
     setFormError(''); setModal({ open: true, editing: null });
   };
   const openEdit = (f: Feed) => {
@@ -73,8 +74,9 @@ export default function AdminRSS() {
 
   const saveFeed = async (e: React.FormEvent) => {
     e.preventDefault(); setSaving(true); setFormError('');
+    const targetCatId = form.categoryId || (categories.length > 0 ? String(categories[0].id) : '1');
     try {
-      const body = { ...form, categoryId: Number(form.categoryId), countryId: form.countryId ? Number(form.countryId) : null };
+      const body = { ...form, categoryId: Number(targetCatId), countryId: form.countryId ? Number(form.countryId) : null };
       if (modal.editing) {
         await apiFetch(`/rss/feeds/${modal.editing.id}`, { method: 'PATCH', body: JSON.stringify(body) });
       } else {
