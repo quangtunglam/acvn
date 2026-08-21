@@ -1,16 +1,14 @@
 {
-  "$schema": "https://openapi.vercel.sh/vercel.json",
-  "name": "acvn",
-  "framework": "vite",
+  "version": 2,
   "buildCommand": "pnpm build",
   "outputDirectory": "dist",
   "rewrites": [
     {
-      "source": "/api/:path*",
+      "source": "/api/(.*)",
       "destination": "/api"
     },
     {
-      "source": "/:path*",
+      "source": "/(.*)",
       "destination": "/index.html"
     }
   ]
