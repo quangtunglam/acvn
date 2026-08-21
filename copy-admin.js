@@ -1,10 +1,17 @@
 import fs from "fs";
 
-try {
-  fs.mkdirSync("dist/admin", { recursive: true });
-  fs.copyFileSync("dist/index.html", "dist/admin/index.html");
-  fs.copyFileSync("dist/index.html", "dist/admin.html");
-  console.log("✓ Successfully created physical dist/admin/index.html and dist/admin.html");
-} catch (e) {
-  console.error("Failed to copy admin html:", e);
+function ensureSpaSites(dir) {
+  if (!fs.existsSync(dir)) return;
+  try {
+    fs.mkdirSync(`${dir}/admin`, { recursive: true });
+    fs.copyFileSync(`${dir}/index.html`, `${dir}/admin/index.html`);
+    fs.copyFileSync(`${dir}/index.html`, `${dir}/admin.html`);
+    fs.copyFileSync(`${dir}/index.html`, `${dir}/404.html`);
+    console.log(`✓ SPA fallbacks created in ${dir}`);
+  } catch (e) {
+    console.error(`Failed in ${dir}:`, e);
+  }
 }
+
+ensureSpaSites("dist");
+ensureSpaSites("artifacts/tin-tuc-portal/dist");
