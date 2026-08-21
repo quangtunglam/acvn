@@ -28,69 +28,116 @@ export function useAdmin() {
 
 // ─── Login screen ─────────────────────────────────────────────────────────────
 
-function LoginScreen({ onLogin }: { onLogin: (token: string) => void }) {
-  const [input, setInput] = useState('acvn2026');
+function LoginScreen({ onLogin }: { onLogin: (token: string, user?: any) => void }) {
+  const [username, setUsername] = useState('admin');
+  const [password, setPassword] = useState('acvn2026');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError('');
-    const token = input.trim() || 'acvn2026';
-    onLogin(token);
-    setLoading(false);
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || 'Tên đăng nhập hoặc mật khẩu không chính xác');
+      }
+      onLogin(data.token, data.user);
+    } catch (err: any) {
+      // Fallback for offline/local default
+      if (username.trim().toLowerCase() === 'admin' && password.trim() === 'acvn2026') {
+        onLogin('acvn2026', { username: 'admin', name: 'Ban Quản Trị ACVN', role: 'superadmin' });
+      } else {
+        setError(err.message || 'Lỗi đăng nhập');
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <div style={{
       minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center',
-      background: 'var(--color-bone)',
+      background: 'var(--color-bone)', padding: '1rem',
     }}>
       <div style={{
-        background: '#fff', borderRadius: 8, padding: '2.5rem 2rem', width: '100%', maxWidth: 380,
-        boxShadow: '0 4px 24px rgba(0,0,0,0.08)',
+        background: '#fff', borderRadius: 10, padding: '2.5rem 2rem', width: '100%', maxWidth: 400,
+        boxShadow: '0 8px 30px rgba(0,0,0,0.08)', border: '1px solid var(--color-rule)',
       }}>
         <div style={{ marginBottom: '1.5rem', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           <img
             src="/logo-hoi.png"
             alt="ACVN Logo"
-            style={{ height: 60, width: 'auto', objectFit: 'contain', marginBottom: '0.75rem' }}
+            style={{ height: 64, width: 'auto', objectFit: 'contain', marginBottom: '0.75rem' }}
           />
-          <span style={{ fontSize: '1.2rem', fontWeight: 800, fontFamily: 'var(--font-sans)', color: 'var(--color-navy)', lineHeight: 1.3 }}>
+          <span style={{ fontSize: '1.25rem', fontWeight: 800, fontFamily: 'var(--font-sans)', color: 'var(--color-navy)', lineHeight: 1.3 }}>
             Hội người Czech <em style={{ fontStyle: 'normal', color: 'var(--color-crimson)' }}>gốc Việt Nam</em>
           </span>
-          <p style={{ color: 'var(--color-ink-light)', fontSize: '0.85rem', marginTop: 4 }}>Bảng Quản trị Nội dung ACVN</p>
+          <p style={{ color: 'var(--color-ink-light)', fontSize: '0.85rem', marginTop: 4 }}>Bảng Quản Trị Hệ Thống</p>
         </div>
+
         <form onSubmit={handleSubmit}>
-          <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: 6, color: 'var(--color-ink)' }}>
-            Admin Token
-          </label>
-          <input
-            type="password"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder="Nhập token quản trị…"
-            autoFocus
-            style={{
-              width: '100%', padding: '0.6rem 0.75rem', border: '1px solid var(--color-rule)',
-              borderRadius: 4, marginBottom: '0.75rem', fontSize: '0.95rem',
-              fontFamily: 'var(--font-sans)', boxSizing: 'border-box',
-            }}
-          />
+          <div style={{ marginBottom: '1rem' }}>
+            <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: 6, color: 'var(--color-ink)' }}>
+              Tên đăng nhập
+            </label>
+            <input
+              type="text"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              placeholder="Nhập tên đăng nhập (ví dụ: admin)"
+              required
+              autoFocus
+              style={{
+                width: '100%', padding: '0.65rem 0.8rem', border: '1px solid var(--color-rule)',
+                borderRadius: 6, fontSize: '0.95rem', fontFamily: 'var(--font-sans)', boxSizing: 'border-box',
+              }}
+            />
+          </div>
+
+          <div style={{ marginBottom: '1.25rem' }}>
+            <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: 6, color: 'var(--color-ink)' }}>
+              Mật khẩu
+            </label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Nhập mật khẩu"
+              required
+              style={{
+                width: '100%', padding: '0.65rem 0.8rem', border: '1px solid var(--color-rule)',
+                borderRadius: 6, fontSize: '0.95rem', fontFamily: 'var(--font-sans)', boxSizing: 'border-box',
+              }}
+            />
+          </div>
+
           {error && (
-            <p style={{ color: 'var(--color-crimson)', fontSize: '0.85rem', marginBottom: '0.75rem' }}>{error}</p>
+            <div style={{
+              background: '#fef2f2', border: '1px solid #fecaca', color: 'var(--color-crimson)',
+              padding: '0.6rem 0.75rem', borderRadius: 6, fontSize: '0.85rem', marginBottom: '1rem',
+            }}>
+              {error}
+            </div>
           )}
+
           <button
             type="submit"
-            disabled={loading || !input}
+            disabled={loading}
             style={{
               width: '100%', background: 'var(--color-navy)', color: '#fff', border: 'none',
-              borderRadius: 4, padding: '0.65rem', cursor: 'pointer', fontSize: '0.95rem',
-              fontFamily: 'var(--font-sans)', opacity: loading ? 0.7 : 1,
+              borderRadius: 6, padding: '0.75rem', cursor: 'pointer', fontSize: '0.95rem',
+              fontWeight: 600, fontFamily: 'var(--font-sans)', opacity: loading ? 0.7 : 1,
+              transition: 'background 0.2s',
             }}
           >
-            {loading ? 'Đang xác thực…' : 'Đăng nhập'}
+            {loading ? 'Đang xác thực…' : 'Đăng nhập Quản trị'}
           </button>
         </form>
       </div>
@@ -210,6 +257,7 @@ export function AdminLayout({ children }: { children: ReactNode }) {
 
   const logout = () => {
     localStorage.removeItem(STORAGE_KEY);
+    localStorage.removeItem('vp-admin-user');
     setTokenState('');
     setVerified(false);
   };
