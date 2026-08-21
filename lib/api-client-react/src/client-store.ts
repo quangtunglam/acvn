@@ -317,8 +317,18 @@ export function handleClientApi(url: string, method = "GET", body?: any): any {
     saveStore(store);
     return { success: true };
   }
-  if (pathname === "/admin/rss/ingest" || pathname.startsWith("/admin/rss/ingest")) {
-    return [{ feedId: 0, feedName: "Demo", fetched: 5, skipped: 3, imported: 2, errors: [] }];
+  if (pathname === "/admin/rss/ingest-all" || pathname.endsWith("/ingest")) {
+    const isAll = pathname === "/admin/rss/ingest-all";
+    const targetFeeds = isAll ? store.feeds.filter((f: any) => f.active) : store.feeds.filter((f: any) => pathname.includes(`/${f.id}/`));
+    
+    return targetFeeds.map((f: any) => ({
+      feedId: f.id,
+      feedName: f.name,
+      fetched: Math.floor(Math.random() * 20) + 1,
+      skipped: Math.floor(Math.random() * 10),
+      imported: Math.floor(Math.random() * 5),
+      errors: []
+    }));
   }
   if (pathname === "/admin/contacts") {
     return store.contacts;
