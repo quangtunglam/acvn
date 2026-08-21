@@ -2,7 +2,7 @@ import express from "express";
 import cors from "cors";
 import crypto from "crypto";
 import Parser from "rss-parser";
-import OpenAI from "openai";
+import { GoogleGenAI } from "@google/genai";
 import { query, pool } from "./db.js";
 
 const app = express();
@@ -515,23 +515,30 @@ app.post(["/api/admin/rss/ingest-all", "/api/admin/rss/feeds/:id/ingest", "/admi
                 if (imgMatch) coverImage = imgMatch[1];
               }
 
-              // Translate using OpenAI if configured
-              if (process.env.OPENAI_API_KEY) {
+              // Translate using Gemini if configured
+              if (process.env.GEMINI_API_KEY) {
                 try {
-                  const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-                  const jsonPrompt = `Dịch các trường sau sang tiếng Việt chuẩn văn phong báo chí. Trả về đúng định dạng JSON với 3 key: "title", "summary", "content". Giữ nguyên HTML.\n\nJSON gốc:\n${JSON.stringify({title, summary, content})}`;
-                  const jsonResponse = await openai.chat.completions.create({
-                    model: "gpt-4o-mini",
-                    messages: [{ role: "user", content: jsonPrompt }],
-                    response_format: { type: "json_object" },
-                    temperature: 0.3,
+                  const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+                  const jsonPrompt = `Dịch các trường sau sang tiếng Việt chuẩn văn phong báo chí. Trả về ĐÚNG định dạng JSON nguyên chất (không có markdown code block) với 3 key: "title", "summary", "content". Giữ nguyên các thẻ HTML trong content.\n\nJSON gốc:\n${JSON.stringify({title, summary, content})}`;
+                  
+                  const response = await ai.models.generateContent({
+                    model: 'gemini-2.5-flash',
+                    contents: jsonPrompt,
+                    config: {
+                      temperature: 0.3,
+                      responseMimeType: "application/json",
+                    }
                   });
-                  const translatedJson = JSON.parse(jsonResponse.choices[0].message.content || "{}");
+                  
+                  let txt = response.text || "{}";
+                  if (txt.startsWith('```json')) txt = txt.replace(/```json\n?/, '').replace(/```$/, '');
+                  
+                  const translatedJson = JSON.parse(txt);
                   if (translatedJson.title) title = translatedJson.title;
                   if (translatedJson.summary) summary = translatedJson.summary;
                   if (translatedJson.content) content = translatedJson.content;
                 } catch (aiErr) {
-                  console.error("Lỗi khi dịch AI:", aiErr.message);
+                  console.error("Lỗi khi dịch AI (Gemini):", aiErr.message);
                 }
               }
 
@@ -631,36 +638,27 @@ app.post(["/api/admin/ai/translate", "/admin/ai/translate"], async (req, res) =>
   try {
     const { title, summary, content } = req.body;
     
-    if (!process.env.OPENAI_API_KEY) {
-      return res.status(400).json({ error: "Chưa cấu hình OPENAI_API_KEY trong file .env" });
+    if (!process.env.GEMINI_API_KEY) {
+      return res.status(400).json({ error: "Chưa cấu hình GEMINI_API_KEY trong file .env" });
     }
 
-    const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+    const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
     
-    const prompt = `Dịch nội dung bài báo sau sang tiếng Việt chuẩn văn phong báo chí. Giữ nguyên định dạng HTML nếu có.\n\nTiêu đề:\n${title}\n\nTóm tắt:\n${summary}\n\nNội dung:\n${content}`;
+    const jsonPrompt = `Dịch các trường sau sang tiếng Việt chuẩn báo chí. Trả về ĐÚNG định dạng JSON nguyên chất (không có markdown code block) với 3 key: "title", "summary", "content". Giữ nguyên HTML trong content.\n\nJSON gốc:\n${JSON.stringify({title, summary, content})}`;
     
-    const response = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
-      messages: [{ role: "user", content: prompt }],
-      temperature: 0.3,
-    });
-
-    const translatedText = response.choices[0].message.content || "";
-    
-    // Attempt to split the response back into title, summary, content
-    // We can just ask GPT to output JSON for safer parsing, but let's do a simple split or just translate the fields directly
-    // Let's rewrite the prompt to ask for JSON!
-    
-    const jsonPrompt = `Dịch các trường sau sang tiếng Việt chuẩn báo chí. Trả về đúng định dạng JSON với 3 key: "title", "summary", "content". Giữ nguyên HTML trong content.\n\nJSON gốc:\n${JSON.stringify({title, summary, content})}`;
-    
-    const jsonResponse = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
-      messages: [{ role: "user", content: jsonPrompt }],
-      response_format: { type: "json_object" },
-      temperature: 0.3,
+    const response = await ai.models.generateContent({
+      model: 'gemini-2.5-flash',
+      contents: jsonPrompt,
+      config: {
+        temperature: 0.3,
+        responseMimeType: "application/json",
+      }
     });
     
-    const translatedJson = JSON.parse(jsonResponse.choices[0].message.content || "{}");
+    let txt = response.text || "{}";
+    if (txt.startsWith('```json')) txt = txt.replace(/```json\n?/, '').replace(/```$/, '');
+    
+    const translatedJson = JSON.parse(txt);
     res.json(translatedJson);
   } catch (err) {
     res.status(500).json({ error: err.message });

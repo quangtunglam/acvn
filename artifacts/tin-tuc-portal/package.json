@@ -72,6 +72,7 @@
     "zod": "catalog:"
   },
   "dependencies": {
+    "@google/genai": "^2.18.0",
     "@tiptap/extension-color": "^3.30.0",
     "@tiptap/extension-image": "^3.30.0",
     "@tiptap/extension-link": "^3.30.0",
@@ -85,7 +86,6 @@
     "@tiptap/starter-kit": "^3.30.0",
     "cors": "^2.8.6",
     "express": "^4.21.2",
-    "openai": "^6.49.0",
     "pg": "^8.22.0",
     "rss-parser": "^3.13.0"
   }
