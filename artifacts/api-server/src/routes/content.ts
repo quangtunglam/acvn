@@ -237,6 +237,7 @@ async function queryArticles(options: {
 
   const rows = await (options.limit === undefined
     ? query
+    : query.limit(options.limit).offset(options.offset ?? 0));
   return rows.map(mapArticle);
 }
 
