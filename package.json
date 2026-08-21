@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "license": "MIT",
   "scripts": {
-    "build": "pnpm --filter @workspace/tin-tuc-portal run build && node -e \"const fs=require('fs'); fs.cpSync('artifacts/tin-tuc-portal/dist', 'dist', {recursive:true}); fs.cpSync('artifacts/tin-tuc-portal/dist', 'public', {recursive:true}); try{fs.cpSync('artifacts/tin-tuc-portal/dist', 'artifacts/api-server/public', {recursive:true})}catch(e){}; try{fs.cpSync('artifacts/tin-tuc-portal/dist', 'artifacts/api-server/dist/public', {recursive:true})}catch(e){}\"",
+    "build": "pnpm --filter @workspace/tin-tuc-portal run build && node -e \"const fs=require('fs'); fs.cpSync('artifacts/tin-tuc-portal/dist', 'dist', {recursive:true}); fs.cpSync('artifacts/tin-tuc-portal/dist', 'public', {recursive:true}); ['app.js','server.js','index.js'].forEach(f => { try{fs.copyFileSync(f, 'dist/'+f); fs.copyFileSync(f, 'public/'+f);}catch(e){} });\"",
     "dev": "pnpm --filter @workspace/tin-tuc-portal run dev",
     "typecheck:libs": "tsc --build",
     "typecheck": "pnpm run typecheck:libs && pnpm -r --filter \"./artifacts/**\" --filter \"./scripts\" --if-present run typecheck"
