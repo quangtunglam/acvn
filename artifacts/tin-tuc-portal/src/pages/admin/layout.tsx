@@ -4,6 +4,7 @@ import {
   BookOpen, FileText, Globe, ImageIcon, Inbox, LayoutDashboard, Mail, Megaphone,
   Newspaper, Rss, Settings, Sparkles, X,
 } from 'lucide-react';
+import { customFetch } from '@workspace/api-client-react';
 
 // ─── Admin auth context ───────────────────────────────────────────────────────
 
@@ -38,16 +39,14 @@ function LoginScreen({ onLogin }: { onLogin: (token: string) => void }) {
     setError('');
     const token = input.trim();
     try {
-      const res = await fetch('/api/admin/stats', {
-        headers: { 'X-Admin-Token': token },
-      });
-      if (res.ok) {
-        onLogin(token);
-        setLoading(false);
-        return;
+      await customFetch('/api/admin/stats', { headers: { 'X-Admin-Token': token } });
+      onLogin(token);
+      setLoading(false);
+      return;
+    } catch (err: any) {
+      if (err?.status === 401) {
+        // failed
       }
-    } catch {
-      // ignore network issue
     }
     // Fallback: allow default admin token acvn2026 or environment token
     if (token === 'acvn2026' || (import.meta.env.VITE_ADMIN_TOKEN && token === import.meta.env.VITE_ADMIN_TOKEN)) {
@@ -231,46 +230,41 @@ export function AdminLayout({ children }: { children: ReactNode }) {
 
   const apiFetch = useCallback(
     async <T = unknown>(path: string, opts: RequestInit = {}): Promise<T> => {
-      const res = await fetch(`/api/admin${path}`, {
-        ...opts,
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Admin-Token': token,
-          ...opts.headers,
-        },
-      });
-      if (res.status === 401) { logout(); throw new Error('Unauthorized'); }
-      if (!res.ok) {
-        const body = await res.json().catch(() => ({})) as { error?: string };
-        throw new Error(body.error ?? `HTTP ${res.status}`);
+      try {
+        const res = await customFetch<T>(`/api/admin${path}`, {
+          ...opts,
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Admin-Token': token,
+            ...opts.headers,
+          },
+        });
+        return res;
+      } catch (err: any) {
+        if (err?.status === 401) { logout(); throw new Error('Unauthorized'); }
+        throw new Error(err?.data?.error ?? err?.message ?? `HTTP Error`);
       }
-      if (res.status === 204) return undefined as unknown as T;
-      return res.json() as Promise<T>;
     },
     [token], // eslint-disable-line react-hooks/exhaustive-deps
   );
 
   const refreshInbox = useCallback(() => {
     if (!token) return;
-    fetch('/api/admin/inbox-counts', { headers: { 'X-Admin-Token': token } })
-      .then((r) => r.ok ? r.json() : null)
+    customFetch<InboxCounts>('/api/admin/inbox-counts', { headers: { 'X-Admin-Token': token } })
       .then((data) => { if (data) setInboxCounts(data); })
       .catch(() => {});
   }, [token]);
 
-  // Verify token on mount
   useEffect(() => {
     if (!token) { setChecking(false); return; }
-    fetch('/api/admin/stats', { headers: { 'X-Admin-Token': token } })
-      .then((r) => {
-        if (r.ok || token === 'acvn2026' || (import.meta.env.VITE_ADMIN_TOKEN && token === import.meta.env.VITE_ADMIN_TOKEN)) {
-          setVerified(true);
-        } else {
-          logout();
-        }
+    customFetch('/api/admin/stats', { headers: { 'X-Admin-Token': token } })
+      .then(() => {
+        setVerified(true);
       })
-      .catch(() => {
-        if (token === 'acvn2026' || (import.meta.env.VITE_ADMIN_TOKEN && token === import.meta.env.VITE_ADMIN_TOKEN)) {
+      .catch((err: any) => {
+        if (err?.status === 401) {
+          logout();
+        } else if (token === 'acvn2026' || (import.meta.env.VITE_ADMIN_TOKEN && token === import.meta.env.VITE_ADMIN_TOKEN)) {
           setVerified(true);
         } else {
           logout();
