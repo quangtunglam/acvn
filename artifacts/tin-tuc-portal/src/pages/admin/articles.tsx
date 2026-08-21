@@ -91,20 +91,21 @@ export default function AdminArticles() {
   }, [load, apiFetch]);
 
   const openCreate = () => { setForm(EMPTY); setError(''); setModal({ open: true, editing: null }); };
-  const openEdit = (a: ArticleDetail) => {
+  const openEdit = (a: ArticleDetail & { category?: any; country?: any; author?: any }) => {
     setError('');
     setForm({
       title: a.title, slug: a.slug, summary: a.summary, content: a.content,
-      coverImage: a.coverImage ?? '', categoryId: String(a.categoryId),
-      countryId: a.countryId ? String(a.countryId) : '',
-      authorId: a.authorId ? String(a.authorId) : '',
+      coverImage: a.coverImage ?? '', 
+      categoryId: a.category ? String(a.category.id) : (a.categoryId ? String(a.categoryId) : ''),
+      countryId: a.country ? String(a.country.id) : (a.countryId ? String(a.countryId) : ''),
+      authorId: a.author ? String(a.author.id) : (a.authorId ? String(a.authorId) : ''),
       sourceName: a.sourceName ?? '', sourceUrl: a.sourceUrl ?? '',
       editor: a.editor ?? '', status: a.status, featured: a.featured,
       breakingNews: a.breakingNews,
       publishedAt: a.publishedAt ? a.publishedAt.slice(0, 16) : '',
       mostReadRank: a.mostReadRank ? String(a.mostReadRank) : '',
     });
-    setModal({ open: true, editing: a });
+    setModal({ open: true, editing: a as ArticleDetail });
   };
 
   const handleDelete = async (id: number) => {

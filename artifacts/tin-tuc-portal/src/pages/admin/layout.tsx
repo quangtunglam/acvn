@@ -534,13 +534,13 @@ export function Badge({ children, variant = 'neutral' }: { children: ReactNode; 
 
 export function Modal({
   title,
-  open,
+  open = true,
   onClose,
   children,
   width = 650,
 }: {
   title: string;
-  open: boolean;
+  open?: boolean;
   onClose: () => void;
   children: ReactNode;
   width?: number;
