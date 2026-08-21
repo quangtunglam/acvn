@@ -237,8 +237,43 @@ app.get(["/api/admin/articles", "/admin/articles"], async (req, res) => {
     const pageSize = Math.max(1, Math.min(100, Number(req.query.pageSize || 20)));
     const offset = (page - 1) * pageSize;
 
-    const [rowsRes, countRes] = await Promise.all([
-      query(`
+    const { status, categoryId, date, sourceName, rssOnly } = req.query;
+
+    const whereClauses = [];
+    const params = [];
+    let paramIdx = 1;
+
+    if (status) {
+      whereClauses.push(`a.status = $${paramIdx++}`);
+      params.push(status);
+    }
+    if (categoryId) {
+      whereClauses.push(`a.category_id = $${paramIdx++}`);
+      params.push(categoryId);
+    }
+    if (date) {
+      if (date === 'today') {
+        whereClauses.push(`a.created_at >= CURRENT_DATE`);
+      } else if (date === 'week') {
+        whereClauses.push(`a.created_at >= CURRENT_DATE - INTERVAL '7 days'`);
+      } else if (date === 'month') {
+        whereClauses.push(`a.created_at >= CURRENT_DATE - INTERVAL '1 month'`);
+      }
+    }
+    if (rssOnly === 'true') {
+      whereClauses.push(`a.source_url IS NOT NULL AND a.source_url != ''`);
+    } else if (sourceName) {
+      whereClauses.push(`a.source_url ILIKE $${paramIdx++}`);
+      params.push(`%${sourceName}%`);
+    }
+
+    const whereString = whereClauses.length > 0 ? `WHERE ${whereClauses.join(' AND ')}` : '';
+
+    const countQuery = `SELECT count(*) FROM articles a ${whereString}`;
+    
+    // Add pagination params
+    params.push(pageSize, offset);
+    const sql = `
         SELECT a.*,
                c.id as cat_id, c.name as cat_name, c.slug as cat_slug,
                co.id as co_id, co.name as co_name, co.slug as co_slug,
@@ -247,10 +282,14 @@ app.get(["/api/admin/articles", "/admin/articles"], async (req, res) => {
         LEFT JOIN categories c ON a.category_id = c.id
         LEFT JOIN countries co ON a.country_id = co.id
         LEFT JOIN authors au ON a.author_id = au.id
+        ${whereString}
         ORDER BY a.created_at DESC
-        LIMIT $1 OFFSET $2
-      `, [pageSize, offset]),
-      query("SELECT count(*) FROM articles"),
+        LIMIT $${paramIdx++} OFFSET $${paramIdx++}
+    `;
+
+    const [rowsRes, countRes] = await Promise.all([
+      query(sql, params),
+      query(countQuery, params.slice(0, params.length - 2)),
     ]);
 
     const items = rowsRes.rows.map((row) => ({
@@ -382,15 +421,57 @@ app.post(["/api/admin/rss/ingest-all", "/api/admin/rss/feeds/:id/ingest", "/admi
     for (const feed of feeds.rows) {
       try {
         const parsed = await rssParser.parseURL(feed.url);
-        const fetchedCount = parsed.items?.length || 0;
-        const importedCount = Math.ceil(fetchedCount * 0.2); // Real insert is skipped to avoid spamming the DB, but this updates the counter
+        let importedCount = 0;
+        let skippedCount = 0;
+        const errs = [];
+
+        if (parsed.items && parsed.items.length > 0) {
+          for (const item of parsed.items) {
+            try {
+              // Check if exists
+              const existCheck = await query("SELECT id FROM articles WHERE source_url = $1 LIMIT 1", [item.link]);
+              if (existCheck.rows.length > 0) {
+                skippedCount++;
+                continue;
+              }
+
+              const title = item.title || "No Title";
+              const slug = slugify(title) + "-" + Math.random().toString(36).substr(2, 5);
+              const summary = item.contentSnippet?.substring(0, 250) || "";
+              let content = item.content || summary;
+              let coverImage = "";
+
+              // Try to extract image from enclosure or content
+              if (item.enclosure && item.enclosure.url && item.enclosure.url.startsWith('http')) {
+                coverImage = item.enclosure.url;
+              } else {
+                const imgMatch = content.match(/<img[^>]+src="([^">]+)"/);
+                if (imgMatch) coverImage = imgMatch[1];
+              }
+
+              await query(`
+                INSERT INTO articles 
+                (title, slug, summary, content, cover_image, status, category_id, country_id, source_url, published_at)
+                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+              `, [
+                title, slug, summary, content, coverImage, 'published', 
+                feed.category_id, feed.country_id, item.link, 
+                item.pubDate ? new Date(item.pubDate) : new Date()
+              ]);
+              importedCount++;
+            } catch (err) {
+              errs.push(`Item error: ${err.message}`);
+            }
+          }
+        }
+        
         results.push({
           feedId: feed.id,
           feedName: feed.name,
-          fetched: fetchedCount,
-          skipped: fetchedCount - importedCount,
+          fetched: parsed.items?.length || 0,
+          skipped: skippedCount,
           imported: importedCount,
-          errors: []
+          errors: errs.slice(0, 5)
         });
         await query("UPDATE rss_feeds SET last_fetched_at=NOW(), items_imported=items_imported+$1 WHERE id=$2", [importedCount, feed.id]);
       } catch (err) {
