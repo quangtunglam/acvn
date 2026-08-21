@@ -26,14 +26,17 @@ const router = Router();
 function requireAdmin(req: Request, res: Response, next: NextFunction): void {
   const headerToken = req.headers["x-admin-token"];
   const authHeader = req.headers["authorization"];
-  const bearerToken = authHeader && typeof authHeader === "string" && authHeader.startsWith("Bearer ") ? authHeader.slice(7) : undefined;
+  const bearerToken =
+    authHeader && typeof authHeader === "string" && authHeader.startsWith("Bearer ")
+      ? authHeader.slice(7)
+      : undefined;
   const queryToken = req.query.token as string | undefined;
 
-  const rawToken = (headerToken || bearerToken || queryToken || "").toString().trim();
+  const rawToken = (headerToken || bearerToken || queryToken || "").toString().trim().toLowerCase();
 
   const validTokens = [
-    process.env.ADMIN_TOKEN,
-    process.env.SESSION_SECRET,
+    process.env.ADMIN_TOKEN?.toLowerCase(),
+    process.env.SESSION_SECRET?.toLowerCase(),
     "acvn2026",
   ].filter(Boolean) as string[];
 

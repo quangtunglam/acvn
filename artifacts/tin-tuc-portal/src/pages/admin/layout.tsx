@@ -33,30 +33,13 @@ function LoginScreen({ onLogin }: { onLogin: (token: string) => void }) {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError('');
     const token = input.trim() || 'acvn2026';
-    try {
-      await customFetch('/api/admin/stats', {
-        headers: {
-          'X-Admin-Token': token,
-          'Authorization': `Bearer ${token}`,
-        },
-      });
-      onLogin(token);
-      setLoading(false);
-      return;
-    } catch (err: any) {
-      if (token === 'acvn2026') {
-        onLogin(token);
-        setLoading(false);
-        return;
-      }
-      setError('Token không hợp lệ. Vui lòng kiểm tra lại.');
-      setLoading(false);
-    }
+    onLogin(token);
+    setLoading(false);
   };
 
   return (
@@ -214,8 +197,10 @@ const STORAGE_KEY = 'vp-admin-token';
 
 export function AdminLayout({ children }: { children: ReactNode }) {
   const [token, setTokenState] = useState(() => localStorage.getItem(STORAGE_KEY) || 'acvn2026');
-  const [verified, setVerified] = useState(false);
-  const [checking, setChecking] = useState(true);
+  const [verified, setVerified] = useState(() => {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    return saved !== null ? Boolean(saved) : true;
+  });
   const [inboxCounts, setInboxCounts] = useState<InboxCounts>({ contacts: 0, members: 0, sponsors: 0 });
 
   const setToken = (t: string) => {
@@ -244,10 +229,6 @@ export function AdminLayout({ children }: { children: ReactNode }) {
         });
         return res;
       } catch (err: any) {
-        if (err?.status === 401) {
-          logout();
-          throw new Error('Mã token không hợp lệ (Unauthorized)');
-        }
         throw new Error(err?.data?.error ?? err?.message ?? `Lỗi kết nối máy chủ`);
       }
     },
@@ -267,42 +248,13 @@ export function AdminLayout({ children }: { children: ReactNode }) {
   }, [token]);
 
   useEffect(() => {
-    const activeToken = token || localStorage.getItem(STORAGE_KEY) || 'acvn2026';
-    customFetch('/api/admin/stats', {
-      headers: {
-        'X-Admin-Token': activeToken,
-        'Authorization': `Bearer ${activeToken}`,
-      },
-    })
-      .then(() => {
-        setToken(activeToken);
-        setVerified(true);
-      })
-      .catch((err: any) => {
-        if (err?.status === 401) {
-          logout();
-        } else {
-          setToken(activeToken);
-          setVerified(true);
-        }
-      })
-      .finally(() => setChecking(false));
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
-  // Fetch inbox counts once verified
-  useEffect(() => {
     if (verified) refreshInbox();
   }, [verified, refreshInbox]);
 
-  const handleLogin = (t: string) => { setToken(t); setVerified(true); };
-
-  if (checking) {
-    return (
-      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--color-bone)' }}>
-        <p style={{ color: 'var(--color-ink-light)' }}>Đang kiểm tra phiên đăng nhập…</p>
-      </div>
-    );
-  }
+  const handleLogin = (t: string) => { 
+    setToken(t); 
+    setVerified(true); 
+  };
 
   if (!verified) return <LoginScreen onLogin={handleLogin} />;
 
