@@ -661,10 +661,11 @@ function RoutedErrorBoundary({ children }: { children: ReactNode }) {
 }
 
 function App() {
+  const base = (import.meta.env.BASE_URL || '').replace(/\/$/, '');
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, '')}>
+        <WouterRouter base={base}>
           <Router />
         </WouterRouter>
         <Toaster />

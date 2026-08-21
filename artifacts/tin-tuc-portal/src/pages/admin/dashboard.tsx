@@ -31,10 +31,12 @@ export default function AdminDashboard() {
   const { apiFetch, inboxCounts } = useAdmin();
   const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   useEffect(() => {
     apiFetch<Stats>('/stats')
       .then(setStats)
+      .catch((err: any) => setErrorMsg(err?.message || 'Không thể tải dữ liệu'))
       .finally(() => setLoading(false));
   }, [apiFetch]);
 
@@ -106,7 +108,7 @@ export default function AdminDashboard() {
                 Thông tin hệ thống
               </h3>
               <div style={{ fontSize: '0.85rem', color: 'var(--color-ink-light)', display: 'flex', flexDirection: 'column', gap: 4 }}>
-                <span>Phiên bản: VietPress EU 1.0</span>
+                <span>Phiên bản: ACVN Portal 1.0</span>
                 <span>Database: PostgreSQL</span>
                 <span>API: /api</span>
                 <a href="/api/sitemap.xml" target="_blank" style={{ color: 'var(--color-crimson)' }}>Sitemap.xml ↗</a>
@@ -116,7 +118,10 @@ export default function AdminDashboard() {
           </div>
         </>
       ) : (
-        <p style={{ color: 'var(--color-crimson)' }}>Không tải được dữ liệu.</p>
+        <div style={{ background: '#fef2f2', border: '1px solid #fecaca', borderRadius: 8, padding: '1.25rem', color: 'var(--color-crimson)' }}>
+          <p style={{ fontWeight: 700, margin: '0 0 0.5rem' }}>Không tải được dữ liệu từ hệ thống</p>
+          <p style={{ fontSize: '0.85rem', margin: 0, fontFamily: 'var(--font-mono)' }}>{errorMsg || 'Không có phản hồi từ máy chủ'}</p>
+        </div>
       )}
     </AdminPage>
   );

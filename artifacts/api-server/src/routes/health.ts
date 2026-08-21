@@ -8,4 +8,8 @@ router.get("/healthz", (_req, res) => {
   res.json(data);
 });
 
+router.get("/version", (_req, res) => {
+  res.json({ version: "2026-v2-live-deployed" });
+});
+
 export default router;

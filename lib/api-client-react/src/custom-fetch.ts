@@ -322,6 +322,8 @@ async function parseSuccessBody(
   }
 }
 
+
+
 export async function customFetch<T = unknown>(
   input: RequestInfo | URL,
   options: CustomFetchOptions = {},
@@ -362,9 +364,18 @@ export async function customFetch<T = unknown>(
 
   const response = await fetch(input, { ...init, method, headers });
 
+  // Detect if Vercel SPA rewrite intercepted our API call by returning HTML
+  const contentType = response.headers.get("content-type") || "";
   if (!response.ok) {
+    if (contentType.includes("text/html")) {
+      throw new Error(`API endpoint not found (HTML returned). URL: ${requestInfo.url}`);
+    }
     const errorData = await parseErrorBody(response, method);
     throw new ApiError(response, errorData, requestInfo);
+  }
+
+  if (contentType.includes("text/html")) {
+    throw new Error(`API endpoint not found (HTML returned). URL: ${requestInfo.url}`);
   }
 
   return (await parseSuccessBody(response, responseType, requestInfo)) as T;

@@ -31,7 +31,7 @@ export default function ArticlePage() {
     if (article) {
       incrementView.mutate();
       // SEO
-      document.title = `${article.title} | VietPress EU`;
+      document.title = `${article.title} | ACVN`;
       const setMeta = (name: string, content: string) => {
         let el = document.querySelector(`meta[name="${name}"]`) as HTMLMetaElement | null;
         if (!el) { el = document.createElement('meta'); el.name = name; document.head.appendChild(el); }
@@ -48,7 +48,7 @@ export default function ArticlePage() {
       setOg('og:image', article.coverImage ?? PLACEHOLDER);
       setOg('og:type', 'article');
     }
-    return () => { document.title = 'VietPress EU'; };
+    return () => { document.title = 'ACVN | Hội người Czech gốc Việt Nam'; };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [article?.slug]);
 

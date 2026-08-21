@@ -35,14 +35,16 @@ router.post('/contact', async (req: Request, res: Response): Promise<void> => {
     return;
   }
 
-  // Always save to DB
-  await db.insert(contactSubmissionsTable).values({
-    name: name.trim(),
-    email: email.trim(),
-    phone: phone?.trim() || null,
-    subject: subject.trim(),
-    message: message.trim(),
-  });
+  // Save to DB if connected
+  if (db) {
+    await db.insert(contactSubmissionsTable).values({
+      name: name.trim(),
+      email: email.trim(),
+      phone: phone?.trim() || null,
+      subject: subject.trim(),
+      message: message.trim(),
+    });
+  }
 
   // Also try email if SMTP is configured
   const transport = makeTransport();
