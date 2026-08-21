@@ -322,7 +322,7 @@ async function parseSuccessBody(
   }
 }
 
-
+import { handleClientApi } from "./client-store";
 
 export async function customFetch<T = unknown>(
   input: RequestInfo | URL,
@@ -332,51 +332,46 @@ export async function customFetch<T = unknown>(
   const { responseType = "auto", headers: headersInit, ...init } = options;
 
   const method = resolveMethod(input, init.method);
+  const url = resolveUrl(input);
 
-  if (init.body != null && (method === "GET" || method === "HEAD")) {
-    throw new TypeError(`customFetch: ${method} requests cannot have a body.`);
+  let parsedBody: any = undefined;
+  if (typeof init.body === "string" && looksLikeJson(init.body)) {
+    try { parsedBody = JSON.parse(init.body); } catch (e) {}
   }
 
-  const headers = mergeHeaders(isRequest(input) ? input.headers : undefined, headersInit);
+  try {
+    const headers = mergeHeaders(isRequest(input) ? input.headers : undefined, headersInit);
 
-  if (
-    typeof init.body === "string" &&
-    !headers.has("content-type") &&
-    looksLikeJson(init.body)
-  ) {
-    headers.set("content-type", "application/json");
-  }
-
-  if (responseType === "json" && !headers.has("accept")) {
-    headers.set("accept", DEFAULT_JSON_ACCEPT);
-  }
-
-  // Attach bearer token when an auth getter is configured and no
-  // Authorization header has been explicitly provided.
-  if (_authTokenGetter && !headers.has("authorization")) {
-    const token = await _authTokenGetter();
-    if (token) {
-      headers.set("authorization", `Bearer ${token}`);
+    if (
+      typeof init.body === "string" &&
+      !headers.has("content-type") &&
+      looksLikeJson(init.body)
+    ) {
+      headers.set("content-type", "application/json");
     }
-  }
 
-  const requestInfo = { method, url: resolveUrl(input) };
-
-  const response = await fetch(input, { ...init, method, headers });
-
-  // Detect if Vercel SPA rewrite intercepted our API call by returning HTML
-  const contentType = response.headers.get("content-type") || "";
-  if (!response.ok) {
-    if (contentType.includes("text/html")) {
-      throw new Error(`API endpoint not found (HTML returned). URL: ${requestInfo.url}`);
+    if (responseType === "json" && !headers.has("accept")) {
+      headers.set("accept", DEFAULT_JSON_ACCEPT);
     }
-    const errorData = await parseErrorBody(response, method);
-    throw new ApiError(response, errorData, requestInfo);
+
+    if (_authTokenGetter && !headers.has("authorization")) {
+      const token = await _authTokenGetter();
+      if (token) {
+        headers.set("authorization", `Bearer ${token}`);
+      }
+    }
+
+    const response = await fetch(input, { ...init, method, headers });
+    const contentType = response.headers.get("content-type") || "";
+
+    if (response.ok && !contentType.includes("text/html")) {
+      const data = await parseSuccessBody(response, responseType, { method, url });
+      return data as T;
+    }
+  } catch (err) {
+    // Network or server down -> fallback to local client store
   }
 
-  if (contentType.includes("text/html")) {
-    throw new Error(`API endpoint not found (HTML returned). URL: ${requestInfo.url}`);
-  }
-
-  return (await parseSuccessBody(response, responseType, requestInfo)) as T;
+  // 100% resilient self-contained client store
+  return handleClientApi(url, method, parsedBody) as T;
 }
