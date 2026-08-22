@@ -4,8 +4,6 @@ import crypto from "crypto";
 import Parser from "rss-parser";
 import { GoogleGenAI } from "@google/genai";
 import { query, pool } from "./db.js";
-import { JSDOM } from "jsdom";
-import { Readability } from "@mozilla/readability";
 
 const app = express();
 const rssParser = new Parser();
@@ -547,36 +545,45 @@ app.post(["/api/admin/rss/ingest-all", "/api/admin/rss/feeds/:id/ingest", "/admi
                 if (imgMatch) coverImage = imgMatch[1];
               }
               
-              // Scrape full article content
+              // Fetch full article HTML
+              let fullHtml = "";
               try {
                 if (item.link) {
                   const htmlRes = await fetch(item.link);
                   if (htmlRes.ok) {
-                    const htmlText = await htmlRes.text();
-                    const doc = new JSDOM(htmlText, { url: item.link });
-                    const reader = new Readability(doc.window.document);
-                    const article = reader.parse();
-                    if (article) {
-                      if (article.content) content = article.content;
-                      if (article.excerpt && !summary) summary = article.excerpt.substring(0, 250);
-                    }
-                    
-                    // Try to extract open graph image if not found yet
+                    fullHtml = await htmlRes.text();
+                    // Basic regex to find OG image if not extracted
                     if (!coverImage) {
-                      const ogImage = doc.window.document.querySelector('meta[property="og:image"]');
-                      if (ogImage) coverImage = ogImage.getAttribute('content');
+                      const ogMatch = fullHtml.match(/<meta[^>]*property="og:image"[^>]*content="([^"]+)"/i);
+                      if (ogMatch) coverImage = ogMatch[1];
                     }
+                    // Trim HTML to fit in prompt and remove style/script tags
+                    fullHtml = fullHtml.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+                                       .replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, '')
+                                       .substring(0, 100000); 
                   }
                 }
               } catch (scrapeErr) {
-                console.error("Scrape error for " + item.link, scrapeErr.message);
+                console.error("Fetch error for " + item.link, scrapeErr.message);
               }
 
               // Translate using Gemini if configured
               if (process.env.GEMINI_API_KEY) {
                 try {
                   const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-                  const jsonPrompt = `Dịch các trường sau sang tiếng Việt chuẩn văn phong báo chí. Trả về ĐÚNG định dạng JSON nguyên chất (không có markdown code block) với 3 key: "title", "summary", "content". Giữ nguyên các thẻ HTML trong content.\n\nJSON gốc:\n${JSON.stringify({title, summary, content})}`;
+                  const jsonPrompt = `Bạn là một biên tập viên báo chí. Đây là mã HTML từ một trang web tin tức nước ngoài.
+Nhiệm vụ của bạn là TRÍCH XUẤT nội dung chính của bài báo, sau đó DỊCH sang tiếng Việt chuẩn văn phong báo chí.
+Trả về ĐÚNG định dạng JSON nguyên chất (không có markdown code block) với 3 key:
+- "title": Tiêu đề bài viết bằng tiếng Việt.
+- "summary": Tóm tắt nội dung bằng tiếng Việt (tối đa 250 ký tự).
+- "content": Nội dung chính của bài báo bằng tiếng Việt (chỉ lấy phần nội dung bài báo, không lấy menu, quảng cáo, footer). Cố gắng giữ lại các thẻ HTML cơ bản (p, h2, b, i) nếu có.
+
+Nếu HTML bị trống hoặc lỗi, hãy sử dụng thông tin dự phòng sau:
+Tiêu đề dự phòng: ${title}
+Tóm tắt dự phòng: ${summary}
+
+HTML Bài báo:
+${fullHtml || content}`;
                   
                   const response = await ai.models.generateContent({
                     model: 'gemini-3.6-flash',
