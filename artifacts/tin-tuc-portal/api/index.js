@@ -4,6 +4,8 @@ import crypto from "crypto";
 import Parser from "rss-parser";
 import { GoogleGenAI } from "@google/genai";
 import { query, pool } from "./db.js";
+import { JSDOM } from "jsdom";
+import { Readability } from "@mozilla/readability";
 
 const app = express();
 const rssParser = new Parser();
@@ -537,12 +539,37 @@ app.post(["/api/admin/rss/ingest-all", "/api/admin/rss/feeds/:id/ingest", "/admi
               let content = item.content || summary;
               let coverImage = "";
 
-              // Try to extract image from enclosure or content
+              // Try to extract image from enclosure or content initially
               if (item.enclosure && item.enclosure.url && item.enclosure.url.startsWith('http')) {
                 coverImage = item.enclosure.url;
               } else {
                 const imgMatch = content.match(/<img[^>]+src="([^">]+)"/);
                 if (imgMatch) coverImage = imgMatch[1];
+              }
+              
+              // Scrape full article content
+              try {
+                if (item.link) {
+                  const htmlRes = await fetch(item.link);
+                  if (htmlRes.ok) {
+                    const htmlText = await htmlRes.text();
+                    const doc = new JSDOM(htmlText, { url: item.link });
+                    const reader = new Readability(doc.window.document);
+                    const article = reader.parse();
+                    if (article) {
+                      if (article.content) content = article.content;
+                      if (article.excerpt && !summary) summary = article.excerpt.substring(0, 250);
+                    }
+                    
+                    // Try to extract open graph image if not found yet
+                    if (!coverImage) {
+                      const ogImage = doc.window.document.querySelector('meta[property="og:image"]');
+                      if (ogImage) coverImage = ogImage.getAttribute('content');
+                    }
+                  }
+                }
+              } catch (scrapeErr) {
+                console.error("Scrape error for " + item.link, scrapeErr.message);
               }
 
               // Translate using Gemini if configured
