@@ -29,8 +29,8 @@ export function MediaPickerBtn({ onSelect, label = 'Chọn từ Media' }: MediaP
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const data = await apiFetch<MediaFile[]>('/media');
-      setFiles(data);
+      const data = await apiFetch<{ items: MediaFile[] } | MediaFile[]>('/media');
+      setFiles(Array.isArray(data) ? data : (data.items ?? []));
     } finally {
       setLoading(false);
     }

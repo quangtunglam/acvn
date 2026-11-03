@@ -1,4 +1,3 @@
-// Trigger Vercel deploy
 import { useEffect, useRef, useState } from 'react';
 import { Edit2, Plus, RefreshCw, Rss, Trash2 } from 'lucide-react';
 import { AdminPage, Badge, Btn, Input, Modal, Select, useAdmin } from './layout';
@@ -57,8 +56,7 @@ export default function AdminRSS() {
   useEffect(() => { load(); }, [apiFetch]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const openCreate = (preset?: typeof PRESETS[0]) => {
-    const defaultCatId = categories.length > 0 ? String(categories[0].id) : '';
-    setForm(preset ? { ...EMPTY, name: preset.name, url: preset.url, categoryId: defaultCatId } : { ...EMPTY, categoryId: defaultCatId });
+    setForm(preset ? { ...EMPTY, name: preset.name, url: preset.url } : EMPTY);
     setFormError(''); setModal({ open: true, editing: null });
   };
   const openEdit = (f: Feed) => {
@@ -75,9 +73,8 @@ export default function AdminRSS() {
 
   const saveFeed = async (e: React.FormEvent) => {
     e.preventDefault(); setSaving(true); setFormError('');
-    const targetCatId = form.categoryId || (categories.length > 0 ? String(categories[0].id) : '1');
     try {
-      const body = { ...form, categoryId: Number(targetCatId), countryId: form.countryId ? Number(form.countryId) : null };
+      const body = { ...form, categoryId: Number(form.categoryId), countryId: form.countryId ? Number(form.countryId) : null };
       if (modal.editing) {
         await apiFetch(`/rss/feeds/${modal.editing.id}`, { method: 'PATCH', body: JSON.stringify(body) });
       } else {
@@ -93,11 +90,7 @@ export default function AdminRSS() {
     try {
       const path = feedId === 'all' ? '/rss/ingest-all' : `/rss/feeds/${feedId}/ingest`;
       const results = await apiFetch<IngestResult[]>(path, { method: 'POST' });
-      if (Array.isArray(results)) {
-        setIngestLog((prev) => [...results, ...prev].slice(0, 50));
-      } else {
-        throw new Error('API return invalid format: ' + JSON.stringify(results));
-      }
+      setIngestLog((prev) => [...results, ...prev].slice(0, 50));
       load();
       setTimeout(() => logRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
     } catch (err: unknown) {
@@ -265,5 +258,3 @@ export default function AdminRSS() {
     </AdminPage>
   );
 }
-
-// force deploy 3

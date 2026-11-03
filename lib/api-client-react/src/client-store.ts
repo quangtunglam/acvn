@@ -14,7 +14,7 @@ interface StoredData {
   subscribers: any[];
 }
 
-const STORAGE_KEY = "acvn_local_db_v1";
+const STORAGE_KEY = "acvn_local_db_v3";
 
 function loadStore(): StoredData {
   if (typeof window === "undefined") {

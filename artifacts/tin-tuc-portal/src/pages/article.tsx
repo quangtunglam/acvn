@@ -87,6 +87,10 @@ export default function ArticlePage() {
     );
   }
 
+  const resolvedSourceName = article.sourceName || (article.sourceUrl ? (() => {
+    try { return new URL(article.sourceUrl).hostname.replace(/^www\./, ''); } catch { return article.sourceUrl; }
+  })() : null);
+
   return (
     <PageShell>
       {/* Breadcrumb */}
@@ -145,11 +149,11 @@ export default function ArticlePage() {
           <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
             <Eye size={13} /> {article.views.toLocaleString('vi-VN')} lượt đọc
           </span>
-          {article.sourceName && (
+          {resolvedSourceName && (
             <span>
               Nguồn: {article.sourceUrl
-                ? <a href={article.sourceUrl} target="_blank" rel="noopener noreferrer">{article.sourceName}</a>
-                : article.sourceName}
+                ? <a href={article.sourceUrl} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--color-crimson)', fontWeight: 600, textDecoration: 'underline' }}>{resolvedSourceName}</a>
+                : resolvedSourceName}
             </span>
           )}
         </div>
@@ -175,6 +179,24 @@ export default function ArticlePage() {
             fontFamily: 'var(--font-serif)',
           }}
         />
+
+        {resolvedSourceName && (
+          <div style={{ marginTop: '1.5rem', textAlign: 'right', fontSize: '0.88rem', color: 'var(--color-ink-light)', fontStyle: 'italic' }}>
+            Theo{' '}
+            {article.sourceUrl ? (
+              <a
+                href={article.sourceUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ color: 'var(--color-crimson)', fontWeight: 600, textDecoration: 'underline' }}
+              >
+                {resolvedSourceName}
+              </a>
+            ) : (
+              <strong style={{ color: 'var(--color-ink)' }}>{resolvedSourceName}</strong>
+            )}
+          </div>
+        )}
 
         {/* Back link */}
         <div style={{ marginTop: '2.5rem', borderTop: '1px solid var(--color-rule)', paddingTop: '1.5rem' }}>

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Copy, Image, Trash2, Upload } from 'lucide-react';
+import { Copy, Image, Trash2, Upload, Wrench } from 'lucide-react';
 import { AdminPage, Btn, useAdmin } from './layout';
 
 type MediaFile = {
@@ -8,6 +8,12 @@ type MediaFile = {
   size: number;
   updatedAt: string;
   contentType: string;
+};
+
+type MediaListResponse = {
+  items: MediaFile[];
+  totalBytes: number;
+  pendingUploads: number;
 };
 
 function fmtSize(bytes: number) {
@@ -23,8 +29,11 @@ function fmtDate(s: string) {
 export default function AdminMedia() {
   const { apiFetch, token } = useAdmin();
   const [files, setFiles] = useState<MediaFile[]>([]);
+  const [totalBytes, setTotalBytes] = useState(0);
+  const [pendingUploads, setPendingUploads] = useState(0);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
+  const [cleaning, setCleaning] = useState(false);
   const [progress, setProgress] = useState(0);
   const [copied, setCopied] = useState('');
   const fileRef = useRef<HTMLInputElement>(null);
@@ -32,8 +41,16 @@ export default function AdminMedia() {
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const data = await apiFetch<MediaFile[]>('/media');
-      setFiles(data);
+      const data = await apiFetch<MediaListResponse | MediaFile[]>('/media');
+      if (Array.isArray(data)) {
+        setFiles(data);
+        setTotalBytes(data.reduce((sum, f) => sum + (f.size || 0), 0));
+        setPendingUploads(0);
+      } else {
+        setFiles(data.items ?? []);
+        setTotalBytes(data.totalBytes ?? 0);
+        setPendingUploads(data.pendingUploads ?? 0);
+      }
     } finally {
       setLoading(false);
     }
@@ -41,32 +58,51 @@ export default function AdminMedia() {
 
   useEffect(() => { load(); }, [load]);
 
+  const MAX_SIZE = 10 * 1024 * 1024;
+
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     if (!file.type.startsWith('image/')) {
-      alert('Chỉ hỗ trợ ảnh (jpg, png, gif, webp...)');
+      alert('Chỉ hỗ trợ ảnh (jpg, png, gif, webp…). Vui lòng chọn file ảnh.');
+      if (fileRef.current) fileRef.current.value = '';
+      return;
+    }
+    if (file.size > MAX_SIZE) {
+      alert(`Ảnh quá lớn (${(file.size / 1024 / 1024).toFixed(1)} MB). Dung lượng tối đa là 10 MB.`);
+      if (fileRef.current) fileRef.current.value = '';
       return;
     }
     setUploading(true);
     setProgress(0);
     try {
-      // Step 1: get presigned URL
-      const { uploadURL, servingURL } = await apiFetch<{ uploadURL: string; servingURL: string }>('/media/upload-url', {
-        method: 'POST',
-        body: JSON.stringify({ name: file.name, size: file.size, contentType: file.type }),
-      });
-
-      // Step 2: upload directly to GCS via presigned URL
-      await new Promise<void>((resolve, reject) => {
+      await new Promise<{ servingURL: string }>((resolve, reject) => {
         const xhr = new XMLHttpRequest();
         xhr.upload.onprogress = (ev) => {
           if (ev.lengthComputable) setProgress(Math.round((ev.loaded / ev.total) * 100));
         };
-        xhr.onload = () => (xhr.status >= 200 && xhr.status < 300 ? resolve() : reject(new Error(`Upload failed: ${xhr.status}`)));
-        xhr.onerror = () => reject(new Error('Network error'));
-        xhr.open('PUT', uploadURL);
+        xhr.onload = () => {
+          if (xhr.status >= 200 && xhr.status < 300) {
+            try {
+              resolve(JSON.parse(xhr.responseText));
+            } catch {
+              reject(new Error('Phản hồi không hợp lệ từ máy chủ.'));
+            }
+          } else {
+            let msg = `Upload thất bại (mã lỗi: ${xhr.status}).`;
+            try {
+              const errJson = JSON.parse(xhr.responseText);
+              if (errJson.error) msg = errJson.error;
+            } catch { /* ignore */ }
+            reject(new Error(msg));
+          }
+        };
+        xhr.onerror = () => reject(new Error('Mất kết nối khi đang upload. Kiểm tra mạng và thử lại.'));
+        xhr.ontimeout = () => reject(new Error('Upload quá thời gian. Vui lòng thử lại.'));
+        xhr.timeout = 120000;
+        xhr.open('POST', '/api/admin/media/upload');
         xhr.setRequestHeader('Content-Type', file.type);
+        xhr.setRequestHeader('X-Admin-Token', token);
         xhr.send(file);
       });
 
@@ -82,10 +118,26 @@ export default function AdminMedia() {
 
   const handleDelete = async (key: string) => {
     if (!confirm('Xóa ảnh này? Không thể khôi phục.')) return;
-    // key = "uploads/{uuid}" — extract uuid portion
     const uuid = key.replace(/^uploads\//, '');
     await apiFetch(`/media/uploads/${uuid}`, { method: 'DELETE' });
     setFiles((prev) => prev.filter((f) => f.key !== key));
+  };
+
+  const handleCleanup = async () => {
+    if (!confirm('Dọn các object upload quá 24 giờ không còn được bài viết, banner hoặc sự kiện tham chiếu?')) return;
+    setCleaning(true);
+    try {
+      const res = await apiFetch<{ deletedCount: number; deletedBytes: number }>('/media/cleanup', {
+        method: 'POST',
+        body: JSON.stringify({ olderThanHours: 24 }),
+      });
+      await load();
+      alert(`Đã dọn ${res.deletedCount} file (${fmtSize(res.deletedBytes)}).`);
+    } catch (err) {
+      alert(`Không thể dọn media: ${err instanceof Error ? err.message : String(err)}`);
+    } finally {
+      setCleaning(false);
+    }
   };
 
   const copyURL = (url: string) => {
@@ -101,6 +153,9 @@ export default function AdminMedia() {
         <Btn onClick={() => fileRef.current?.click()} disabled={uploading}>
           <Upload size={14} /> {uploading ? `Đang upload… ${progress}%` : 'Upload ảnh'}
         </Btn>
+        <Btn variant="secondary" onClick={handleCleanup} disabled={uploading || cleaning}>
+          <Wrench size={14} /> {cleaning ? 'Đang dọn…' : 'Dọn file mồ côi'}
+        </Btn>
         <input
           ref={fileRef}
           type="file"
@@ -114,7 +169,7 @@ export default function AdminMedia() {
           </div>
         )}
         <span style={{ fontSize: '0.8rem', color: 'var(--color-ink-light)', marginLeft: 'auto' }}>
-          {files.length} ảnh
+          {files.length} ảnh · {fmtSize(totalBytes)} đang dùng{pendingUploads > 0 && ` · ${pendingUploads} upload đang chờ`}
         </span>
       </div>
 

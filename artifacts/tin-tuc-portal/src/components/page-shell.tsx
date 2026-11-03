@@ -44,49 +44,28 @@ export function UtilityBar() {
   }).format(new Date());
   const fx = useExchangeRates();
   const fmt = (n: number) => n.toLocaleString('cs-CZ', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  const [, setLocation] = useLocation();
 
   return (
     <div className="utility">
-      <div className="wrap" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <div className="u-left" style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+      <div className="wrap">
+        <div className="u-left">
           <span className="u-date" data-testid="text-current-date">{today}</span>
-          {fx && (
-            <span className="u-fx" aria-label="Tỉ giá ngoại tệ">
-              <span className="u-fx-pair">
-                <svg className="u-fx-icon u-fx-icon--usd" viewBox="0 0 18 18" aria-hidden="true"><circle cx="9" cy="9" r="9" fill="#22a55b"/><text x="9" y="13" textAnchor="middle" fontSize="11" fontWeight="700" fill="#fff">$</text></svg>
-                <span className="u-fx-label">USD</span>
-                <span className="u-fx-rate">{fmt(fx.usd)} Kč</span>
-              </span>
-              <span className="u-fx-sep">·</span>
-              <span className="u-fx-pair">
-                <svg className="u-fx-icon u-fx-icon--eur" viewBox="0 0 18 18" aria-hidden="true"><circle cx="9" cy="9" r="9" fill="#2563eb"/><text x="9" y="13" textAnchor="middle" fontSize="11" fontWeight="700" fill="#fff">€</text></svg>
-                <span className="u-fx-label">EUR</span>
-                <span className="u-fx-rate">{fmt(fx.eur)} Kč</span>
-              </span>
-            </span>
-          )}
         </div>
-        <button
-          type="button"
-          onClick={() => setLocation('/admin')}
-          style={{
-            background: 'rgba(255,255,255,0.12)',
-            border: '1px solid rgba(255,255,255,0.2)',
-            color: '#ffffff',
-            fontSize: '0.75rem',
-            fontWeight: 700,
-            cursor: 'pointer',
-            padding: '4px 10px',
-            borderRadius: 6,
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: 6,
-            transition: 'background 0.2s',
-          }}
-        >
-          🔐 Đăng nhập Quản trị
-        </button>
+        {fx && (
+          <span className="u-fx" aria-label="Tỉ giá ngoại tệ">
+            <span className="u-fx-pair">
+              <svg className="u-fx-icon u-fx-icon--usd" viewBox="0 0 18 18" aria-hidden="true"><circle cx="9" cy="9" r="9" fill="#22a55b"/><text x="9" y="13" textAnchor="middle" fontSize="11" fontWeight="700" fill="#fff">$</text></svg>
+              <span className="u-fx-label">USD</span>
+              <span className="u-fx-rate">{fmt(fx.usd)} Kč</span>
+            </span>
+            <span className="u-fx-sep">·</span>
+            <span className="u-fx-pair">
+              <svg className="u-fx-icon u-fx-icon--eur" viewBox="0 0 18 18" aria-hidden="true"><circle cx="9" cy="9" r="9" fill="#2563eb"/><text x="9" y="13" textAnchor="middle" fontSize="11" fontWeight="700" fill="#fff">€</text></svg>
+              <span className="u-fx-label">EUR</span>
+              <span className="u-fx-rate">{fmt(fx.eur)} Kč</span>
+            </span>
+          </span>
+        )}
       </div>
     </div>
   );
@@ -98,15 +77,13 @@ export function Masthead() {
   return (
     <header className="masthead">
       <div className="wrap masthead-inner">
-        <a href="/" className="masthead-logo-wrap">
-          <img
-            src="/logo-hoi.png"
-            alt="Logo Hội người Czech gốc Việt Nam"
-            className="masthead-logo-img"
-            data-testid="img-logo"
-          />
+        {/* Left — logo */}
+        <a className="masthead-logo-wrap" href="/" aria-label="Trang chủ" data-testid="link-logo">
+          <img src="/logo-hoi.png" alt="Logo Hội người Czech gốc Việt Nam" className="masthead-logo-img" />
         </a>
-        <a href="/" className="masthead-names">
+
+        {/* Right — stacked names */}
+        <a className="masthead-names" href="/" aria-label="Trang chủ">
           <span className="masthead-name masthead-name--vi">Hội người Czech gốc Việt Nam</span>
           <span className="masthead-name masthead-name--cs">Asociace Českých občanů Vietnamského původu, z. s.</span>
         </a>
@@ -152,7 +129,6 @@ const NAV_LINKS: NavItem[] = [
       { label: 'Đăng ký tài trợ', href: '/dang-ky/tai-tro' },
     ],
   },
-  { label: 'Quản trị', href: '/admin' },
 ];
 
 export function Navigation({

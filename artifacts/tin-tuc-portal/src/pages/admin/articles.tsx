@@ -35,7 +35,7 @@ type FormData = {
 const EMPTY: FormData = {
   title: '', slug: '', summary: '', content: '<p></p>', coverImage: '',
   categoryId: '', countryId: '', authorId: '', sourceName: '', sourceUrl: '',
-  editor: 'VietPress EU', publishedAt: '', status: 'draft', featured: false, breakingNews: false,
+  editor: 'ACVN', publishedAt: '', status: 'draft', featured: false, breakingNews: false,
   mostReadRank: '',
 };
 
@@ -70,6 +70,7 @@ export default function AdminArticles() {
   const [saving, setSaving] = useState(false);
   const [translating, setTranslating] = useState(false);
   const [error, setError] = useState('');
+  const [selectedIds, setSelectedIds] = useState<number[]>([]);
 
   const load = useCallback(async () => {
     const q = new URLSearchParams({ page: String(page), pageSize: '20' });
@@ -80,6 +81,7 @@ export default function AdminArticles() {
     if (feedFilter) q.set('sourceName', feedFilter);
     const d = await apiFetch<ArticleList>(`/articles?${q}`);
     setData(d);
+    setSelectedIds([]);
   }, [apiFetch, page, statusFilter, categoryFilter, rssOnly, dateFilter, feedFilter]);
 
   useEffect(() => {
@@ -95,7 +97,7 @@ export default function AdminArticles() {
     setError('');
     setForm({
       title: a.title, slug: a.slug, summary: a.summary, content: a.content,
-      coverImage: a.coverImage ?? '', 
+      coverImage: a.coverImage ?? '',
       categoryId: a.category ? String(a.category.id) : (a.categoryId ? String(a.categoryId) : ''),
       countryId: a.country ? String(a.country.id) : (a.countryId ? String(a.countryId) : ''),
       authorId: a.author ? String(a.author.id) : (a.authorId ? String(a.authorId) : ''),
@@ -112,6 +114,21 @@ export default function AdminArticles() {
     if (!confirm('Xóa bài viết này?')) return;
     await apiFetch(`/articles/${id}`, { method: 'DELETE' });
     load();
+  };
+
+  const handleBulkDelete = async () => {
+    if (selectedIds.length === 0) return;
+    if (!confirm(`Xóa ${selectedIds.length} bài viết đã chọn?`)) return;
+    try {
+      await apiFetch('/articles/bulk-delete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ids: selectedIds }),
+      });
+      load();
+    } catch (err: any) {
+      alert(err.message);
+    }
   };
 
   const f = (k: keyof FormData, v: string | boolean) => {
@@ -179,6 +196,11 @@ export default function AdminArticles() {
       {/* Toolbar */}
       <div style={{ display: 'flex', gap: 8, marginBottom: '1rem', flexWrap: 'wrap', alignItems: 'center' }}>
         <Btn onClick={openCreate}><Plus size={14} /> Bài viết mới</Btn>
+        {selectedIds.length > 0 && (
+          <Btn onClick={handleBulkDelete} style={{ background: 'var(--color-crimson)', color: '#fff' }}>
+            <Trash2 size={14} /> Xóa {selectedIds.length} bài
+          </Btn>
+        )}
 
         {/* Trạng thái */}
         <select
@@ -238,6 +260,13 @@ export default function AdminArticles() {
         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
           <thead>
             <tr style={{ background: 'var(--color-bone)', textAlign: 'left' }}>
+              <th style={{ padding: '0.6rem 0.75rem', width: 30, borderBottom: '1px solid var(--color-rule)' }}>
+                <input
+                  type="checkbox"
+                  checked={Boolean(data?.items.length && selectedIds.length === data.items.length)}
+                  onChange={(e) => setSelectedIds(e.target.checked ? (data?.items.map(a => a.id) || []) : [])}
+                />
+              </th>
               {['Tiêu đề', 'Danh mục', 'Trạng thái', 'Lượt đọc', 'Cập nhật', ''].map(h => (
                 <th key={h} style={{ padding: '0.6rem 0.75rem', fontWeight: 600, color: '#000', fontSize: '0.8rem', borderBottom: '1px solid var(--color-rule)' }}>{h}</th>
               ))}
@@ -246,6 +275,13 @@ export default function AdminArticles() {
           <tbody>
             {data?.items.map((a) => (
               <tr key={a.id} style={{ borderBottom: '1px solid var(--color-bone)' }}>
+                <td style={{ padding: '0.6rem 0.75rem' }}>
+                  <input
+                    type="checkbox"
+                    checked={selectedIds.includes(a.id)}
+                    onChange={(e) => setSelectedIds(e.target.checked ? [...selectedIds, a.id] : selectedIds.filter(id => id !== a.id))}
+                  />
+                </td>
                 <td style={{ padding: '0.6rem 0.75rem', maxWidth: 340 }}>
                   <div style={{ fontWeight: 600, color: 'var(--color-navy)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{a.title}</div>
                   <div style={{ fontSize: '0.75rem', color: 'var(--color-ink-light)', fontFamily: 'var(--font-mono)' }}>{a.slug}</div>
@@ -254,6 +290,7 @@ export default function AdminArticles() {
                 <td style={{ padding: '0.6rem 0.75rem', whiteSpace: 'nowrap' }}>
                   <Badge color={a.status === 'published' ? 'green' : 'orange'}>{a.status}</Badge>
                   {a.featured && <Badge color="gray" children=" ★" />}
+                  {a.mostReadRank && <Badge color="blue" children={` #${a.mostReadRank}`} />}
                 </td>
                 <td style={{ padding: '0.6rem 0.75rem', color: 'var(--color-ink-light)' }}>{a.views.toLocaleString('vi-VN')}</td>
                 <td style={{ padding: '0.6rem 0.75rem', color: 'var(--color-ink-light)', whiteSpace: 'nowrap', fontSize: '0.78rem' }}>
@@ -269,7 +306,7 @@ export default function AdminArticles() {
               </tr>
             ))}
             {!data?.items.length && (
-              <tr><td colSpan={6} style={{ padding: '2rem', textAlign: 'center', color: 'var(--color-ink-light)' }}>Chưa có bài viết</td></tr>
+              <tr><td colSpan={7} style={{ padding: '2rem', textAlign: 'center', color: 'var(--color-ink-light)' }}>Chưa có bài viết</td></tr>
             )}
           </tbody>
         </table>
@@ -336,7 +373,7 @@ export default function AdminArticles() {
                 <input type="checkbox" checked={form.breakingNews} onChange={(e) => f('breakingNews', e.target.checked)} />
                 Tin nóng (ticker)
               </label>
-              <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '0.85rem' }}>
+              <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '0.85rem', flexWrap: 'wrap' }}>
                 <span style={{ whiteSpace: 'nowrap', fontWeight: 600 }}>Đọc nhiều (vị trí):</span>
                 <select
                   value={form.mostReadRank}
@@ -346,6 +383,7 @@ export default function AdminArticles() {
                   <option value="">— Không ghim —</option>
                   {[1,2,3,4,5].map(n => <option key={n} value={String(n)}>#{n}</option>)}
                 </select>
+                <span style={{ fontSize: '0.75rem', color: 'var(--color-ink-light)' }}>Chọn vị trí sẽ thay thế bài đang giữ vị trí đó.</span>
               </label>
             </div>
 

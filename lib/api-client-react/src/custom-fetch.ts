@@ -368,15 +368,26 @@ export async function customFetch<T = unknown>(
       const data = await parseSuccessBody(response, responseType, { method, url });
       return data as T;
     }
-    
-    // Throw error if response is not ok
+
     if (!response.ok) {
-      const errText = await response.text().catch(() => '');
-      throw new Error(`HTTP Error ${response.status}: ${errText}`);
+      const errorData = await parseErrorBody(response, method);
+      throw new ApiError(response, errorData, { method, url });
+    }
+
+    const fallback = handleClientApi(url, method, parsedBody);
+    if (fallback !== undefined) {
+      return fallback as T;
     }
   } catch (err) {
+    if (err instanceof ApiError || err instanceof ResponseParseError) {
+      throw err;
+    }
+    const fallback = handleClientApi(url, method, parsedBody);
+    if (fallback !== undefined) {
+      return fallback as T;
+    }
     throw err;
   }
-  
+
   throw new Error("Unexpected fetch failure");
 }
