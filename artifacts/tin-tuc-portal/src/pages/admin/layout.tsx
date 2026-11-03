@@ -35,6 +35,7 @@ const VALID_ADMIN_TOKEN = `${VALID_ADMIN_ID}:${VALID_ADMIN_PASS}`;
 function LoginScreen({ onLogin }: { onLogin: (token: string) => void }) {
   const [adminId, setAdminId] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -45,7 +46,7 @@ function LoginScreen({ onLogin }: { onLogin: (token: string) => void }) {
     const trimmedId = adminId.trim();
 
     if (trimmedId !== VALID_ADMIN_ID || password !== VALID_ADMIN_PASS) {
-      setError('ID hoặc Password không đúng. Vui lòng kiểm tra lại.');
+      setError('ID hoặc Mật khẩu không đúng. Vui lòng kiểm tra lại.');
       setLoading(false);
       return;
     }
@@ -89,13 +90,13 @@ function LoginScreen({ onLogin }: { onLogin: (token: string) => void }) {
         </div>
         <form onSubmit={handleSubmit}>
           <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: 6, color: 'var(--color-ink)' }}>
-            ID
+            ID đăng nhập
           </label>
           <input
             type="text"
             value={adminId}
             onChange={(e) => setAdminId(e.target.value)}
-            placeholder="Nhập ID quản trị…"
+            placeholder="Nhập ID quản trị (admin)…"
             autoFocus
             autoComplete="username"
             style={{
@@ -105,20 +106,33 @@ function LoginScreen({ onLogin }: { onLogin: (token: string) => void }) {
             }}
           />
           <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: 6, color: 'var(--color-ink)' }}>
-            Password
+            Mật khẩu (Password)
           </label>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="Nhập mật khẩu quản trị…"
-            autoComplete="current-password"
-            style={{
-              width: '100%', padding: '0.6rem 0.75rem', border: '1px solid var(--color-rule)',
-              borderRadius: 4, marginBottom: '0.75rem', fontSize: '0.95rem',
-              fontFamily: 'var(--font-sans)', boxSizing: 'border-box',
-            }}
-          />
+          <div style={{ position: 'relative', marginBottom: '0.85rem' }}>
+            <input
+              type={showPassword ? 'text' : 'password'}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Nhập mật khẩu quản trị…"
+              autoComplete="current-password"
+              style={{
+                width: '100%', padding: '0.6rem 2.5rem 0.6rem 0.75rem', border: '1px solid var(--color-rule)',
+                borderRadius: 4, fontSize: '0.95rem',
+                fontFamily: 'var(--font-sans)', boxSizing: 'border-box',
+              }}
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword((v) => !v)}
+              style={{
+                position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)',
+                background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.75rem',
+                color: 'var(--color-ink-light)', fontWeight: 600,
+              }}
+            >
+              {showPassword ? 'Ẩn' : 'Hiện'}
+            </button>
+          </div>
           {error && (
             <p style={{ color: 'var(--color-crimson)', fontSize: '0.85rem', marginBottom: '0.75rem' }}>{error}</p>
           )}
