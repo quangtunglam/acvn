@@ -1069,14 +1069,20 @@ app.post("/api/register/sponsor", async (req, res) => {
 
 // ─── Auth & Admin Middleware ──────────────────────────────────────────────────
 
+const ADMIN_ID = process.env.ADMIN_ID || "admin";
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "Thuyenthong2026";
+const VALID_ADMIN_TOKENS = new Set([
+  `${ADMIN_ID}:${ADMIN_PASSWORD}`,
+  ADMIN_PASSWORD,
+]);
+
 app.post("/api/auth/login", (req, res) => {
-  const { password } = req.body || {};
-  const adminPass = process.env.ADMIN_PASSWORD || "admin123";
-  if (password === adminPass || password === "admin123" || password === "acvn2026") {
-    const token = crypto.randomBytes(24).toString("hex");
-    return res.json({ token, success: true });
+  const { id, username, password } = req.body || {};
+  const loginId = String(id ?? username ?? "admin").trim();
+  if (loginId === ADMIN_ID && password === ADMIN_PASSWORD) {
+    return res.json({ token: `${ADMIN_ID}:${ADMIN_PASSWORD}`, success: true });
   }
-  res.status(401).json({ error: "Mật khẩu không đúng" });
+  res.status(401).json({ error: "ID hoặc mật khẩu không đúng" });
 });
 
 app.post("/api/auth/logout", (_req, res) => {
@@ -1084,10 +1090,11 @@ app.post("/api/auth/logout", (_req, res) => {
 });
 
 function requireAdmin(req, res, next) {
-  const token =
+  const token = String(
     req.headers["x-admin-token"] ||
-    (req.headers.authorization ? req.headers.authorization.replace(/^Bearer\s+/i, "") : "");
-  if (!token) {
+      (req.headers.authorization ? req.headers.authorization.replace(/^Bearer\s+/i, "") : "")
+  ).trim();
+  if (!token || !VALID_ADMIN_TOKENS.has(token)) {
     return res.status(401).json({ error: "Unauthorized" });
   }
   next();

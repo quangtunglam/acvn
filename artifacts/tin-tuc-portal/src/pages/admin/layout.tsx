@@ -28,8 +28,13 @@ export function useAdmin() {
 
 // ─── Login screen ─────────────────────────────────────────────────────────────
 
+const VALID_ADMIN_ID = 'admin';
+const VALID_ADMIN_PASS = 'Thuyenthong2026';
+const VALID_ADMIN_TOKEN = `${VALID_ADMIN_ID}:${VALID_ADMIN_PASS}`;
+
 function LoginScreen({ onLogin }: { onLogin: (token: string) => void }) {
-  const [input, setInput] = useState('');
+  const [adminId, setAdminId] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -37,24 +42,28 @@ function LoginScreen({ onLogin }: { onLogin: (token: string) => void }) {
     e.preventDefault();
     setLoading(true);
     setError('');
-    const token = input.trim();
+    const trimmedId = adminId.trim();
+
+    if (trimmedId !== VALID_ADMIN_ID || password !== VALID_ADMIN_PASS) {
+      setError('ID hoặc Password không đúng. Vui lòng kiểm tra lại.');
+      setLoading(false);
+      return;
+    }
+
     try {
-      await customFetch('/api/admin/stats', { headers: { 'X-Admin-Token': token } });
-      onLogin(token);
+      await customFetch('/api/admin/stats', { headers: { 'X-Admin-Token': VALID_ADMIN_TOKEN } });
+      onLogin(VALID_ADMIN_TOKEN);
       setLoading(false);
       return;
     } catch (err: any) {
       if (err?.status === 401) {
-        // failed
+        setError('Xác thực máy chủ thất bại. Vui lòng kiểm tra lại.');
+        setLoading(false);
+        return;
       }
     }
-    // Fallback: allow default admin token acvn2026 or environment token
-    if (token === 'acvn2026' || (import.meta.env.VITE_ADMIN_TOKEN && token === import.meta.env.VITE_ADMIN_TOKEN)) {
-      onLogin(token);
-      setLoading(false);
-      return;
-    }
-    setError('Token không hợp lệ. Vui lòng kiểm tra lại.');
+
+    onLogin(VALID_ADMIN_TOKEN);
     setLoading(false);
   };
 
@@ -80,14 +89,30 @@ function LoginScreen({ onLogin }: { onLogin: (token: string) => void }) {
         </div>
         <form onSubmit={handleSubmit}>
           <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: 6, color: 'var(--color-ink)' }}>
-            Admin Token
+            ID
+          </label>
+          <input
+            type="text"
+            value={adminId}
+            onChange={(e) => setAdminId(e.target.value)}
+            placeholder="Nhập ID quản trị…"
+            autoFocus
+            autoComplete="username"
+            style={{
+              width: '100%', padding: '0.6rem 0.75rem', border: '1px solid var(--color-rule)',
+              borderRadius: 4, marginBottom: '0.85rem', fontSize: '0.95rem',
+              fontFamily: 'var(--font-sans)', boxSizing: 'border-box',
+            }}
+          />
+          <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: 6, color: 'var(--color-ink)' }}>
+            Password
           </label>
           <input
             type="password"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder="Nhập token quản trị…"
-            autoFocus
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="Nhập mật khẩu quản trị…"
+            autoComplete="current-password"
             style={{
               width: '100%', padding: '0.6rem 0.75rem', border: '1px solid var(--color-rule)',
               borderRadius: 4, marginBottom: '0.75rem', fontSize: '0.95rem',
@@ -99,11 +124,11 @@ function LoginScreen({ onLogin }: { onLogin: (token: string) => void }) {
           )}
           <button
             type="submit"
-            disabled={loading || !input}
+            disabled={loading || !adminId.trim() || !password}
             style={{
               width: '100%', background: 'var(--color-navy)', color: '#fff', border: 'none',
               borderRadius: 4, padding: '0.65rem', cursor: 'pointer', fontSize: '0.95rem',
-              fontFamily: 'var(--font-sans)', opacity: loading ? 0.7 : 1,
+              fontFamily: 'var(--font-sans)', opacity: loading || !adminId.trim() || !password ? 0.7 : 1,
             }}
           >
             {loading ? 'Đang xác thực…' : 'Đăng nhập'}
@@ -209,7 +234,7 @@ function Sidebar({ onLogout }: { onLogout: () => void }) {
 
 // ─── AdminLayout ──────────────────────────────────────────────────────────────
 
-const STORAGE_KEY = 'vp-admin-token';
+const STORAGE_KEY = 'vp-admin-auth-v2';
 
 export function AdminLayout({ children }: { children: ReactNode }) {
   const [token, setTokenState] = useState(() => localStorage.getItem(STORAGE_KEY) ?? '');
@@ -224,6 +249,7 @@ export function AdminLayout({ children }: { children: ReactNode }) {
 
   const logout = () => {
     localStorage.removeItem(STORAGE_KEY);
+    localStorage.removeItem('vp-admin-token');
     setTokenState('');
     setVerified(false);
   };
@@ -256,7 +282,12 @@ export function AdminLayout({ children }: { children: ReactNode }) {
   }, [token]);
 
   useEffect(() => {
-    if (!token) { setChecking(false); return; }
+    localStorage.removeItem('vp-admin-token');
+    if (!token || token !== VALID_ADMIN_TOKEN) {
+      logout();
+      setChecking(false);
+      return;
+    }
     customFetch('/api/admin/stats', { headers: { 'X-Admin-Token': token } })
       .then(() => {
         setVerified(true);
@@ -264,7 +295,7 @@ export function AdminLayout({ children }: { children: ReactNode }) {
       .catch((err: any) => {
         if (err?.status === 401) {
           logout();
-        } else if (token === 'acvn2026' || (import.meta.env.VITE_ADMIN_TOKEN && token === import.meta.env.VITE_ADMIN_TOKEN)) {
+        } else if (token === VALID_ADMIN_TOKEN) {
           setVerified(true);
         } else {
           logout();
