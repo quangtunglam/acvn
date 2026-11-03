@@ -282,9 +282,17 @@ export default function AdminArticles() {
                     onChange={(e) => setSelectedIds(e.target.checked ? [...selectedIds, a.id] : selectedIds.filter(id => id !== a.id))}
                   />
                 </td>
-                <td style={{ padding: '0.6rem 0.75rem', maxWidth: 340 }}>
+                <td style={{ padding: '0.6rem 0.75rem', maxWidth: 380 }}>
                   <div style={{ fontWeight: 600, color: 'var(--color-navy)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{a.title}</div>
-                  <div style={{ fontSize: '0.75rem', color: 'var(--color-ink-light)', fontFamily: 'var(--font-mono)' }}>{a.slug}</div>
+                  {a.summary && (
+                    <div style={{ fontSize: '0.78rem', color: '#475569', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginTop: 2 }}>
+                      {a.summary}
+                    </div>
+                  )}
+                  <div style={{ fontSize: '0.73rem', color: 'var(--color-ink-light)', fontFamily: 'var(--font-mono)', marginTop: 2, display: 'flex', gap: 6, alignItems: 'center' }}>
+                    {a.sourceName && <span style={{ background: '#f1f5f9', color: '#0f172a', padding: '1px 6px', borderRadius: 3, fontFamily: 'var(--font-sans)', fontWeight: 600 }}>{a.sourceName}</span>}
+                    <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{a.slug}</span>
+                  </div>
                 </td>
                 <td style={{ padding: '0.6rem 0.75rem', color: 'var(--color-ink-light)', whiteSpace: 'nowrap' }}>{a.category?.name ?? '—'}</td>
                 <td style={{ padding: '0.6rem 0.75rem', whiteSpace: 'nowrap' }}>
@@ -391,7 +399,7 @@ export default function AdminArticles() {
 
             <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', alignItems: 'center' }}>
               <Btn type="button" variant="secondary" onClick={handleTranslateAI} disabled={translating} style={{ marginRight: 'auto' }}>
-                {translating ? 'Đang dịch...' : '✨ Dịch AI sang Tiếng Việt'}
+                {translating ? 'Đang dịch Google Translate...' : '🌐 Dịch sang Tiếng Việt (Google Translate)'}
               </Btn>
               <Btn variant="ghost" type="button" onClick={() => setModal({ open: false, editing: null })}>Hủy</Btn>
               <Btn type="submit" disabled={saving}>{saving ? 'Đang lưu…' : modal.editing ? 'Cập nhật' : 'Tạo bài'}</Btn>

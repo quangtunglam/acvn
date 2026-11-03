@@ -237,8 +237,9 @@ function slugify(text) {
 
 function isVietnameseText(text) {
   if (!text) return false;
-  const matches = String(text).match(/[ăâđêôơưáàảãạắằẳẵặấầẩẫậéèẻẽẹếềểễệíìỉĩịóòỏõọốồổỗộớờởỡợúùủũụứừửữựýỳỷỹỵ]/gi);
-  return Boolean(matches && matches.length >= 3);
+  if (/[čďěňřšťůž]/i.test(text)) return false;
+  const matches = String(text).match(/[ăắằẳẵặấầẩẫậảạđẻẽẹếềểễệỉĩịỏõọốồổỗộơớờởỡợủũụưứừửữựỷỹỵ]/gi);
+  return Boolean(matches && matches.length >= 2);
 }
 
 async function googleTranslateText(text, targetLang = "vi") {
@@ -260,67 +261,54 @@ async function googleTranslateText(text, targetLang = "vi") {
   }
 }
 
+function extractCleanParagraphs(html) {
+  if (!html) return [];
+  const cleaned = html
+    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, " ")
+    .replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, " ")
+    .replace(/<nav\b[^<]*(?:(?!<\/nav>)<[^<]*)*<\/nav>/gi, " ")
+    .replace(/<header\b[^<]*(?:(?!<\/header>)<[^<]*)*<\/header>/gi, " ")
+    .replace(/<footer\b[^<]*(?:(?!<\/footer>)<[^<]*)*<\/footer>/gi, " ")
+    .replace(/<aside\b[^<]*(?:(?!<\/aside>)<[^<]*)*<\/aside>/gi, " ");
+
+  const pMatches = cleaned.match(/<p[^>]*>[\s\S]*?<\/p>/gi) || [];
+  const noiseRegex = /Rubriky|Hlavní události|SLEDOVAT|Živé vysílání|Teletext|cookie|javascript|copyright|reklama|souhlas|přihlásit|předplatné|newsletter|Všechna práva/i;
+  const paragraphs = [];
+  const seen = new Set();
+
+  for (const rawP of pMatches) {
+    const text = rawP
+      .replace(/<[^>]+>/g, " ")
+      .replace(/&nbsp;/gi, " ")
+      .replace(/&amp;/gi, "&")
+      .replace(/&quot;/gi, '"')
+      .replace(/&#39;/gi, "'")
+      .replace(/\s+/g, " ")
+      .trim();
+    if (text.length < 55) continue;
+    if (!/[.,!?]/.test(text)) continue;
+    if (noiseRegex.test(text)) continue;
+    if (seen.has(text)) continue;
+    seen.add(text);
+    paragraphs.push(text);
+    if (paragraphs.length >= 16) break;
+  }
+  return paragraphs;
+}
+
 async function translateArticleToVietnamese(title, summary, htmlContent, fullHtml = "") {
-  const apiKey = process.env.AI_INTEGRATIONS_GEMINI_API_KEY || process.env.GEMINI_API_KEY;
-  const baseUrl = process.env.AI_INTEGRATIONS_GEMINI_BASE_URL;
-
-  if (apiKey) {
-    for (const modelName of ["gemini-3.6-flash", "gemini-2.5-flash"]) {
-      try {
-        const ai = new GoogleGenAI({
-          apiKey,
-          ...(baseUrl ? { httpOptions: { apiVersion: "", baseUrl } } : {}),
-        });
-        const prompt = fullHtml
-          ? `Bạn là một biên tập viên báo chí. Đây là mã HTML từ một trang web tin tức nước ngoài.
-Nhiệm vụ của bạn là TRÍCH XUẤT nội dung chính của bài báo, sau đó DỊCH sang tiếng Việt chuẩn văn phong báo chí.
-Trả về ĐÚNG định dạng JSON nguyên chất (không có markdown code block) với 3 key:
-- "title": Tiêu đề bài viết bằng tiếng Việt.
-- "summary": Tóm tắt nội dung bằng tiếng Việt (tối đa 250 ký tự).
-- "content": Nội dung chính của bài báo bằng tiếng Việt (giữ lại các thẻ HTML cơ bản p, h2, h3, ul, li, strong, em).
-
-Tiêu đề dự phòng: ${title}
-Tóm tắt dự phòng: ${summary}
-HTML Bài báo:
-${fullHtml.slice(0, 60000)}`
-          : `Dịch các trường sau sang tiếng Việt chuẩn báo chí. Trả về ĐÚNG định dạng JSON nguyên chất (không có markdown code block) với 3 key: "title", "summary", "content". Giữ nguyên HTML trong content.\n\nJSON gốc:\n${JSON.stringify({ title, summary, content: String(htmlContent || "").slice(0, 15000) })}`;
-
-        const response = await ai.models.generateContent({
-          model: modelName,
-          contents: prompt,
-          config: {
-            temperature: 0.3,
-            responseMimeType: "application/json",
-          },
-        });
-        let rawText = (response.text || "{}").replace(/^```json\s*/i, "").replace(/```\s*$/i, "").trim();
-        const parsed = JSON.parse(rawText);
-        if (parsed && parsed.title) {
-          return {
-            title: parsed.title,
-            summary: parsed.summary || summary,
-            content: parsed.content || htmlContent,
-          };
-        }
-      } catch {}
-    }
-  }
-
-  // Fallback to Google Translate GTX endpoint
-  const translatedTitle = await googleTranslateText(title, "vi");
-  const translatedSummary = await googleTranslateText(summary, "vi");
-
   let sourceHtml = htmlContent || "";
-  if (fullHtml && (!sourceHtml || sourceHtml.length < 300)) {
-    const pMatches = fullHtml.match(/<p[^>]*>[\s\S]*?<\/p>/gi) || [];
-    const goodPs = pMatches
-      .map((p) => p.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim())
-      .filter((t) => t.length > 50 && !/cookie|javascript|copyright|reklama/i.test(t))
-      .slice(0, 15);
-    if (goodPs.length > 0) {
-      sourceHtml = goodPs.map((p) => `<p>${p}</p>`).join("\n");
+  if (fullHtml) {
+    const extracted = extractCleanParagraphs(fullHtml);
+    if (extracted.length > 0) {
+      sourceHtml = extracted.map((p) => `<p>${p}</p>`).join("\n");
     }
   }
+
+  const [translatedTitle, translatedSummary] = await Promise.all([
+    googleTranslateText(title, "vi"),
+    googleTranslateText(summary, "vi"),
+  ]);
 
   let translatedContent = sourceHtml;
   if (translatedContent) {
@@ -337,13 +325,13 @@ ${fullHtml.slice(0, 60000)}`
     );
 
     if (blocks.length > 0) {
-      const joined = blocks.map((b) => b.plain).join("\n ||| \n");
+      const joined = blocks.map((b) => b.plain).join("\n\n");
       const translatedJoined = await googleTranslateText(joined, "vi");
-      const splitParts = translatedJoined.split(/\s*\|\|\|\s*/);
+      const splitParts = translatedJoined.split(/\n{2,}/);
       translatedContent = tokenized.replace(/__BLOCK_(\d+)__/g, (_, num) => {
         const i = Number(num);
         const b = blocks[i];
-        const t = splitParts[i] || b.plain;
+        const t = (splitParts[i] || b.plain).trim();
         return `<${b.tag}${b.attrs}>${t}</${b.tag}>`;
       });
     } else {
@@ -1239,7 +1227,7 @@ app.get("/api/admin/articles", requireAdmin, async (req, res) => {
       const [countRes, itemsRes] = await Promise.all([
         db.query(`SELECT COUNT(*)::int as total FROM articles a ${whereSql}`, params),
         db.query(
-          `${ARTICLE_SELECT_SQL} ${whereSql} ORDER BY a.created_at DESC LIMIT $${params.length + 1} OFFSET $${params.length + 2}`,
+          `${ARTICLE_SELECT_SQL} ${whereSql} ORDER BY COALESCE(a.updated_at, a.created_at) DESC, a.id DESC LIMIT $${params.length + 1} OFFSET $${params.length + 2}`,
           [...params, pageSize, offset]
         ),
       ]);
@@ -2564,18 +2552,29 @@ async function ingestSingleFeed(feed) {
       continue;
     }
 
+    let existingId = null;
     if (link) {
       if (useDb) {
         try {
-          const existing = await getPool().query("SELECT id FROM articles WHERE source_url = $1 LIMIT 1", [link]);
+          const existing = await getPool().query("SELECT id, title, summary FROM articles WHERE source_url = $1 LIMIT 1", [link]);
           if (existing.rows.length > 0) {
+            const ex = existing.rows[0];
+            if (isVietnameseText(`${ex.title || ""} ${ex.summary || ""}`)) {
+              result.skipped++;
+              continue;
+            }
+            existingId = ex.id;
+          }
+        } catch {}
+      } else {
+        const ex = store.articles.find((a) => a.sourceUrl === link);
+        if (ex) {
+          if (isVietnameseText(`${ex.title || ""} ${ex.summary || ""}`)) {
             result.skipped++;
             continue;
           }
-        } catch {}
-      } else if (store.articles.some((a) => a.sourceUrl === link)) {
-        result.skipped++;
-        continue;
+          existingId = ex.id;
+        }
       }
     }
 
@@ -2606,10 +2605,6 @@ async function ingestSingleFeed(feed) {
               fullHtml.match(/<meta[^>]*content=["']([^"']+)["'][^>]*property=["']og:image["']/i);
             if (ogMatch && ogMatch[1]?.startsWith("http")) coverImage = ogMatch[1];
           }
-          fullHtml = fullHtml
-            .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, "")
-            .replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, "")
-            .slice(0, 80000);
         }
       } catch {}
     }
@@ -2623,12 +2618,8 @@ async function ingestSingleFeed(feed) {
       } catch (err) {
         result.errors.push(`Dịch lỗi "${rawTitle.slice(0, 40)}": ${err.message}`);
       }
-    } else if (fullHtml && content.length < 300) {
-      const pMatches = fullHtml.match(/<p[^>]*>[\s\S]*?<\/p>/gi) || [];
-      const goodPs = pMatches
-        .map((p) => p.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim())
-        .filter((t) => t.length > 50)
-        .slice(0, 15);
+    } else if (fullHtml) {
+      const goodPs = extractCleanParagraphs(fullHtml);
       if (goodPs.length > 0) {
         content = goodPs.map((p) => `<p>${p}</p>`).join("\n");
       }
@@ -2640,24 +2631,34 @@ async function ingestSingleFeed(feed) {
 
     if (useDb) {
       try {
-        await getPool().query(
-          `INSERT INTO articles (
-            title, slug, summary, content, cover_image, category_id, country_id,
-            source_name, source_url, editor, published_at, featured, breaking_news, status
-          ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,'ACVN',$10,false,false,'draft')`,
-          [
-            title,
-            baseSlug,
-            summary,
-            content,
-            coverImage,
-            feed.category_id ?? feed.categoryId ?? 1,
-            feed.country_id ?? feed.countryId ?? null,
-            feed.name,
-            link || null,
-            validPubDate,
-          ]
-        );
+        if (existingId) {
+          await getPool().query(
+            `UPDATE articles
+             SET title = $1, slug = $2, summary = $3, content = $4,
+                 cover_image = COALESCE($5, cover_image), source_name = $6, updated_at = NOW()
+             WHERE id = $7`,
+            [title, baseSlug, summary, content, coverImage, feed.name, existingId]
+          );
+        } else {
+          await getPool().query(
+            `INSERT INTO articles (
+              title, slug, summary, content, cover_image, category_id, country_id,
+              source_name, source_url, editor, published_at, featured, breaking_news, status
+            ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,'ACVN',$10,false,false,'draft')`,
+            [
+              title,
+              baseSlug,
+              summary,
+              content,
+              coverImage,
+              feed.category_id ?? feed.categoryId ?? 1,
+              feed.country_id ?? feed.countryId ?? null,
+              feed.name,
+              link || null,
+              validPubDate,
+            ]
+          );
+        }
         result.imported++;
         continue;
       } catch (err) {
@@ -2692,6 +2693,18 @@ async function ingestSingleFeed(feed) {
 
   if (useDb) {
     try {
+      await getPool().query(
+        `DELETE FROM articles
+         WHERE id IN (
+           SELECT id FROM (
+             SELECT id, ROW_NUMBER() OVER (ORDER BY COALESCE(updated_at, created_at) DESC, id DESC) as rn
+             FROM articles
+             WHERE status = 'draft' AND source_name = $1
+           ) t
+           WHERE t.rn > 20
+         )`,
+        [feed.name]
+      );
       await getPool().query(
         "UPDATE rss_feeds SET last_fetched_at = NOW(), items_imported = COALESCE(items_imported, 0) + $1 WHERE id = $2",
         [result.imported, feed.id]
