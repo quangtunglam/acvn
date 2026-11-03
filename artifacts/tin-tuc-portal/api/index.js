@@ -975,16 +975,18 @@ app.post("/api/register/member", async (req, res) => {
     try {
       const { rows } = await getPool().query(
         `INSERT INTO member_registrations
-          (full_name, email, phone, date_of_birth, city, country, occupation, reason, member_type, read)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, false) RETURNING id`,
+          (full_name, email, phone, date_of_birth, address, city, country, occupation, notes, reason, member_type, read)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, false) RETURNING id`,
         [
           fullName.trim(),
           email.toLowerCase().trim(),
           phone?.trim() || null,
           dateOfBirth?.trim() || null,
+          city?.trim() || country?.trim() || "Cộng hòa Séc",
           city?.trim() || null,
           country?.trim() || "Cộng hòa Séc",
           occupation?.trim() || null,
+          reason?.trim() || null,
           reason?.trim() || null,
           memberType || "individual",
         ]
@@ -1032,15 +1034,17 @@ app.post("/api/register/sponsor", async (req, res) => {
     try {
       const { rows } = await getPool().query(
         `INSERT INTO sponsor_registrations
-          (org_name, contact_name, email, phone, website, sponsor_type, message, budget, read)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, false) RETURNING id`,
+          (org_name, representative, contact_name, email, phone, website, sponsor_type, details, message, budget, read)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, false) RETURNING id`,
         [
           orgName.trim(),
+          contactName.trim(),
           contactName.trim(),
           email.toLowerCase().trim(),
           phone?.trim() || null,
           website?.trim() || null,
           sponsorType || "silver",
+          message?.trim() || null,
           message?.trim() || null,
           budget?.trim() || null,
         ]
